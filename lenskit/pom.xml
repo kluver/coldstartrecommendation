@@ -17,8 +17,8 @@
     <!-- The version of LensKit for your project -->
     <!-- Note that we use project.version to pick up the version from the 
          source tree this archetype is being built from. -->
-    <lenskit.version>2.0.3.2</lenskit.version>
-
+    <lenskit.version>2.1-SNAPSHOT</lenskit.version>
+ 
     <!-- The location of the Rscript executable. The default is to search 
          for Rscript in your PATH. If you need to override this, it should probably
          be done in ~/.m2/settings.xml rather than here. -->
