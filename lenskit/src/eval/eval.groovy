@@ -1,6 +1,14 @@
+import coldstartrecommendation.OracleRatingPredictor
 import org.grouplens.lenskit.ItemScorer
+import org.grouplens.lenskit.RatingPredictor
+import org.grouplens.lenskit.data.dao.EventDAO
+import org.grouplens.lenskit.eval.data.DataSource
 import org.grouplens.lenskit.eval.data.crossfold.RandomOrder
-
+import org.grouplens.lenskit.eval.metrics.predict.CoveragePredictMetric
+import org.grouplens.lenskit.eval.metrics.predict.EntropyPredictMetric
+import org.grouplens.lenskit.eval.metrics.predict.MAEPredictMetric
+import org.grouplens.lenskit.eval.metrics.predict.NDCGPredictMetric
+import org.grouplens.lenskit.eval.metrics.predict.RMSEPredictMetric
 import org.grouplens.lenskit.knn.NeighborhoodSize
 import org.grouplens.lenskit.knn.item.*
 import org.grouplens.lenskit.knn.user.*
@@ -9,40 +17,42 @@ import org.grouplens.lenskit.transform.normalize.*
 
 import org.apache.commons.lang3.BooleanUtils
 
-def zipFile = "${config.dataDir}/ml100k.zip"
-def dataDir = config.get('mldata.directory', "${config.dataDir}/ml100k")
+def zipFile = "${config.dataDir}/ml-1m.zip"
+def dataDir = config.get('mldata.directory', "${config.dataDir}/ml-1m")
 def MAX=20
 
 // This target unpacks the data
-target('download') {
+sourceDataset = target('download') {
     ant.mkdir(dir: config.dataDir)
-    ant.get(src: 'http://www.grouplens.org/system/files/ml-100k.zip',
+    ant.get(src: 'http://files.grouplens.org/datasets/movielens/ml-1m.zip',
             dest: zipFile,
             skipExisting: true)
     ant.unzip(src: zipFile, dest: dataDir) {
         patternset {
-            include name: 'ml-100k/*'
+            include name: 'ml-1m/*'
         }
         mapper type: 'flatten'
+    }
+    csvfile("${dataDir}/ratings.dat") {
+        delimiter "::"
+        domain {
+            minimum 1
+            maximum 5
+            precision 0.5
+        }
     }
 }
 
 data = []
 
 def datasets = target('do-crossfolds') {
-    requires 'download'
+    requires sourceDataset
+    
     for (i in 0..MAX) {
         d = crossfold (""+i) {
-            source csvfile("${dataDir}/u.data") {
-                delimiter "\t"
-                domain {
-                    minimum 1.0
-                    maximum 5.0
-                    precision 1.0
-                }
-            }
-            test "${config.dataDir}/ml100k-crossfold/test"+i+".%d.csv"
-            train "${config.dataDir}/ml100k-crossfold/train"+i+".%d.csv"
+            source sourceDataset
+            test "${config.dataDir}/ml-1m-crossfold/test"+i+".%d.csv"
+            train "${config.dataDir}/ml-1m-crossfold/train"+i+".%d.csv"
             order RandomOrder
             retain i
             partitions 5
@@ -94,11 +104,29 @@ def useruser = algorithm("UserUser") {
         set MeanDamping to 25.0d
     }
 }
+/*
+def ds = csvfile("${dataDir}/ratings.dat") {
+    delimiter "::"
+    domain {
+        minimum 1
+        maximum 5
+        precision 0.5
+    }
+    cache true
+}
+
+def oracle = algorithm("Oracle") {
+    bind RatingPredictor to OracleRatingPredictor
+    within (OracleRatingPredictor) {
+        bind DataSource to ds
+        bind EventDAO to ds.getEventDAO()
+    }
+}*/
 
 target('evaluate') {
     // this requires the ml100k target to be run first
     // can either reference a target by object or by name (as above)
-    requires datasets
+    requires "do-crossfolds"
 
     trainTest {
         for (d in data) {
@@ -112,10 +140,13 @@ target('evaluate') {
 
         metric CoveragePredictMetric
         metric RMSEPredictMetric
+        metric MAEPredictMetric
         metric NDCGPredictMetric
-
+        metric EntropyPredictMetric
+        
         algorithm itemitem
-        //algorithm useruser
+        //algorithm oracle
+        algorithm useruser
     }
 }
 
