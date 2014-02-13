@@ -1,29 +1,39 @@
-import coldstartrecommendation.OracleRatingPredictor
+import coldstartrecommendation.BaselineMixingItemScorer
+import coldstartrecommendation.WeightSymbol
 import org.grouplens.lenskit.ItemScorer
-import org.grouplens.lenskit.RatingPredictor
-import org.grouplens.lenskit.data.dao.EventDAO
-import org.grouplens.lenskit.eval.data.DataSource
-import org.grouplens.lenskit.eval.data.crossfold.RandomOrder
-import org.grouplens.lenskit.eval.metrics.predict.CoveragePredictMetric
-import org.grouplens.lenskit.eval.metrics.predict.EntropyPredictMetric
-import org.grouplens.lenskit.eval.metrics.predict.MAEPredictMetric
-import org.grouplens.lenskit.eval.metrics.predict.NDCGPredictMetric
-import org.grouplens.lenskit.eval.metrics.predict.RMSEPredictMetric
-import org.grouplens.lenskit.knn.NeighborhoodSize
-import org.grouplens.lenskit.knn.item.*
-import org.grouplens.lenskit.knn.user.*
 import org.grouplens.lenskit.baseline.*
-import org.grouplens.lenskit.transform.normalize.*
-
-import org.apache.commons.lang3.BooleanUtils
+import org.grouplens.lenskit.eval.data.crossfold.CrossfoldMethod
+import org.grouplens.lenskit.eval.data.crossfold.RandomOrder
+import org.grouplens.lenskit.eval.metrics.predict.*
+import org.grouplens.lenskit.eval.metrics.topn.ItemSelectors
+import org.grouplens.lenskit.eval.metrics.topn.ItemSimilarityMetric
+import org.grouplens.lenskit.iterative.IterationCount
+import org.grouplens.lenskit.knn.NeighborhoodSize
+import org.grouplens.lenskit.knn.item.ItemItemScorer
+import org.grouplens.lenskit.knn.item.ItemSimilarity
+import org.grouplens.lenskit.knn.item.ItemSimilarityThreshold
+import org.grouplens.lenskit.knn.item.ModelSize
+import org.grouplens.lenskit.knn.item.WeightedAverageNeighborhoodScorer
+import org.grouplens.lenskit.knn.item.model.ItemItemBuildContext
+import org.grouplens.lenskit.knn.item.model.ItemItemModel
+import org.grouplens.lenskit.knn.user.UserUserItemScorer
+import org.grouplens.lenskit.mf.funksvd.FeatureCount
+import org.grouplens.lenskit.mf.funksvd.FunkSVDItemScorer
+import org.grouplens.lenskit.symbols.Symbol
+import org.grouplens.lenskit.transform.normalize.BaselineSubtractingUserVectorNormalizer
+import org.grouplens.lenskit.transform.normalize.UserVectorNormalizer
+import org.grouplens.lenskit.transform.threshold.NoThreshold
+import org.grouplens.lenskit.transform.threshold.Threshold
 import org.grouplens.lenskit.vectors.similarity.CosineVectorSimilarity
 import org.grouplens.lenskit.vectors.similarity.VectorSimilarity
 
-def MAX=19
+//def sizes = [0,2,4,8,12,16,19,32,64,128]
+//def sizes = [0,2,4,8,16,19]
+def sizes = [0,3,9,18]
 
 // This target unpacks the data
 sourceDataset100k = target('download100k') {
-    
+
     def zipFile = "${config.dataDir}/ml-100k.zip"
     def dataDir = config.get('mldata.directory', "${config.dataDir}/ml-100k")
 
@@ -76,20 +86,52 @@ sourceDataset1m = target('download1m') {
     }
 }
 
+// This target unpacks the data
+sourceDataset10m = target('download10m') {
+    def zipFile = "${config.dataDir}/ml-10m.zip"
+    def dataDir = config.get('mldata.directory', "${config.dataDir}/ml-10M100K")
+
+    ant.mkdir(dir: config.dataDir)
+    ant.get(src: 'http://files.grouplens.org/datasets/movielens/ml-10m.zip',
+            dest: zipFile,
+            skipExisting: true)
+    ant.unzip(src: zipFile, dest: dataDir) {
+        patternset {
+            include name: 'ml-10M100K/*'
+        }
+        mapper type: 'flatten'
+    }
+    perform {
+        csvfile("${dataDir}/ratings.dat") {
+            delimiter "::"
+            domain {
+                minimum 1
+                maximum 5
+                precision 0.5
+            }
+        }
+    }
+}
+
 def sourceDataset = sourceDataset1m
 
 def datasets = target('do-crossfolds') {
     requires sourceDataset
     
     def data = []
-    for (i in (0 .. 9).collect{it*2}) {
-        d = crossfold (""+i) {
-            source sourceDataset
-            test "${config.dataDir}/ml-1m-crossfold/test"+i+".%d.csv"
-            train "${config.dataDir}/ml-1m-crossfold/train"+i+".%d.csv"
-            order RandomOrder
-            retain i
-            partitions 5
+    for (i in sizes) {
+        d = /*pack {
+            dataset*/ crossfold (""+i) {
+                source sourceDataset
+                test "${config.dataDir}/${sourceDataset.name}-crossfold/test"+i+".%d.csv"
+                train "${config.dataDir}/${sourceDataset.name}-crossfold/train"+i+".%d.csv"
+                order RandomOrder
+                retain i
+                partitions 5
+                method CrossfoldMethod.SAMPLE_USERS
+                sampleSize 100
+            //}
+            //includeTimestamps false
         }
         data +=d
     }
@@ -106,11 +148,12 @@ target('evaluate') {
     // this requires the ml100k target to be run first
     // can either reference a target by object or by name (as above)
     requires datasets
-
+    
     trainTest {
         dataset datasets
-        
-        
+
+        componentCacheDirectory "${config.analysisDir}/cache"
+
         // Three different types of output for analysis.
         output "${config.analysisDir}/eval-results.csv"
         predictOutput "${config.analysisDir}/eval-preds.csv"
@@ -122,59 +165,142 @@ target('evaluate') {
         metric NDCGPredictMetric
         metric EntropyPredictMetric
 
-        algorithm("UserItemBaseline5") {
-            bind ItemScorer to UserMeanItemScorer
-            bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
-            set MeanDamping to 5.0d
+        def topNConfig = {
+            listSize 10
+            candidates ItemSelectors.allItems()
+            exclude ItemSelectors.trainingItems()
         }
+
+        metric topNnDCG {
+            listSize 10
+            candidates ItemSelectors.addNRandom(ItemSelectors.testItems(), 1000)
+            exclude ItemSelectors.trainingItems()
+        }
+        metric (topNLength(topNConfig))
+        metric (topNPopularity(topNConfig))
+        metric (topNDiversity(topNConfig))
         
-        algorithm("ItemBaseline5") {
-            bind ItemScorer to ItemMeanRatingItemScorer
-            set MeanDamping to 5.0d
-        }
-
-        algorithm("ItemItemItemBaseLine") {
-            // use the item-item rating predictor with a baseline and normalizer
-            bind ItemScorer to ItemItemScorer
-            bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
-            bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
-            bind VectorSimilarity to CosineVectorSimilarity
-
-            // retain 500 neighbors in the model, use 30 for prediction
-            set ModelSize to 250
-            set NeighborhoodSize to 50
-
-            // apply some Bayesian smoothing to the mean values
-            within(BaselineScorer, ItemScorer) {
-                set MeanDamping to 5.0d
+        def diversityConfig = {
+            root (ItemSimilarityMetric)
+            within (ItemSimilarityMetric) {
+                bind VectorSimilarity to CosineVectorSimilarity
+                bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
+                within (UserVectorNormalizer) {
+                    bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
+                    set MeanDamping to 5.0d
+                }
             }
         }
+        
+        algorithm("ItemBaseline") {
+            bind ItemScorer to ItemMeanRatingItemScorer
+            set MeanDamping to 5.0d
+            include diversityConfig
+        }
 
-        algorithm("ItemItemNoBaseLine") {
-            // use the item-item rating predictor with a baseline and normalizer
+        algorithm("UserItemBaseline") {
+            bind ItemScorer to UserMeanItemScorer
+            bind (UserMeanBaseline, ItemScorer)to ItemMeanRatingItemScorer
+            set MeanDamping to 5.0d
+            include diversityConfig
+        }
+
+        algorithm("ItemItem") {
             bind ItemScorer to ItemItemScorer
+            within (ItemScorer) {
+                bind VectorSimilarity to CosineVectorSimilarity
+                bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
+                within (UserVectorNormalizer) {
+                    bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
+                    set MeanDamping to 5.0d
+                }
+                set ModelSize to 250
+                set NeighborhoodSize to 50
+            }
+            bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
+            set MeanDamping to 5.0d
+            
+            include diversityConfig
+        }
+        
+        
+        algorithm("UserUser") {
+            bind ItemScorer to UserUserItemScorer
             bind VectorSimilarity to CosineVectorSimilarity
-            //bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
-            //bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
-            //bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
-
-            // retain 500 neighbors in the model, use 30 for prediction
+            bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
+            bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
+            bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
+            set MeanDamping to 5.0d
             set ModelSize to 250
             set NeighborhoodSize to 50
 
-            // apply some Bayesian smoothing to the mean values
-            //within(BaselineScorer, ItemScorer) {
-            //    set MeanDamping to 25.0d
-            //}
+            include diversityConfig
         }
-        //algorithm oracle
-        //algorithm useruser
+
+        algorithm("ScaledUserUser") {
+            bind ItemScorer to BaselineMixingItemScorer
+            within (BaselineMixingItemScorer) {
+                bind ItemScorer to UserUserItemScorer
+                bind VectorSimilarity to CosineVectorSimilarity
+                bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
+                set ModelSize to 250
+                set NeighborhoodSize to 50
+            }
+            bind (WeightSymbol, Symbol) to UserUserItemScorer.NEIGHBORHOOD_WEIGHT_SYMBOL
+            bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
+            bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
+            set MeanDamping to 5.0d
+
+            include diversityConfig
+        }
+
+        algorithm("ScaledItemItem") {
+            bind ItemScorer to BaselineMixingItemScorer
+            within (ItemScorer) {
+                bind ItemScorer to ItemItemScorer
+                bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
+                bind VectorSimilarity to CosineVectorSimilarity
+                within (UserVectorNormalizer) {
+                    bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
+                    set MeanDamping to 5.0d
+                }
+                // retain 500 neighbors in the model, use 30 for prediction
+                set ModelSize to 250
+                set NeighborhoodSize to 50
+            }
+            bind (WeightSymbol, Symbol) to WeightedAverageNeighborhoodScorer.NEIGHBORHOOD_WEIGHT_SYMBOL
+            bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
+            bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
+            set MeanDamping to 5.0d
+            include diversityConfig
+        }
+        
+        algorithm("svd") {
+            bind ItemScorer to FunkSVDItemScorer
+            bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
+            bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
+            set MeanDamping to 5.0d
+            set FeatureCount to 25
+            set IterationCount to 125
+            include diversityConfig
+        }
+        
+        writePredictionChannel(ItemItemScorer.NEIGHBORHOOD_SIZE_SYMBOL,"nhbd")
+        writePredictionChannel(WeightedAverageNeighborhoodScorer.NEIGHBORHOOD_WEIGHT_SYMBOL, "simsum")
     }
 }
 
+/*target('dump') {
+    dumpGraph {
+        output "graph.dot"
+        algorithm uu
+    }
+}*/
+    
 // After running the evaluation, let's analyze the results
 target('analyze') {
     requires 'evaluate'
+    //requires 'dump'
     // Run R. Note that the script is run in the analysis directory; you might want to
     // copy all R scripts there instead of running them from the source dir.
     ant.exec(executable: config["rscript.executable"], dir: config.analysisDir) {

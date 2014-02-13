@@ -50,6 +50,11 @@
           <artifactId>lenskit-eval</artifactId>
           <version>${lenskit.version}</version>
       </dependency>
+      <dependency>
+          <groupId>org.grouplens.lenskit</groupId>
+          <artifactId>lenskit-svd</artifactId>
+          <version>${lenskit.version}</version>
+      </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
