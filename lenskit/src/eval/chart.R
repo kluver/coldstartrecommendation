@@ -13,7 +13,14 @@ for (metric in c("Coverage","RMSE","MAE","nDCG","Information.ByUser", "TopN.nDCG
   plot = ggplot(all.mean, aes_string(x="DataSet", y=metric, color="Algorithm"))+geom_line()+geom_point()
   filename = paste(metric,".pdf",sep="")
   cat("Outputting to",filename,"\n")
-  pdf(filename,paper="letter", width=0, height=0)
+  pdf(filename, width=11, height=8.5)
   print(plot)
   dev.off()
 }
+
+
+dat <- read.csv("eval-results.csv")
+plot = ggplot(dat, aes(x=DataSet, y=TopN.pop.entropy, color=Algorithm))+geom_point()+stat_summary(fun.y=mean, geom="line")
+pdf("topN.pop.entropy.pdf", width=11, height=8.5)
+print(plot)
+dev.off()

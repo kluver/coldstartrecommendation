@@ -27,9 +27,9 @@ import org.grouplens.lenskit.transform.threshold.Threshold
 import org.grouplens.lenskit.vectors.similarity.CosineVectorSimilarity
 import org.grouplens.lenskit.vectors.similarity.VectorSimilarity
 
-//def sizes = [0,2,4,8,12,16,19,32,64,128]
+def sizes = [0,2,4,8,12,16,19,32,64,128]
 //def sizes = [0,2,4,8,16,19]
-def sizes = [0,3,9,18]
+//def sizes = [0,3,9,18]
 
 // This target unpacks the data
 sourceDataset100k = target('download100k') {
@@ -129,7 +129,7 @@ def datasets = target('do-crossfolds') {
                 retain i
                 partitions 5
                 method CrossfoldMethod.SAMPLE_USERS
-                sampleSize 100
+                sampleSize 1000
             //}
             //includeTimestamps false
         }
@@ -179,6 +179,7 @@ target('evaluate') {
         metric (topNLength(topNConfig))
         metric (topNPopularity(topNConfig))
         metric (topNDiversity(topNConfig))
+        metric (topNEntropy(topNConfig))
         
         def diversityConfig = {
             root (ItemSimilarityMetric)
