@@ -7,10 +7,8 @@ all.data <- read.csv("eval-user.csv")
 
 serr = function(d) {qnorm(0.975)*sd(d)/sqrt(length(d))}
 
-all.mean <- aggregate(cbind(Coverage, RMSE, MAE, nDCG, Information.ByUser, TopN.nDCG, TopN.ActualLength, TopN.avgPop, TopN.diversity) ~ Algorithm+DataSet, data=all.data, mean)
-
-for (metric in c("Coverage","RMSE","MAE","nDCG","Information.ByUser", "TopN.nDCG", "TopN.ActualLength", "TopN.avgPop", "TopN.diversity")) {
-  plot = ggplot(all.mean, aes_string(x="DataSet", y=metric, color="Algorithm"))+geom_line()+geom_point()
+for (metric in c("Coverage","RMSE","MAE","nDCG","Information.ByUser", "TopN.nDCG", "TopN.ActualLength", "TopN.avgPop", "TopN.diversity", "recall.100", "recall.500", "recall.1000", "fallout","recall.allTest")) {
+  plot = ggplot(all.data, aes_string(x="DataSet", y=metric, color="Algorithm"))+stat_summary(fun.y=mean, geom="line") + stat_summary(fun.data = mean_cl_boot, geom="errorbar")
   filename = paste(metric,".pdf",sep="")
   cat("Outputting to",filename,"\n")
   pdf(filename, width=11, height=8.5)

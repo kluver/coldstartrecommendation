@@ -35,11 +35,11 @@
 	 pulled in transitively by the lenskit-eval-maven-plugin. The version you 
 	 get is based on the version of the archetype you used to create this project. -->
 
-    <dependency>
-      <groupId>org.grouplens.lenskit</groupId>
-      <artifactId>lenskit-core</artifactId>
-      <version>${lenskit.version}</version>
-    </dependency>
+      <dependency>
+          <groupId>org.grouplens.lenskit</groupId>
+          <artifactId>lenskit-core</artifactId>
+          <version>${lenskit.version}</version>
+      </dependency>
       <dependency>
           <groupId>org.grouplens.lenskit</groupId>
           <artifactId>lenskit-knn</artifactId>

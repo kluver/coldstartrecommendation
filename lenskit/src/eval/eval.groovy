@@ -1,4 +1,5 @@
 import coldstartrecommendation.BaselineMixingItemScorer
+import coldstartrecommendation.MixingWeight
 import coldstartrecommendation.WeightSymbol
 import org.grouplens.lenskit.ItemScorer
 import org.grouplens.lenskit.baseline.*
@@ -6,7 +7,9 @@ import org.grouplens.lenskit.eval.data.crossfold.CrossfoldMethod
 import org.grouplens.lenskit.eval.data.crossfold.RandomOrder
 import org.grouplens.lenskit.eval.metrics.predict.*
 import org.grouplens.lenskit.eval.metrics.topn.ItemSelectors
-import org.grouplens.lenskit.eval.metrics.topn.ItemSimilarityMetric
+import ItemSimilarityMetric
+import org.grouplens.lenskit.eval.metrics.topn.RecallTopNMetric
+import org.grouplens.lenskit.eval.metrics.topn.TopNByItemRecallMetric
 import org.grouplens.lenskit.iterative.IterationCount
 import org.grouplens.lenskit.knn.NeighborhoodSize
 import org.grouplens.lenskit.knn.item.ItemItemScorer
@@ -26,10 +29,16 @@ import org.grouplens.lenskit.transform.threshold.NoThreshold
 import org.grouplens.lenskit.transform.threshold.Threshold
 import org.grouplens.lenskit.vectors.similarity.CosineVectorSimilarity
 import org.grouplens.lenskit.vectors.similarity.VectorSimilarity
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers
+import org.hamcrest.collection.IsIn
 
-def sizes = [0,2,4,8,12,16,19,32,64,128]
-//def sizes = [0,2,4,8,16,19]
+//def sizes = [0,2,4,8,12,16,19,32,64,128]
+//def sizes = [0,2,4,8,12,16,19]
+def sizes = [0,2,4,8,16,19]
 //def sizes = [0,3,9,18]
+//def sizes = [0,1,2,4,8]
 
 // This target unpacks the data
 sourceDataset100k = target('download100k') {
@@ -128,8 +137,8 @@ def datasets = target('do-crossfolds') {
                 order RandomOrder
                 retain i
                 partitions 5
-                method CrossfoldMethod.SAMPLE_USERS
-                sampleSize 1000
+                //method CrossfoldMethod.SAMPLE_USERS
+                //sampleSize 1000
             //}
             //includeTimestamps false
         }
@@ -178,8 +187,51 @@ target('evaluate') {
         }
         metric (topNLength(topNConfig))
         metric (topNPopularity(topNConfig))
-        metric (topNDiversity(topNConfig))
         metric (topNEntropy(topNConfig))
+        metric new TopNDiversityMetric.Builder()
+                .setListSize(10)
+                .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .build();
+/*
+        metric new TopNByItemRecallMetric.Builder()
+                .setLbl("recall.100")
+                .setListSize(20)
+                .setnExtra(100)
+                .setExclude(ItemSelectors.trainingItems())
+                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThan(4.5d)))
+                .build();
+
+        metric new TopNByItemRecallMetric.Builder()
+                .setLbl("recall.500")
+                .setListSize(20)
+                .setnExtra(500)
+                .setExclude(ItemSelectors.trainingItems())
+                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThan(4.5d)))
+                .build();
+
+        metric new TopNByItemRecallMetric.Builder()
+                .setLbl("recall.1000")
+                .setListSize(20)
+                .setnExtra(1000)
+                .setExclude(ItemSelectors.trainingItems())
+                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThan(4.5d)))
+                .build();
+
+        metric new TopNByItemRecallMetric.Builder()
+                .setLbl("fallout")
+                .setListSize(20)
+                .setnExtra(1000)
+                .setExclude(ItemSelectors.trainingItems())
+                .setTestItems(ItemSelectors.testRatingMatches(Matchers.lessThan(1.5d)))
+                .build();
+        
+        metric new RecallTopNMetric.Builder().setListSize(5)
+                .setLabel("recall.allTest")
+                .setCandidates(ItemSelectors.allItems())
+                .build()
+  */
+        
         
         def diversityConfig = {
             root (ItemSimilarityMetric)
@@ -223,9 +275,9 @@ target('evaluate') {
             
             include diversityConfig
         }
+/*        
         
-        
-        algorithm("UserUser") {
+        /*algorithm("UserUser") {
             bind ItemScorer to UserUserItemScorer
             bind VectorSimilarity to CosineVectorSimilarity
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
@@ -236,9 +288,9 @@ target('evaluate') {
             set NeighborhoodSize to 50
 
             include diversityConfig
-        }
-
-        algorithm("ScaledUserUser") {
+        }/**/
+        
+        /*algorithm("ScaledUserUser") {
             bind ItemScorer to BaselineMixingItemScorer
             within (BaselineMixingItemScorer) {
                 bind ItemScorer to UserUserItemScorer
@@ -253,9 +305,9 @@ target('evaluate') {
             set MeanDamping to 5.0d
 
             include diversityConfig
-        }
+        }/**/
 
-        algorithm("ScaledItemItem") {
+        /*algorithm("ScaledItemItem") {
             bind ItemScorer to BaselineMixingItemScorer
             within (ItemScorer) {
                 bind ItemScorer to ItemItemScorer
@@ -268,14 +320,16 @@ target('evaluate') {
                 // retain 500 neighbors in the model, use 30 for prediction
                 set ModelSize to 250
                 set NeighborhoodSize to 50
+                set MixingWeight to 1
             }
+
             bind (WeightSymbol, Symbol) to WeightedAverageNeighborhoodScorer.NEIGHBORHOOD_WEIGHT_SYMBOL
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
             bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
             set MeanDamping to 5.0d
             include diversityConfig
-        }
-        
+        }/**/
+  
         algorithm("svd") {
             bind ItemScorer to FunkSVDItemScorer
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
@@ -288,6 +342,7 @@ target('evaluate') {
         
         writePredictionChannel(ItemItemScorer.NEIGHBORHOOD_SIZE_SYMBOL,"nhbd")
         writePredictionChannel(WeightedAverageNeighborhoodScorer.NEIGHBORHOOD_WEIGHT_SYMBOL, "simsum")
+        
     }
 }
 

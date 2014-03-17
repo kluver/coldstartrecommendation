@@ -1,21 +1,16 @@
-^bin
-(^|/)target/
-^([^/]+/)?data/
-(^|/)\.(project|classpath)$
-(^|/)\.settings/
-(^|/)\.idea/
-\.iml$
-~$
-\.[ct]sv$
-\.i(ml|pr|ws)$
-^src/site/scss/\.sass-cache/
-^src/site/scss/.*\.css
+syntax: glob
 
-\.orig\..*$
-\.orig$
-\.chg\..*$
-\.rej$
-\.conflict\~$
+lenskit/output
+lenskit/target
+lenskit/.project
+lenskit/.classpath
+lenskit/.settings
+lenskit/.idea
+lenskit/.idea_modules
+*.iml
+*.ipr
+*.iws
 
-(^|/)TAGS$
-(^|/)ERRS$
+*~
+
+lenskit/do-eval
