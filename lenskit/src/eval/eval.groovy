@@ -1,15 +1,18 @@
 import coldstartrecommendation.BaselineMixingItemScorer
 import coldstartrecommendation.MixingWeight
+import coldstartrecommendation.OracleItemScorer
+import coldstartrecommendation.OracleItemScorer
 import coldstartrecommendation.WeightSymbol
 import org.grouplens.lenskit.ItemScorer
 import org.grouplens.lenskit.baseline.*
+import org.grouplens.lenskit.eval.data.DataSource
 import org.grouplens.lenskit.eval.data.crossfold.CrossfoldMethod
 import org.grouplens.lenskit.eval.data.crossfold.RandomOrder
 import org.grouplens.lenskit.eval.metrics.predict.*
 import org.grouplens.lenskit.eval.metrics.topn.ItemSelectors
 import ItemSimilarityMetric
-import org.grouplens.lenskit.eval.metrics.topn.RecallTopNMetric
-import org.grouplens.lenskit.eval.metrics.topn.TopNByItemRecallMetric
+import org.grouplens.lenskit.eval.metrics.topn.TopNIndependentRecallMetric
+import org.grouplens.lenskit.eval.metrics.topn.TopNRecallPrecisionMetric
 import org.grouplens.lenskit.iterative.IterationCount
 import org.grouplens.lenskit.knn.NeighborhoodSize
 import org.grouplens.lenskit.knn.item.ItemItemScorer
@@ -34,9 +37,10 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.collection.IsIn
 
-//def sizes = [0,2,4,8,12,16,19,32,64,128]
+def sizes = [0,2,4,8,12,16,19,32,64,128]
 //def sizes = [0,2,4,8,12,16,19]
-def sizes = [0,2,4,8,16,19]
+//def sizes = [0,2,4,8,16,19]
+//def sizes = [0,2,4,8]
 //def sizes = [0,3,9,18]
 //def sizes = [0,1,2,4,8]
 
@@ -153,10 +157,31 @@ def datasets = target('do-crossfolds') {
     }
 }
 
+tmp = target("tmp") {
+    requires sourceDataset
+    perform {
+        return algorithm("Oracle")  {
+            bind ItemScorer to OracleItemScorer;
+            set MeanDamping to 1.0d
+            within ItemScorer bind DataSource to sourceDataset.get()
+            root (ItemSimilarityMetric)
+            within (ItemSimilarityMetric) {
+                bind VectorSimilarity to CosineVectorSimilarity
+                bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
+                within (UserVectorNormalizer) {
+                    bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
+                    set MeanDamping to 5.0d
+                }
+            }
+        }
+    }
+}
+
 target('evaluate') {
     // this requires the ml100k target to be run first
     // can either reference a target by object or by name (as above)
     requires datasets
+    requires tmp
     
     trainTest {
         dataset datasets
@@ -175,14 +200,14 @@ target('evaluate') {
         metric EntropyPredictMetric
 
         def topNConfig = {
-            listSize 10
+            listSize 20
             candidates ItemSelectors.allItems()
             exclude ItemSelectors.trainingItems()
         }
 
         metric topNnDCG {
-            listSize 10
-            candidates ItemSelectors.addNRandom(ItemSelectors.testItems(), 1000)
+            listSize 20
+            candidates ItemSelectors.addNRandom(ItemSelectors.testItems(), 500)
             exclude ItemSelectors.trainingItems()
         }
         metric (topNLength(topNConfig))
@@ -192,45 +217,23 @@ target('evaluate') {
                 .setListSize(10)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
-                .build();
-/*
-        metric new TopNByItemRecallMetric.Builder()
-                .setLbl("recall.100")
-                .setListSize(20)
-                .setnExtra(100)
-                .setExclude(ItemSelectors.trainingItems())
-                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThan(4.5d)))
-                .build();
+                .build();/**/
 
-        metric new TopNByItemRecallMetric.Builder()
-                .setLbl("recall.500")
+        metric new TopNRecallPrecisionMetric.Builder()
                 .setListSize(20)
-                .setnExtra(500)
-                .setExclude(ItemSelectors.trainingItems())
-                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThan(4.5d)))
-                .build();
-
-        metric new TopNByItemRecallMetric.Builder()
-                .setLbl("recall.1000")
-                .setListSize(20)
-                .setnExtra(1000)
-                .setExclude(ItemSelectors.trainingItems())
-                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThan(4.5d)))
-                .build();
-
-        metric new TopNByItemRecallMetric.Builder()
-                .setLbl("fallout")
-                .setListSize(20)
-                .setnExtra(1000)
-                .setExclude(ItemSelectors.trainingItems())
-                .setTestItems(ItemSelectors.testRatingMatches(Matchers.lessThan(1.5d)))
-                .build();
-        
-        metric new RecallTopNMetric.Builder().setListSize(5)
-                .setLabel("recall.allTest")
                 .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
                 .build()
-  */
+        
+        metric new TopNIndependentRecallMetric.Builder()
+                .setListSize(20)
+                .setCandidates(ItemSelectors.nRandomFrom(ItemSelectors.everythingBut(ItemSelectors.union(ItemSelectors.testItems(), ItemSelectors.trainingItems())),500))
+                .setExclude(ItemSelectors.trainingItems())
+                .setTestItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
+                .build()
+        
+  /**/
         
         
         def diversityConfig = {
@@ -275,9 +278,9 @@ target('evaluate') {
             
             include diversityConfig
         }
-/*        
         
-        /*algorithm("UserUser") {
+        
+        algorithm("UserUser") {
             bind ItemScorer to UserUserItemScorer
             bind VectorSimilarity to CosineVectorSimilarity
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
@@ -338,10 +341,14 @@ target('evaluate') {
             set FeatureCount to 25
             set IterationCount to 125
             include diversityConfig
-        }
+        }/**/
+
+        algorithm tmp
         
-        writePredictionChannel(ItemItemScorer.NEIGHBORHOOD_SIZE_SYMBOL,"nhbd")
-        writePredictionChannel(WeightedAverageNeighborhoodScorer.NEIGHBORHOOD_WEIGHT_SYMBOL, "simsum")
+        writePredictionChannel(ItemItemScorer.NEIGHBORHOOD_SIZE_SYMBOL,"inhbd")
+        writePredictionChannel(UserUserItemScorer.NEIGHBORHOOD_SIZE_SYMBOL,"unhbd")
+        writePredictionChannel(WeightedAverageNeighborhoodScorer.NEIGHBORHOOD_WEIGHT_SYMBOL, "isimsum")
+        writePredictionChannel(UserUserItemScorer.NEIGHBORHOOD_WEIGHT_SYMBOL, "usimsum")
         
     }
 }

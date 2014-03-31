@@ -5,12 +5,16 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import org.grouplens.lenskit.RatingPredictor;
+import org.grouplens.lenskit.baseline.MeanDamping;
+import org.grouplens.lenskit.basic.AbstractItemScorer;
 import org.grouplens.lenskit.basic.AbstractRatingPredictor;
 import org.grouplens.lenskit.data.dao.ItemEventDAO;
 import org.grouplens.lenskit.data.dao.UserDAO;
 import org.grouplens.lenskit.data.dao.UserEventDAO;
 import org.grouplens.lenskit.data.event.Rating;
 import org.grouplens.lenskit.data.history.UserHistory;
+import org.grouplens.lenskit.eval.data.DataSource;
+import org.grouplens.lenskit.eval.data.traintest.TTDataSet;
 import org.grouplens.lenskit.vectors.MutableSparseVector;
 import org.grouplens.lenskit.vectors.VectorEntry;
 
@@ -21,39 +25,41 @@ import java.util.List;
 /**
  * TODO: document me
  */
-public class OracleRatingPredictor extends AbstractRatingPredictor {
+public class OracleItemScorer extends AbstractItemScorer {
 
-    private final UserEventDAO uedao;
-    private final ItemEventDAO iedao;
-    private final UserDAO userdao;
-    
+    private final DataSource data;
+    private final UserEventDAO ud;
     @Inject
-    OracleRatingPredictor(UserEventDAO uedao, ItemEventDAO iedao, UserDAO userdao) {
-        this.uedao = uedao;
-        this.iedao = iedao;
-        this.userdao = userdao;
+    OracleItemScorer(DataSource data, UserEventDAO ud) {
+        this.data = data;
+        this.ud = ud;
     }
     
     
     @Override
-    public void predict(long user, @Nonnull MutableSparseVector predictions) {
-        // generate list of "neighbors"
-        UserHistory<Rating> ratings = uedao.getEventsForUser(user, Rating.class);
-        LongSet neighbors = new LongOpenHashSet(userdao.getUserIds());
+    public void score(long user, @Nonnull MutableSparseVector predictions) {
+        UserHistory<Rating> ratings = ud.getEventsForUser(user, Rating.class);
+        LongSet neighbors = new LongOpenHashSet(data.getUserDAO().getUserIds());
         if (ratings != null) {
-            for (long itemId : ratings.itemSet()) {
-                neighbors.retainAll(iedao.getUsersForItem(itemId));
+            for(Rating r : ratings) {
+                LongOpenHashSet keepers = new LongOpenHashSet();
+                for(Rating r2 :data.getItemEventDAO().getEventsForItem(r.getItemId(), Rating.class)) {
+                    if (r.getValue() == r2.getValue()) {
+                        keepers.add(r2.getUserId());
+                    }
+                }
+                neighbors.retainAll(keepers);
             }
         }
         
         for (VectorEntry e : predictions.fast(VectorEntry.State.EITHER)) {
             long item = e.getKey();
-            List<Rating> pastratings = iedao.getEventsForItem(item, Rating.class);
+            List<Rating> pastratings = data.getItemEventDAO().getEventsForItem(item, Rating.class);
             if (pastratings == null) {
                 continue;
             }
             double d = 0;
-            int c = 0;
+            double c = 0;
             for (Rating r : pastratings) {
                 if (neighbors.contains(r.getUserId())) {
                     c += 1;

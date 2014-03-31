@@ -7,7 +7,7 @@ all.data <- read.csv("eval-user.csv")
 
 serr = function(d) {qnorm(0.975)*sd(d)/sqrt(length(d))}
 
-for (metric in c("Coverage","RMSE","MAE","nDCG","Information.ByUser", "TopN.nDCG", "TopN.ActualLength", "TopN.avgPop", "TopN.diversity", "recall.100", "recall.500", "recall.1000", "fallout","recall.allTest")) {
+for (metric in c("Coverage","RMSE","MAE","nDCG","Information.ByUser", "TopN.nDCG", "TopN.ActualLength", "TopN.avgPop", "TopN.diversity", "TopN.precision", "TopN.recall", "TopN.Independent.Recall")) {
   plot = ggplot(all.data, aes_string(x="DataSet", y=metric, color="Algorithm"))+stat_summary(fun.y=mean, geom="line") + stat_summary(fun.data = mean_cl_boot, geom="errorbar")
   filename = paste(metric,".pdf",sep="")
   cat("Outputting to",filename,"\n")
