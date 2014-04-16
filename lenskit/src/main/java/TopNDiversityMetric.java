@@ -1,40 +1,22 @@
-/*
- * LensKit, an open source recommender systems toolkit.
- * Copyright 2010-2013 Regents of the University of Minnesota and contributors
- * Work on LensKit has been funded by the National Science Foundation under
- * grants IIS 05-34939, 08-08692, 08-12148, and 10-17697.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- */
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import org.grouplens.lenskit.Recommender;
+import org.grouplens.lenskit.collections.CollectionUtils;
 import org.grouplens.lenskit.core.LenskitRecommender;
 import org.grouplens.lenskit.eval.Attributed;
 import org.grouplens.lenskit.eval.data.traintest.TTDataSet;
-import org.grouplens.lenskit.eval.metrics.AbstractTestUserMetric;
-import org.grouplens.lenskit.eval.metrics.TestUserMetricAccumulator;
+import org.grouplens.lenskit.eval.metrics.AbstractMetric;
+import org.grouplens.lenskit.eval.metrics.ResultColumn;
 import org.grouplens.lenskit.eval.metrics.topn.ItemSelector;
 import org.grouplens.lenskit.eval.metrics.topn.TopNMetricBuilder;
 import org.grouplens.lenskit.eval.traintest.TestUser;
 import org.grouplens.lenskit.knn.item.ItemSimilarity;
 import org.grouplens.lenskit.knn.item.model.ItemItemBuildContext;
 import org.grouplens.lenskit.scored.ScoredId;
+import org.grouplens.lenskit.util.statistics.MeanAccumulator;
 import org.grouplens.lenskit.vectors.SparseVector;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -63,87 +45,85 @@ import java.util.List;
  * 
  * @author <a href="http://www.grouplens.org">GroupLens Research</a>
  */
-public class TopNDiversityMetric extends AbstractTestUserMetric {
+public class TopNDiversityMetric extends AbstractMetric<MeanAccumulator, TopNDiversityMetric.Result, TopNDiversityMetric.Result> {
     private final int listSize;
     private final ItemSelector candidates;
     private final ItemSelector exclude;
-    private final ImmutableList<String> columns;
+    private String suffix;
 
-    public TopNDiversityMetric(String lbl, int listSize, ItemSelector candidates, ItemSelector exclude) {
+    public TopNDiversityMetric(String suffix, int listSize, ItemSelector candidates, ItemSelector exclude) {
+        super(Result.class, Result.class);
         this.listSize = listSize;
         this.candidates = candidates;
         this.exclude = exclude;
-        columns = ImmutableList.of(lbl);
-    }
-    
-    @Override
-    public Accum makeAccumulator(Attributed algo, TTDataSet ds) {
-        return new Accum();
+        this.suffix = suffix;
     }
 
+    @Nullable
     @Override
-    public List<String> getColumnLabels() {
-        return columns;
+    public MeanAccumulator createContext(Attributed algorithm, TTDataSet dataSet, Recommender recommender) {
+        return new MeanAccumulator();
     }
 
     @Override
-    public List<String> getUserColumnLabels() {
-        return columns;
+    protected String getSuffix() {
+        return suffix;
     }
 
-    class Accum implements TestUserMetricAccumulator {
-        double total = 0;
-        int nusers = 0;
-        
-        @Nonnull
-        @Override
-        public List<Object> evaluate(TestUser user) {
-            
-            List<ScoredId> recs;
-            recs = user.getRecommendations(listSize, candidates, exclude);
-            if (recs == null || recs.isEmpty()) {
-                return userRow();
-            } 
-            
-            double simSum = 0;
-
-            LenskitRecommender rec = (LenskitRecommender) user.getRecommender();
-            ItemSimilarityMetric metric = rec.get(ItemSimilarityMetric.class);
-            ItemItemBuildContext context = metric.getContext();
-            ItemSimilarity sim = metric.getSim();
-            if (context == null || sim == null) {
-                throw new RuntimeException("TopNDiversityMetric requires a build context and similarity function.");
-            }
-            
-            for (ScoredId s1 : recs) {
-                long i1 = s1.getId();
-                SparseVector v1 = context.itemVector(i1);
-                for (ScoredId s2 : recs) {
-                    long i2 = s2.getId();
-                    if(i1 == i2) {
-                        continue;
-                    }
-                    SparseVector v2 = context.itemVector(i2);
-                    simSum -= sim.similarity(i1,v1,i2,v2);
-                }
-            }
-            
-            int n = recs.size();
-            simSum /= (n*n - n);
-            
-            total += simSum;
-            nusers += 1;
-            return userRow(simSum);
+    @Override
+    protected Result doMeasureUser(TestUser user, MeanAccumulator cntx) {
+        List<ScoredId> recs;
+        recs = user.getRecommendations(listSize, candidates, exclude);
+        if (recs == null || recs.isEmpty()) {
+            return null;
         }
 
-        @Nonnull
-        @Override
-        public List<Object> finalResults() {
-            if (nusers > 0) {
-                return finalRow(total / nusers);
-            } else {
-                return finalRow();
+        double simSum = 0;
+
+        LenskitRecommender rec = (LenskitRecommender) user.getRecommender();
+        ItemSimilarityMetric metric = rec.get(ItemSimilarityMetric.class);
+        ItemItemBuildContext context = metric.getContext();
+        ItemSimilarity sim = metric.getSim();
+        if (context == null || sim == null) {
+            throw new RuntimeException("TopNDiversityMetric requires a build context and similarity function.");
+        }
+
+        for (ScoredId s1 : CollectionUtils.fast(recs)) {
+            long i1 = s1.getId();
+            SparseVector v1 = context.itemVector(i1);
+            for (ScoredId s2 : CollectionUtils.fast(recs)) {
+                long i2 = s2.getId();
+                if(i1 == i2) {
+                    continue;
+                }
+                SparseVector v2 = context.itemVector(i2);
+                simSum -= sim.similarity(i1,v1,i2,v2);
             }
+        }
+
+        int n = recs.size();
+        simSum /= (n*n - n);
+
+        cntx.add(simSum);
+        return new Result(simSum);
+
+    }
+
+    @Override
+    protected Result getTypedResults(MeanAccumulator context) {
+        if (context.getCount() > 0) {
+            return new Result(context.getMean());
+        } else {
+            return null;
+        }
+    }
+
+    public static class Result {
+        @ResultColumn("diversity")
+        public double diverse;
+
+        public Result(double diverse) {
+            this.diverse = diverse;
         }
     }
 
@@ -152,30 +132,21 @@ public class TopNDiversityMetric extends AbstractTestUserMetric {
      * @author <a href="http://www.grouplens.org">GroupLens Research</a>
      */
     public static class Builder extends TopNMetricBuilder<Builder, TopNDiversityMetric> {
-        private String label = "TopN.diversity";
+        private String suffix = null;
 
-        /**
-         * Get the column label for this metric.
-         * @return The column label.
-         */
-        public String getLabel() {
-            return label;
+        public String getSuffix() {
+            return suffix;
         }
 
-        /**
-         * Set the column label for this metric.
-         * @param l The column label
-         * @return The builder (for chaining).
-         */
-        public Builder setLabel(String l) {
-            Preconditions.checkNotNull(l, "label cannot be null");
-            label = l;
+        public Builder setSuffix(String suffix) {
+            Preconditions.checkNotNull(suffix, "label cannot be null");
+            this.suffix = suffix;
             return this;
         }
 
         @Override
         public TopNDiversityMetric build() {
-            return new TopNDiversityMetric(label, listSize, candidates, exclude);
+            return new TopNDiversityMetric(suffix, listSize, candidates, exclude);
         }
     }
 

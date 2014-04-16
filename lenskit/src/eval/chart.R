@@ -6,9 +6,11 @@ library("ggplot2")
 all.data <- read.csv("eval-user.csv")
 
 serr = function(d) {qnorm(0.975)*sd(d)/sqrt(length(d))}
+nonMetrics = c("Algorithm","Retain", "DataSet")
+metrics = setdiff(names(all.data),nonMetrics)
 
-for (metric in c("Coverage","RMSE","MAE","nDCG","Information.ByUser", "TopN.nDCG", "TopN.ActualLength", "TopN.avgPop", "TopN.diversity", "TopN.precision", "TopN.recall", "TopN.Independent.Recall")) {
-  plot = ggplot(all.data, aes_string(x="DataSet", y=metric, color="Algorithm"))+stat_summary(fun.y=mean, geom="line") + stat_summary(fun.data = mean_cl_boot, geom="errorbar")
+for (metric in metrics) {
+  plot = ggplot(all.data, aes_string(x="Retain", y=metric, color="Algorithm"))+stat_summary(fun.y=mean, geom="line") + stat_summary(fun.data = mean_cl_normal, geom="errorbar")
   filename = paste(metric,".pdf",sep="")
   cat("Outputting to",filename,"\n")
   pdf(filename, width=11, height=8.5)
@@ -18,7 +20,7 @@ for (metric in c("Coverage","RMSE","MAE","nDCG","Information.ByUser", "TopN.nDCG
 
 
 dat <- read.csv("eval-results.csv")
-plot = ggplot(dat, aes(x=DataSet, y=TopN.pop.entropy, color=Algorithm))+geom_point()+stat_summary(fun.y=mean, geom="line")
-pdf("topN.pop.entropy.pdf", width=11, height=8.5)
+plot = ggplot(dat, aes(x=Retain, y=TopN.Entropy, color=Algorithm))+geom_point()+stat_summary(fun.y=mean, geom="line")
+pdf("topN.entropy.pdf", width=11, height=8.5)
 print(plot)
 dev.off()
