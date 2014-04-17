@@ -133,26 +133,6 @@ public class TopNRMSEMetric extends AbstractMetric<TopNRMSEMetric.Context, TopNR
      * @author <a href="http://www.grouplens.org">GroupLens Research</a>
      */
     public static class Builder extends TopNMetricBuilder<Builder, TopNRMSEMetric> {
-        private String suffix;
-
-        /**
-         * Get the column suffix for this metric.
-         * @return The column suffix.
-         */
-        public String getSuffix() {
-            return suffix;
-        }
-
-        /**
-         * Set the column suffix for this metric.
-         * @param l The column suffix
-         * @return The builder (for chaining).
-         */
-        public Builder setSuffix(String l) {
-            suffix = l;
-            return this;
-        }
-
         @Override
         public TopNRMSEMetric build() {
             return new TopNRMSEMetric(suffix, listSize, candidates, exclude);

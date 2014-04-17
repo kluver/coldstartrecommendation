@@ -6,7 +6,8 @@ library("ggplot2")
 all.data <- read.csv("eval-user.csv")
 
 serr = function(d) {qnorm(0.975)*sd(d)/sqrt(length(d))}
-nonMetrics = c("Algorithm","Retain", "DataSet")
+nonMetrics = c("Algorithm","Retain", "DataSet", "User", "Partition", "NGood", "TestEvents", "TrainEvents", "NAttempted", "RatingEntropy")
+
 metrics = setdiff(names(all.data),nonMetrics)
 
 for (metric in metrics) {

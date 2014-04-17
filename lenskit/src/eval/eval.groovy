@@ -4,6 +4,7 @@ import coldstartrecommendation.ItemScorerCoveragePredictMetric
 import coldstartrecommendation.MixingWeight
 import coldstartrecommendation.OracleItemScorer
 import coldstartrecommendation.OracleItemScorer
+import coldstartrecommendation.TopNMapMetric
 import coldstartrecommendation.TopNRMSEMetric
 import coldstartrecommendation.WeightSymbol
 import org.grouplens.lenskit.ItemScorer
@@ -43,7 +44,7 @@ import org.hamcrest.collection.IsIn
 
 //def sizes = [0,1,2,3]
 //def sizes = [0,2,4,8,12,16,19,32,64,128]
-def sizes = [0,2,4,8,12,16,19]
+def sizes = [0,1,2,4,8,12,16,19]
 //def sizes = [0,2,4,8,16,19]
 //def sizes = [0,2,4,8]
 //def sizes = [0,3,9,18]
@@ -98,7 +99,7 @@ sourceDataset1m = target('download1m') {
             domain {
                 minimum 1
                 maximum 5
-                precision 0.5
+                precision 1
             }
         }
     }
@@ -123,7 +124,7 @@ sourceDataset10m = target('download10m') {
         csvfile("${dataDir}/ratings.dat") {
             delimiter "::"
             domain {
-                minimum 1
+                minimum 0.5
                 maximum 5
                 precision 0.5
             }
@@ -131,7 +132,7 @@ sourceDataset10m = target('download10m') {
     }
 }
 
-def sourceDataset = sourceDataset100k
+def sourceDataset = sourceDataset1m
 
 def crossfolds = target('make-original-crossfold') {
     def size = sizes.max()
@@ -161,35 +162,6 @@ def datasets = target('subsample-crossfold') {
         return d
     }
 }/**/
-
-def datasetsasdf = target('do-crossfolds') {
-    requires sourceDataset
-    
-    data = []
-    for (i in sizes) {
-        d = /*pack {
-            dataset*/ crossfold (""+i) {
-                source sourceDataset
-                test "${config.dataDir}/${sourceDataset.name}-crossfold/test"+i+".%d.csv"
-                train "${config.dataDir}/${sourceDataset.name}-crossfold/train"+i+".%d.csv"
-                order RandomOrder
-                retain i
-                partitions 5
-                //method CrossfoldMethod.SAMPLE_USERS
-                //sampleSize 1000
-            //}
-            //includeTimestamps false
-        }
-        data +=d
-    }
-    perform {
-        result = []
-        for (d in data) {
-            result += d.get()
-        }
-        return result
-    }
-}
 
 tmp = target("tmp") {
     requires sourceDataset
@@ -259,9 +231,14 @@ target('evaluate') {
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
-                .setLabels("trust")
                 .build();/**/
         metric new MRRTopNMetric.Builder()
+                .setListSize(20)
+                .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
+                .build();/**/
+        metric new TopNMapMetric.Builder()
                 .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
