@@ -231,8 +231,16 @@ target('evaluate') {
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
+                .build();
+
+        metric new PrecisionRecallTopNMetric.Builder()
+                .setListSize(20)
+                .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .setSuffix("fallout")
+                .setGoodItems(ItemSelectors.testRatingMatches(Matchers.lessThanOrEqualTo(2.0d)))
                 .build();/**/
-        metric new MRRTopNMetric.Builder()
+        /*metric new MRRTopNMetric.Builder()
                 .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
