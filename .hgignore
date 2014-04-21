@@ -13,4 +13,11 @@ lenskit/.idea_modules
 
 *~
 
+*.aux
+*.bbl
+*.blg
+*.log
+*.pdf
+
 lenskit/do-eval
+

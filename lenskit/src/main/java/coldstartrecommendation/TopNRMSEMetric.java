@@ -54,6 +54,7 @@ public class TopNRMSEMetric extends AbstractMetric<TopNRMSEMetric.Context, TopNR
             return null;
         }
         
+        double ratSum = 0;
         double sse = 0;
         int n = 0;
         for(ScoredId s : CollectionUtils.fast(recs)) {
@@ -62,13 +63,15 @@ public class TopNRMSEMetric extends AbstractMetric<TopNRMSEMetric.Context, TopNR
             if (Double.isNaN(rating) || Double.isNaN(prediction)) {
                 continue;
             }
+            ratSum += rating;
             double err = prediction - rating;
             sse += err * err;
             n++;
         }
         if (n > 0) {
             double rmse = sqrt(sse / n);
-            return context.addUser(n, rmse);
+            double avgRat = ratSum /n;
+            return context.addUser(n, rmse, avgRat);
         } else {
             return null;
         }
@@ -85,23 +88,20 @@ public class TopNRMSEMetric extends AbstractMetric<TopNRMSEMetric.Context, TopNR
 
         @ResultColumn("TopN.RMSE")
         public final double score;
-
-        public UserResult(double len, double rmse) {
+        
+        @ResultColumn("TopN.Ave.Rat")
+        public final double averageRating;
+        
+        public UserResult(double len, double rmse, double avgRat) {
             count = len;
             score = rmse;
+            averageRating = avgRat;
         }
     }
     
-    public static class AggregateResult {
-        @ResultColumn("TopN.RMSE.seenItems")
-        public final double count;
-
-        @ResultColumn("TopN.RMSE")
-        public final double score;
-
-        public AggregateResult(double len, double rmse) {
-            count = len;
-            score = rmse;
+    public static class AggregateResult extends UserResult {
+        public AggregateResult(double len, double rmse, double avgRat) {
+            super(len, rmse, avgRat);
         }
     }
     
@@ -109,19 +109,21 @@ public class TopNRMSEMetric extends AbstractMetric<TopNRMSEMetric.Context, TopNR
         double nUsers = 0;
         double nItems = 0;
         double rmseSum = 0;
+        double avgRatSum = 0;
         private AggregateResult result;
 
-        public UserResult addUser(int n, double rmse) {
+        public UserResult addUser(int n, double rmse, double avgRat) {
             nUsers += 1;
             nItems += n;
             rmseSum += rmse;
-            return new UserResult(n, rmse);
+            avgRatSum += avgRat;
+            return new UserResult(n, rmse, avgRat);
         }
 
 
         public AggregateResult getResult() {
             if (nUsers > 0) {
-                return new AggregateResult(nItems / nUsers, rmseSum / nUsers);
+                return new AggregateResult(nItems / nUsers, rmseSum / nUsers, avgRatSum / nUsers);
             } else {
                 return null;
             }
