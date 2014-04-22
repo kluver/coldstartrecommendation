@@ -161,24 +161,52 @@ TODO: rmse plot
   Interestingly, User-User and svd both perform about as well as our smarter user item baseline. %TODO: explain this better
 
       % explain strangeness of Item-Item
-  Item-Item performs quite poorly in our cold start setting.
-  Unlike the other algorithms Item-Item actually performs worse as it gets more ratings for the first few ratings.
-  The explanation for this has to do with the coverage of the algorithm.
-  Item-Item, unlike the other two algorithms, has relatively low coverage at cold start, needing around 8 ratings to reach 90 percent coverage. %TODO: check this
+  Item-Item performs quite poorly in the cold start setting.
+  Until we have around 20 ratings the RMSE of Item-Item is worse than the item baseline.
+  More interestingly, unlike the other algorithms Item-Item actually appears to performs worse as it gets more ratings for the first few ratings.
   
-
+  The curve exhibited by Item-Item's RMSE is caused by two trends.
+  First as the system revives more ratings, predictions from Item-Item are more accurate, leading to a downward trend.
+  Secondly, as the system revives more ratings, Item-Item can make predictions for more items, meaning the fewer predictions are serviced by the baseline.
+  Because the baseline is more accurate, this leads to an upward trend.
+  Overall this leads to curved performance.
+  If we were to compute RMSE only over the items where item-item can make a prediction we would see a curve similar to the other algorithms, but shifted up.
       % possibly coverage plot
       % true crossing point?
+
+\subsection {Recommendatin quality metrics}
   % Recommendation quality metrics
     % NDCG
-    % MAP, precision, recall plots 
+  Figure \ref{fig:ndcg} shows the algorithm's performance on the nDCG metric.
+  The algorithm's behavior is essentially equivalent to the RMSE behavior.
+  Again, User-User has a minor dip on very new users, but then tracks SVD in uniformly improving quite well from there.
+  Likewise Item-Item exhibits the same dipped accuracy, although it doesn't catch up the baseline as fast.
+  Unlike previous metrics, the item baseline, and the user-item baseline have the same performance.
+  This is because nDCG is a ranking metric, not an accuracy metric.
+  Because the user item baseline orders items the same way as the item baseline, both will have the same accuracy on any ranking metrics.
+
+    % MAP, precision, fallout plots 
     % explain results from MAP and precision
     % explain recall results
     % recall results, strangeness and popularity
-    % popularity graph
+
+  Figure \ref{fig:map} shows MAP@20, precision@20, and fallout@20.
+  All three metrics show essentially the same trend, User-User gets the lowest score, the baselines get the highest score.
+  On both MAP@20 and precision@20 svd gets a higher score than Item-Item throughout, performing almost as highly as the baseline.
+  On fallout@20 Item-Item performs higher than svd and the baseline, but decreases faster than bath, ending with a lower score than either. 
+  We also tried recall@20 and mrr@20 and found the same trend.
+
+  This result is rather strange as MAP and precision are metrics where high scores are good, where fallout is a metric where high scores are bad.
+  This leads to an issue, these metrics contradict each other in terms of the quality of the recommendations from our algorithm.
+  One possible reason for this is that these topN metrics are known to be biased by popular items (TODO: cite bellogin).
+  Looking at the average popularity (figure \ref{fig:pop})of recommended items, we see that this seems to explain most of the variance in these metrics.
+  Therefore we seek a different metric to analyze the quality of the recommendations.
+
+  Figure \ref{fig:topN.rmse}
     % TopN average rating / topn rmse
     % interpret graph and reason about what it means about quality
   % Other recommender metrics
+    % popularity graph
     % diversity plot
     % talk about popularity and diversity
       % algos don't cross, and seem more straight, this seems to be more of a system wide choice than other metrics.***
