@@ -52,95 +52,177 @@ TODO: abstract
 \keywords{ACM proceedings, \LaTeX, text tagging}
 
 \section{Introduction}
+  % describe new user experience in recommender systems.
+  When someone first interacts with any intelligent system, the system knows nothing about them.
+TODO:
+  
+
+  % new user experience is important, and here is why.
+    % talk about first impressions and user trust
+  The new user experience is a very important part of any recommender system.
+  The first interaction with a system is the only chance the system gets to make a first impression on the user.
+  This first impression can be very important in structuring a user's expectations for how the system will behave, and determining how much the user trusts the system's recommendations.
+  If the system behaves poorly when the user is new, then the user may leave and not come back.
+  This is especially a concern with recommender systems which rely on large amounts of user information to make personalization decisions.
+  When users are new the system will not have much information to personalize the user experience which may lead the user to leave the system.
+  
+  % Past work on cold start has focused on… (how long should this section be?)
+    % ways to sort items to get to most value out of early ratings
+    % research looking at user experience and other forms of data collection
+
+  Past work has referred to the new user experience issue as the \emph{user cold start} problem.
+  This work has normally focused on two
+TODO:
+
+  % How an algorithm behaves the first time a user sees it is important (first impression)
+    % Past work looks carefully at issues X, Y, and Z, but doesn’t take a systematic look at the behavior of algorithms for users with few ratings.
+  % Our work sits at the intersection of two important fields of recommender system research: New user experiance, and comparing algorithms. While there has been much work comparing various algorithms, there has been little formal work comparing algorithms based on their performance for new users. Therefore our work focuses on the behavior of recommender algorithms across different amounts of user data. (subsection might need re-ordering)
+  % RQs
+    % RQ1 How do the behavior of different algorithms change with the number of ratings?
+      % Explain that there are a lot of different ways to measure algorithm behavior.
+        % Predictive accuracy, commonly measured with MAE or RMSE
+          % coverage
+        % Value of recommendations, tradidionally done with metrics from information retrieval such as precision, recall, MAP, etc. These algorithms try to measure ...
+          % cite the John/Joe paper (RMSE is not enough)
+          % cite the paper cited by 10 is enough
+          % topN RMSE
+        % There are many properties of recommenders that are (find words here)
+          % popularity
+          % diversity
+          % spread
+      % RQ1A  How does algorithm behavior change with respect to predictive accuracy?
+      % RQ1B  How does algorithm behavior change with respect to TopN recommender performance?
+      % RQ1C How does algorithm behavior change with respect to other metrics such as popularity and diversity?
+
+
+    % We look at three families of recommender algorithms (user based KNN, item based KNN, SVD)
+    % we compare on several dimensions
+    % we suggest a methodology for performing these types of computations
+
+
+
 \section{Methodology}
+  % (high level description/restatement of approach) To answer our research questions we will various metrics of recommenders in an offline setting simulations users as they join the system.
+    % maybe hit some limitations
+    % motiviate _why do a simulation_ (a lot of metrics we want to try)
+  % temporal replay evaluation 
+    % similar technique, harder to do than ours, and with a different goal.
+  % SOMEWHERE AROUND HERE talk about drnner and adaptive bootstrapping and 10 isenough paper's ad hoc plots by datapoint size.
+  % algorithms (discuss tuning of algorithms per algorithm?)
+    % item mean baseline
+    % user adjusted baseline (@michael, is there a cite for this?)
+    % user-user
+    % item-item
+    % SVD
+  % metrics (expected / good behavior for each metric (I.E. this should go down, any reasonable algorithm should always beet baseline)) 
+    % accuracy metrics 
+      % RMSE
+    % recommendation performance metrics (list subject to change)
+      % ndcg
+      % MAP@N (not yet measured)
+      % precision@N
+      % fallout @ N
+      % RMSE of recommended items
+      % (note that we looked at MRR and recall, but found them to behave the same).
+    % other properties
+      % recommendation average popularity
+      % recommendation diversity
+      % spread (entropy of recommendations) (related to recommendation coverage)
+
+  % dataset
+    % # user
+    % # items
+    % distributions of # ratings per user (important: min 20)
+  % subsampling strategy
+    % describe normal crossfold solution
+    % describe issues with solution
+    % describe our crossfold then subsample solution.
+
+
 \section{Results}
 
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/RMSE.pdf}
-\caption{caption}
-\label{fig:rmse}
-\end{figure}
+  Using the methodology described in \cite{sec:methodology} we compute a value for each metric on each of the five algorithms.
+  We plot these results against the number of items retained.
+  These plots allow us to compare the algorithms against each other, and also, to understand how each algorithm's performance changes with more data.
+  Each plot will have error bars showing the 95\% confidence intervals around the average per use value for the metric.
 
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/nDCG.pdf}
-\caption{caption}
-\label{fig:ndcg}
-\end{figure}
+\subsection{Prediction accuracy}
+  % Prediction accuracy
+    % RMSE plot
 
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/MAP.pdf}
-\caption{caption}
-\label{fig:map}
-\end{figure}
+TODO: rmse plot
 
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/Precision.pdf}
-\caption{caption}
-\label{fig:precision}
-\end{figure}
+    % point out error bars etc.
+    % explain / interpret plot
+  Figure \ref{fig:rmse} shows how accurate our algorithms are as measured by RMSE.
+  As would be expected the accuracy of our item baseline doesn't change as the amount of information changes.
+  The User-User and svd algorithms both perform as expected, starting out with the same accuracy as the item baseline, and then monotonically improving.
+  User-User does show a small increase of error with only one rating, but the change is quite small and unlikely to be noticed by users.
+  Interestingly, User-User and svd both perform about as well as our smarter user item baseline. %TODO: explain this better
 
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/Precision_fallout.pdf}
-\caption{caption}
-\label{fig:fallout}
-\end{figure}
+      % explain strangeness of Item-Item
+  Item-Item performs quite poorly in our cold start setting.
+  Unlike the other algorithms Item-Item actually performs worse as it gets more ratings for the first few ratings.
+  The explanation for this has to do with the coverage of the algorithm.
+  Item-Item, unlike the other two algorithms, has relatively low coverage at cold start, needing around 8 ratings to reach 90 percent coverage. %TODO: check this
+  
 
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/TopN_RMSE_seenItems.pdf}
-\caption{caption}
-\label{fig:topn.rmse.seen}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/TopN_RMSE.pdf}
-\caption{caption}
-\label{fig:topn.rmse}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/TopN_Ave_Rat.pdf}
-\caption{caption}
-\label{fig:topn.avg.rat}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/TopN_MeanPopularity.pdf}
-\caption{caption}
-\label{fig:pop}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/diversity.pdf}
-\caption{caption}
-\label{fig:diversity}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics[width=\columnwidth]{../lenskit/target/analysis/topN_entropy.pdf}
-\caption{caption}
-\label{fig:spread}
-\end{figure}
-
-
-
-
-
-
-
-
-
+      % possibly coverage plot
+      % true crossing point?
+  % Recommendation quality metrics
+    % NDCG
+    % MAP, precision, recall plots 
+    % explain results from MAP and precision
+    % explain recall results
+    % recall results, strangeness and popularity
+    % popularity graph
+    % TopN average rating / topn rmse
+    % interpret graph and reason about what it means about quality
+  % Other recommender metrics
+    % diversity plot
+    % talk about popularity and diversity
+      % algos don't cross, and seem more straight, this seems to be more of a system wide choice than other metrics.***
+      % relatively the same thing as each other.
+      % upward diversity trend in baselines - seen items removed from recs => must increase diversity
+      % we don't know best, but user user is probably too bad, and avg rating is probably too high SVD and Item-Item probably in a good zone.
+      % user study would be needed to find out.
+    % spread plot
+      % by and far item-item has the best spread
+      % user-user has good spread, but interestingly the spread gets worse
+        % not sure why, perhaps as more ratings there is a regression to the mean sort of trend where more ratings means mroe neighbors available, means more ratings.
+        % either way we don't see this as a good thing...
+      % svd
+        % spread seems a little low. like before we don't _know_, but it looks like svd might focus too much on a smaller list of items.
 \section{Conclusions}
+  % summary of results in a big old table.
+    % the accuracy of svd and user-user both seemed good. item-item seemed to have trouble especially with very new users.
+    % svd did quite well on our traditional topN metrics, item-item did OK, and user-user did bad., but there are flaws with these metrics.
+    % on our topN RMSE item-item (again) seemed to have issues, and user-user did quite well, but the low hit rate is troubleing. 
+    % again svd seems the winner here.
+    % on our fluffy metrics item-item and svd seemed to do well. I might argue that item-item seemed to do better (spread, and higher throughout).
+    % user-user seemed to do poor
+  % what this means
+    % user-user seems to be able to give accurate predictions, but seems to focus on overly obscure items in recommendation.
+    % item-item seems to give not-bad recommendations, but its predictions have issues
+    % based only on these results svd seems to be the best performer and is our recommendation to new systems.
+  % other takeaways
+    % regularization
+    % if you use a switching recommender, this methodology can help you choose when to switch.
+    % non-traditional metrics can tell you more about what is going on, these seem to be more properties of the class of algo than of the data, so its worth looking at these when choosing algorithms, to find one with properties that are good for your task.
+
+  % limitations and opprotunities
+    % dataset limitations
+      % only one domain
+      % no quitters in our dataset
+    % metrics limitations
+      % many metrics require user data to help us understand what users want from a recommender
+      % no well known ``goodness'' metric for topN.
+    % algorithm limitations
+      % only covered three common families,
+      % different algos tuned specifically for cold start.
+      % algos that use extra data about users or about items.
+
+  % despite the limitations we were able to show differences between algorithms in a cold start situation.
 
 \section{Acknowledgements}
  \cite{harper2005economic}

@@ -27,6 +27,8 @@ import org.grouplens.lenskit.knn.item.ModelSize
 import org.grouplens.lenskit.knn.item.WeightedAverageNeighborhoodScorer
 import org.grouplens.lenskit.knn.item.model.ItemItemBuildContext
 import org.grouplens.lenskit.knn.item.model.ItemItemModel
+import org.grouplens.lenskit.knn.user.NeighborFinder
+import org.grouplens.lenskit.knn.user.SnapshotNeighborFinder
 import org.grouplens.lenskit.knn.user.UserUserItemScorer
 import org.grouplens.lenskit.mf.funksvd.FeatureCount
 import org.grouplens.lenskit.mf.funksvd.FunkSVDItemScorer
@@ -288,36 +290,35 @@ target('evaluate') {
                     bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
                     set MeanDamping to 5.0d
                 }
-                set ModelSize to 250
-                set NeighborhoodSize to 50
+                set ModelSize to 500
+                set NeighborhoodSize to 30
             }
             bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
             set MeanDamping to 5.0d
             
             include diversityConfig
         }/**/
-        
-        
+
         algorithm("UserUser") {
             bind ItemScorer to UserUserItemScorer
             bind VectorSimilarity to CosineVectorSimilarity
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
             bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
+            bind NeighborFinder to SnapshotNeighborFinder
             bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
             set MeanDamping to 5.0d
-            set ModelSize to 250
-            set NeighborhoodSize to 50
+            set NeighborhoodSize to 30
 
             include diversityConfig
-        }/**/
+        }
         
         algorithm("svd") {
             bind ItemScorer to FunkSVDItemScorer
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
             bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
             set MeanDamping to 5.0d
-            set FeatureCount to 25
-            set IterationCount to 125
+            set FeatureCount to 30
+            set IterationCount to 100
             include diversityConfig
         }/**/
 
