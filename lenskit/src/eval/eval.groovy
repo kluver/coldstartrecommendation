@@ -45,7 +45,7 @@ import org.hamcrest.Matchers
 import org.hamcrest.collection.IsIn
 
 //def sizes = [0,1,2,3]
-//def sizes = [0,2,4,8,12,16,19,32,64,128]
+//def sizes = [0,8,16,32,128]
 def sizes = [0,1,2,4,8,12,16,19]
 //def sizes = [0,2,4,8,16,19]
 //def sizes = [0,2,4,8]
@@ -210,7 +210,7 @@ target('evaluate') {
         metric ItemScorerCoveragePredictMetric;
         
         def topNConfig = {
-            listSize 20
+            listSize 30
             candidates ItemSelectors.allItems()
             exclude ItemSelectors.trainingItems()
         }
@@ -219,37 +219,37 @@ target('evaluate') {
         metric (topNPopularity(topNConfig))
         metric (topNEntropy(topNConfig))
         metric new TopNDiversityMetric.Builder()
-                .setListSize(20)
+                .setListSize(30)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .build();/**/
         metric new TopNRMSEMetric.Builder()
-                .setListSize(20)
+                .setListSize(30)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .build();/**/
         metric new PrecisionRecallTopNMetric.Builder()
-                .setListSize(20)
+                .setListSize(30)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
                 .build();
 
         metric new PrecisionRecallTopNMetric.Builder()
-                .setListSize(20)
+                .setListSize(30)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setSuffix("fallout")
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.lessThanOrEqualTo(2.0d)))
                 .build();/**/
         /*metric new MRRTopNMetric.Builder()
-                .setListSize(20)
+                .setListSize(30)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
                 .build();/**/
         metric new TopNMapMetric.Builder()
-                .setListSize(20)
+                .setListSize(30)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
@@ -310,7 +310,7 @@ target('evaluate') {
             set NeighborhoodSize to 30
 
             include diversityConfig
-        }
+        }/**/
         
         algorithm("svd") {
             bind ItemScorer to FunkSVDItemScorer

@@ -196,16 +196,37 @@ TODO: rmse plot
   On fallout@20 Item-Item performs higher than svd and the baseline, but decreases faster than bath, ending with a lower score than either. 
   We also tried recall@20 and mrr@20 and found the same trend.
 
-  This result is rather strange as MAP and precision are metrics where high scores are good, where fallout is a metric where high scores are bad.
+  This result is rather strange as MAP and precision are metrics where high scores imply better performance, whereas fallout is a metric where high scores imply poor performance.
   This leads to an issue, these metrics contradict each other in terms of the quality of the recommendations from our algorithm.
-  One possible reason for this is that these topN metrics are known to be biased by popular items (TODO: cite bellogin).
-  Looking at the average popularity (figure \ref{fig:pop})of recommended items, we see that this seems to explain most of the variance in these metrics.
-  Therefore we seek a different metric to analyze the quality of the recommendations.
+  One possible reason for this is that these topN metrics are known to be biased toward recommendations that have more popular items \cite{bellogin}.
+  Looking at the average popularity (figure \ref{fig:pop}) of recommended items, we see that the average popularity of the recommendations closely replicates the previous three plots.
+  Therefore we seek a different, less biased metric to analyze the quality of the recommendations.
 
-  Figure \ref{fig:topN.rmse}
-    % TopN average rating / topn rmse
+  % TopN average rating / topn rmse
     % interpret graph and reason about what it means about quality
+  The first graph in figure \ref{fig:topN.rmse} shows the average number of items in the top 20 recommendations for each algorithm that were also in the test set.
+  The average number of test set items in recommendations shows a similar trend to the MAP, precision, and recall metrics, user-user getting by far the fewest seen items, and the baseline getting the most.
+  %TODO: talk about trust building here!
+
+  The second graph in figure \ref{fig:topN.rmse} shows the average rating for those items in the top 20 recommendations for each algorithm.
+  The first thing to note about this graph is that all of these algorithms are doing a reasonable job of recommending items the user might like to watch, with all algorithms averaging above 4 stars (implying that the recommended items are, at least on average, enjoyable).
+  SVD performs as expected, starting at close to the same average rating as the baselines, and then slowing improving as more ratings are entered.
+  Item-Item performs poorly, not only performing worse than the baseline, but showing worse performance as more ratings are added.
+  This is quite possibly a similar trend to the one we observed with RMSE and nDCG, where Item-Item's performance decreased as coverage increased leading to the curved performance at cold start.
+  
+  During testing with other values of N for this metric and the next, we found that User-User's behavior compared to the other algorithms changed significantly with different values of N.
+  This is probably due to the very low rate of having seen items in the recommendations, which makes its value much less stable, than the other algorithms.
+  Because of this behavior we will draw no conclusion from User-User's performance on this metric, to avoid accidentally attributing behavior to it, that was instead formed by our choice of 20 as N.
+  
+  The third graph in figure \ref{fig:topN.rmse} shows the RMSE our algorithms got on items in the top 20 recommendations for each algorithm.
+  Not surprisingly, this figure shows the same trends as the last one meaning that the algorithms whose recommendations were (on average) most likable, were those whose recommendations were most accurate.
+  Again, SVD performs quite well, Item-Item shows poor performance, and, due to sensitivity of User-User to our choice of N, we make no conclusions about User-User.
+
+
+\subsection{Other recommender metrics}
   % Other recommender metrics
+  Figure \ref{fig:pop} shows the 
+
     % popularity graph
     % diversity plot
     % talk about popularity and diversity
@@ -253,7 +274,6 @@ TODO: rmse plot
   % despite the limitations we were able to show differences between algorithms in a cold start situation.
 
 \section{Acknowledgements}
- \cite{harper2005economic}
  TODO:
 
 \bibliographystyle{abbrv}
