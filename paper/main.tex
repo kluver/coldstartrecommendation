@@ -222,26 +222,40 @@ TODO: rmse plot
   Not surprisingly, this figure shows the same trends as the last one meaning that the algorithms whose recommendations were (on average) most likable, were those whose recommendations were most accurate.
   Again, SVD performs quite well, Item-Item shows poor performance, and, due to sensitivity of User-User to our choice of N, we make no conclusions about User-User.
 
-
 \subsection{Other recommender metrics}
   % Other recommender metrics
-  Figure \ref{fig:pop} shows the 
-
     % popularity graph
+  The first graph in figure \ref{fig:pop} shows the average popularity of recommended items by each algorithm.
+  %TODO: re-write this
+  Across all datapoint sizes the ranking of algorithms is the same, with the baselines recommending the most popular movies, followed by svd, which recommends less popular movies, then Item-Item, which recommends much less popular movies, leaving User-User to recommend the least popular movies.
+  Unfortunately, we don't know of any guideline for understanding how popular users desire their recommendations to be.
+  That in mind, we expect that users will feel the baseline's popularity (around 1000) is too high, and User-User's popularity (around 50) is too low.
+  SVD and Item-Item both seem to perform well, with SVD generating more popular recommendations, than Item-Item, and both algorithms showing a significant trend to make less popular predictions as we know more about the user.
+
     % diversity plot
-    % talk about popularity and diversity
-      % algos don't cross, and seem more straight, this seems to be more of a system wide choice than other metrics.***
-      % relatively the same thing as each other.
-      % upward diversity trend in baselines - seen items removed from recs => must increase diversity
-      % we don't know best, but user user is probably too bad, and avg rating is probably too high SVD and Item-Item probably in a good zone.
-      % user study would be needed to find out.
-    % spread plot
-      % by and far item-item has the best spread
-      % user-user has good spread, but interestingly the spread gets worse
-        % not sure why, perhaps as more ratings there is a regression to the mean sort of trend where more ratings means mroe neighbors available, means more ratings.
-        % either way we don't see this as a good thing...
-      % svd
-        % spread seems a little low. like before we don't _know_, but it looks like svd might focus too much on a smaller list of items.
+  The diversity graph in \ref{fig:pop} shows a similar trend to the popularity trend with the baseline algorithms producing the least diverse list of recommendations and User-User providing by far the most diverse list of recommendations.
+  For the first few ratings SVD is able to provide more diverse recommendations than Item-Item.
+  However, Item-Item seems to grow in diversity faster than SVD in response to more data, so after 4 ratings Item-Item is providing slightly more diverse recommendations than SVD.
+  Overall, Item-Item and SVD are providing recommendations that, at least in an offline context, appear to have quite comparable diversity.
+
+  % spread plot
+  The graph in \ref{fig:spread} shows the spread of the recommendations from each algorithm.
+  Because this metric can only be computed over a group of people, confidence intervals over the per-user average are not provided, instead the specific spread values computed in each five folds are shown as points, with lines connecting the value from the five metrics.
+  %TODO: make this point earier and better.
+  Like the diversity and popularity metrics we see that the values take a much larger range, with different algorithms seeming to converge to different amounts spread.
+  The baseline algorithms, which recommend every user the same list of recommendations (unless the user has rated one of those items) have the lowest spread.
+  SVD has the second lowest spread, starting with a spread very close to the baselines and then slowly growing more spread as it gets more ratings.
+  Like popularity, we don't know exactly how much spread is best for a recommender system, but we can guess that we want more spread from our recommendations than baseline, and all other things being equal, more spread is probably better.
+  Based on this intuition it seems that SVD might have focus on too few items in its recommendations.
+
+  User-User and Item-Item both have significantly more spread than the other algorithms.
+  They show interestingly opposite trends, with User-User providing more spread at one rating, and then decreasing, and Item-Item giving less spread and then increasing.
+  By 8 ratings, we see that Item-Item has by far the most spread recommendations.
+  It is strange that User-User would get less spread as it learns more about users.
+  This implies that the more it learns about users, the less spread out its recommendations are.
+  This could be some form of a regression towards the mean, where as it learns more about users its recommendations become less personalized to the users individual quirks.
+  More research will be needed to understand this trend.
+  
 \section{Conclusions}
   % summary of results in a big old table.
     % the accuracy of svd and user-user both seemed good. item-item seemed to have trouble especially with very new users.
