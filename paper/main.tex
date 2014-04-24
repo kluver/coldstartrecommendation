@@ -148,10 +148,14 @@ TODO:
 
 \subsection{Prediction accuracy}
   % Prediction accuracy
+\begin{figure*}
+  \centering
+  \includegraphics[width=\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/accuracy.pdf}
+  \caption{TODO}
+  \label{fig:rmse}
+  \label{fig:ndcg}
+\end{figure*}
     % RMSE plot
-
-TODO: rmse plot
-
     % point out error bars etc.
     % explain / interpret plot
   Figure \ref{fig:rmse} shows how accurate our algorithms are as measured by RMSE.
@@ -190,6 +194,15 @@ TODO: rmse plot
     % explain recall results
     % recall results, strangeness and popularity
 
+
+\begin{figure*}[ht!]
+  \centering
+  \includegraphics[width=1.1\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/TopNPrecision.pdf}
+  \caption{TODO}
+  \label{fig:map}
+\end{figure*}
+
+
   Figure \ref{fig:map} shows MAP@20, precision@20, and fallout@20.
   All three metrics show essentially the same trend, User-User gets the lowest score, the baselines get the highest score.
   On both MAP@20 and precision@20 svd gets a higher score than Item-Item throughout, performing almost as highly as the baseline.
@@ -202,8 +215,18 @@ TODO: rmse plot
   Looking at the average popularity (figure \ref{fig:pop}) of recommended items, we see that the average popularity of the recommendations closely replicates the previous three plots.
   Therefore we seek a different, less biased metric to analyze the quality of the recommendations.
 
+
   % TopN average rating / topn rmse
     % interpret graph and reason about what it means about quality
+
+\begin{figure*}[ht!]
+  \centering
+  \includegraphics[width=1.1\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/rmse_20.pdf}
+  \caption{TODO}
+  \label{fig:topN.rmse}
+\end{figure*}
+
+
   The first graph in figure \ref{fig:topN.rmse} shows the average number of items in the top 20 recommendations for each algorithm that were also in the test set.
   The average number of test set items in recommendations shows a similar trend to the MAP, precision, and recall metrics, user-user getting by far the fewest seen items, and the baseline getting the most.
   %TODO: talk about trust building here!
@@ -224,6 +247,15 @@ TODO: rmse plot
 
 \subsection{Other recommender metrics}
   % Other recommender metrics
+
+\begin{figure*}[ht!]
+  \centering
+  \includegraphics[width=\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/popdiv.pdf}
+  \caption{TODO}
+  \label{fig:pop}
+\end{figure*}
+
+
     % popularity graph
   The first graph in figure \ref{fig:pop} shows the average popularity of recommended items by each algorithm.
   %TODO: re-write this
@@ -237,6 +269,15 @@ TODO: rmse plot
   For the first few ratings SVD is able to provide more diverse recommendations than Item-Item.
   However, Item-Item seems to grow in diversity faster than SVD in response to more data, so after 4 ratings Item-Item is providing slightly more diverse recommendations than SVD.
   Overall, Item-Item and SVD are providing recommendations that, at least in an offline context, appear to have quite comparable diversity.
+
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=1.1\columnwidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/topN_entropy.pdf}
+  \caption{TODO}
+  \label{fig:spread}
+\end{figure}
+
 
   % spread plot
   The graph in \ref{fig:spread} shows the spread of the recommendations from each algorithm.

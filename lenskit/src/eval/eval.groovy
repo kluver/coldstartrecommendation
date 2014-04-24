@@ -210,7 +210,7 @@ target('evaluate') {
         metric ItemScorerCoveragePredictMetric;
         
         def topNConfig = {
-            listSize 30
+            listSize 20
             candidates ItemSelectors.allItems()
             exclude ItemSelectors.trainingItems()
         }
@@ -219,37 +219,37 @@ target('evaluate') {
         metric (topNPopularity(topNConfig))
         metric (topNEntropy(topNConfig))
         metric new TopNDiversityMetric.Builder()
-                .setListSize(30)
+                .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .build();/**/
         metric new TopNRMSEMetric.Builder()
-                .setListSize(30)
+                .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .build();/**/
         metric new PrecisionRecallTopNMetric.Builder()
-                .setListSize(30)
+                .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
                 .build();
 
         metric new PrecisionRecallTopNMetric.Builder()
-                .setListSize(30)
+                .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setSuffix("fallout")
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.lessThanOrEqualTo(2.0d)))
                 .build();/**/
         /*metric new MRRTopNMetric.Builder()
-                .setListSize(30)
+                .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
                 .build();/**/
         metric new TopNMapMetric.Builder()
-                .setListSize(30)
+                .setListSize(20)
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
