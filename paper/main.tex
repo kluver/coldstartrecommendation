@@ -102,18 +102,56 @@ TODO:
 
 
 \section{Methodology}
+\label{sec:methodology}
   % (high level description/restatement of approach) To answer our research questions we will various metrics of recommenders in an offline setting simulations users as they join the system.
     % maybe hit some limitations
     % motiviate _why do a simulation_ (a lot of metrics we want to try)
-  % temporal replay evaluation 
-    % similar technique, harder to do than ours, and with a different goal.
-  % SOMEWHERE AROUND HERE talk about drnner and adaptive bootstrapping and 10 isenough paper's ad hoc plots by datapoint size.
+
+  To answer our research questions we will evaluate algorithms in an offline simulation designed to simulate users as they join the system.
+  We will do this by running separate instances of the standard train and test methodology, each one designed so that test users have some small number of ratings.
+  We will then plot metric results against the number of retained items to understand both how the algorithms compare on these metrics, and how the algorithm performance changes with the number of ratings provided.
+  This, or a similar technique, has been used by previous authors \cite{DrennerInitialExperiance, TenIsEnough, AdaptiveBootstrap}, however, these normally are used with only one algorithm or metric, and normally just to make the point that prediction accuracy improves as the number of ratings grows.
+  We will use this technique to develop a much more nuanced understanding of the differences between algorithms, and how they behave for users with few ratings.
+  
+  \subsection*{Algorithms}
   % algorithms (discuss tuning of algorithms per algorithm?)
-    % item mean baseline
-    % user adjusted baseline (@michael, is there a cite for this?)
-    % user-user
-    % item-item
-    % SVD
+  % motivation for algorithm selection
+  % list algorithms 
+
+  We seek to develop an understanding of how a range of different standard algorithms perform at for new users.
+  Rather than picking advanced algorithms that are tuned for new user performance, we decided to first understand how representatives of three common types of algorithms perform.
+  Therefore we will compare User-User, Item-Item, and Funk's SVD algorithms against two simple baseline algorithms.
+  More information about these algorithms can be found in table \ref{tbl:algo}
+  Code for our evaluation, using the Lenskit evaluation framework \cite{lenskit} is available at \url{https://bitbucket.org/kluver/coldstartrecommendation}.
+  
+  \begin{table}
+    \centering
+    \begin{tabular}{|p{6em}|p{18em}|}
+      \hline
+      Algorithm        & Algorithm description                                                                                     \\\hline
+      User-User        & User based nearest neighbor collaborative filtering \cite{resnick1994grouplens}                           \\\hline
+      Item-Item        & Item based nearest neighbor collaborative filtering \cite{sarwar2001item}                                 \\\hline
+      SVD              & Simon Funk's SVD based collaborative filtering approach \cite{funk_netflix_2006}                          \\\hline
+      ItemBaseline     & Item's average rating, slight mean damping is applied                                                     \\\hline
+      UserItem\-Baseline & ItemBasline adjusted by the user's average offset from the ItemBaseline. slight mean damping is applied \\\hline
+    \end{tabular}
+    \caption{Summary of algorithms used in our research.}
+    \label{tbl:algo}
+  \end{table}
+
+  % evaluation and code to run these algortihms available at.
+  % citations and lenskit info
+  %need new topic sentence.
+
+  Each algorithm was tuned using the values from Ekstrand's 2012 lenskit evaluation \cite{ekstrand2012recommenders}.
+  Sine this evaluation was on a slightly different dataset (MovieLens 10M), we performed only minor tuning from these parameters.
+  Most notably we found the tuning of the damping parameter used in the baseline recommenders to be too large, which limited accuracy at cold start.
+  Overall, we did not find our qualitative results to be highly sensitive to minor tuning changes, although specific values may change slightly.
+  
+
+  \subsection*{Metrics}
+  
+  % motivate many metrics.
   % metrics (expected / good behavior for each metric (I.E. this should go down, any reasonable algorithm should always beet baseline)) 
     % accuracy metrics 
       % RMSE
@@ -133,6 +171,22 @@ TODO:
     % # user
     % # items
     % distributions of # ratings per user (important: min 20)
+  
+
+  % temporal replay evaluation 
+    % similar technique, harder to do than ours, and with a different goal.
+
+  
+  %TODO: restructure this, I can't have my cake and eat  too. This needs ot be refocused to explicitly focus on similarities and differences.
+  %One related approach to the one we take here is to evaluate recommender systems temporally.
+  %Various authors have taken this approach \cite{KorenTemporal, LathiaTemporal, burke2010evaluating} to evaluating recommender systems to understand how recommenders change with time.
+  %This work often features similar evaluations to ours, focusing on time (life of user or life of system) as opposed to number of ratings.
+  %One major difference between this approach and the one we take is that using ratings in the order that they were given can expose algorithms to biases from the system they were collected in.
+  %For example, in the MovieLens system users enter their first 15 ratings in a different interface, which does not give them choice over which items to rate.
+  %This is a forced situation which produces qualitatively different ratings than normal ratings.
+  %For this work we want to avoid this effect and therefor must use randomization.
+  %TODO: SOMEWHERE AROUND HERE THIS GOES!
+
   % subsampling strategy
     % describe normal crossfold solution
     % describe issues with solution
@@ -141,7 +195,7 @@ TODO:
 
 \section{Results}
 
-  Using the methodology described in \cite{sec:methodology} we compute a value for each metric on each of the five algorithms.
+  Using the methodology described in section \ref{sec:methodology} we compute a value for each metric on each of the five algorithms.
   We plot these results against the number of items retained.
   These plots allow us to compare the algorithms against each other, and also, to understand how each algorithm's performance changes with more data.
   Each plot will have error bars showing the 95\% confidence intervals around the average per use value for the metric.
@@ -150,7 +204,8 @@ TODO:
   % Prediction accuracy
 \begin{figure*}
   \centering
-  \includegraphics[width=\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/accuracy.pdf}
+
+  \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
   \caption{TODO}
   \label{fig:rmse}
   \label{fig:ndcg}
@@ -197,7 +252,7 @@ TODO:
 
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=1.1\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/TopNPrecision.pdf}
+  \includegraphics[width=1.1\linewidth]{../lenskit/output/ekstrandTuned20/TopNPrecision.pdf}
   \caption{TODO}
   \label{fig:map}
 \end{figure*}
@@ -221,7 +276,7 @@ TODO:
 
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=1.1\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/rmse_20.pdf}
+  \includegraphics[width=1.1\linewidth]{../lenskit/output/ekstrandTuned20/rmse_20.pdf}
   \caption{TODO}
   \label{fig:topN.rmse}
 \end{figure*}
@@ -250,7 +305,7 @@ TODO:
 
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=\linewidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/popdiv.pdf}
+  \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/popdiv.pdf}
   \caption{TODO}
   \label{fig:pop}
 \end{figure*}
@@ -273,7 +328,7 @@ TODO:
 
 \begin{figure}[ht!]
   \centering
-  \includegraphics[width=1.1\columnwidth]{/export/scratch/kluver/workspace/coldstartrecommendation/lenskit/output/ekstrandTuning/topN_entropy.pdf}
+  \includegraphics[width=1.1\columnwidth]{../lenskit/output/ekstrandTuned20/topN_entropy.pdf}
   \caption{TODO}
   \label{fig:spread}
 \end{figure}
