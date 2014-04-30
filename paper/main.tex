@@ -1,5 +1,8 @@
 \documentclass[letterpaper]{sig-alternate}
 
+\usepackage{hyperref}
+%  \multicolumn{2}{|c|}{Team sheet} \\
+
 
 \pdfpagewidth=8.5in
 \pdfpageheight=11in
@@ -77,7 +80,34 @@ TODO:
   % How an algorithm behaves the first time a user sees it is important (first impression)
     % Past work looks carefully at issues X, Y, and Z, but doesn’t take a systematic look at the behavior of algorithms for users with few ratings.
   % Our work sits at the intersection of two important fields of recommender system research: New user experiance, and comparing algorithms. While there has been much work comparing various algorithms, there has been little formal work comparing algorithms based on their performance for new users. Therefore our work focuses on the behavior of recommender algorithms across different amounts of user data. (subsection might need re-ordering)
-  % RQs
+
+  Our work sits at the intersection of two important traditions of recommender systems research: new user experience, and offline algorithm comparison.
+  Our goal is to understand how different algorithms behave for new users, especially how their behavior changes as new users add ratings into the system.
+  While there has been much work comparing algorithms in an offline setting, very little of it has explored what are the best algorithms for users with very few ratings.
+  Furthermore, we do not seek to find the algorithm that scores best on some metric of choice, instead, we seek to form a complete understanding of the differences between algorithms for cold start use.
+
+  We structure our work around the following research questions.
+  \begin{itemize}
+    \item RQ1: How do algorithms behave for users with very few ratings?
+    \item RQ2: How does algorithm behavior change with increasing ratings for new users?
+  \end{itemize}
+  Unfortunately, algorithm behavior is a broad and hard to define subject.
+  We will look at three distinct ways to quantify the behavior of a recommender system, each of which may lead to multiple metrics.
+%  One of the most traditional ways to measure the behavior of a recommendation system is to measure its performance on the rating task.
+%  This is normally done with metrics such as RMSE or MAE.
+%  The accuracy of the algorithm may be important at cold start as users my judge the recommender on how well it predicts items they have not yet rated.
+%  This early judgment may be very important to the user.
+
+%  Recently, work in the recommender system community has been shifting away from prediction accuracy to start looking at how well the system ranks and recommends items.
+%  This change was, in part prompted by work criticizing the practice of measuring only the RMSE of recommender systems \cite{TODO:rmse considered harmful...}
+%  The quality of the ranking provided by the recommender has normally been measured with information retrial metrics such as nDCG.
+%  The quality of the recommendations has normally been measured by looking at which sort of items end up being recommended with metrics such as precision@N, recall@N, fallout@N etc.
+%  We will also look at some simpler metrics along with these such as simply evaluating the ratings and predictions that end up in top 20 recommendations.
+
+%  Finally, we find that 
+
+
+% RQs
     % RQ1 How do the behavior of different algorithms change with the number of ratings?
       % Explain that there are a lot of different ways to measure algorithm behavior.
         % Predictive accuracy, commonly measured with MAE or RMSE
@@ -90,7 +120,44 @@ TODO:
           % popularity
           % diversity
           % spread
-      % RQ1A  How does algorithm behavior change with respect to predictive accuracy?
+      
+
+  Prediction accuracy, as measured by RMSE or MAE is one of the classic techniques in recommended system evaluation.
+  The idea behind these evaluations is to measure the accuracy of predictions on withheld recommendations.
+  If the algorithm can successfully predict the withheld ratings, then we expect it will accurately predict future ratings as well.
+  Because users may build trust in the system by looking at the predictions of items, we are interested in knowing which algorithms are most accurate, and which show the most notable change in accuracy as ratings are entered.
+  
+  More recently, work as shifted away from accuracy metrics in favor of metrics that evaluate a recommender systems ability to rank, or recommend.
+  % TODO: cite johnjoe here?
+  These algorithms try to evaluate how useful the recommendations provided by the system are to the user.
+  This is commonly done by looking either at how withheld items are ranked with metrics such as nDCG, or by looking at if good or bad withheld items tend to be recommended positively by the recommender.
+  
+  Prior work \cite{ziegler and martijn} has shown that users are sensitive to properties of recommendations that are not as trivially good or bad as those above.
+  We will look at three properties that can be measured in an offline context, the popularity, diversity, and spread of recommendations.
+
+  We expect that different algorithms will recommend items that are more or less popular.
+  This difference could explain feelings that a list isn't personal enough (too popular), or is too novel / obscure (not popular enough).
+
+  Past work \cite{ziegler and martijn} has shown that users tend to prefer recommendation lists that are more diverse.
+  <TODO: skim this past work again and report some details/results.>
+
+  Finally, we expect that algorithms with a good understand of its users will be able to recommend different items to different users.
+  To measure this we will look at how well the recommender spreads its attention of many items.
+  We will do this by computing the Shannon's entropy of the items recommended to each user.
+  If the recommender system recommends the same items to each user, then the entropy will be low.
+  Conversely, if the recommender recommends different items to each user, then the entropy will high.
+  In practice, a recommender may focus on both a shared core of popular or well reviewed items, and more personal items, which would lead to middle values.
+  
+  Based on this list of possible metrics, we will clarify our research questions with three sub questions:
+  \begin{\itemize}
+  \item How do algorithms behave with respect to prediction accuracy?
+  \item How do algorithms behave with respect to ranking items appropriately?
+  \item How do algorithms behave as measured by other metrics such as popularity and diversity?
+  \end{\itemize}
+
+  
+
+% RQ1A  How does algorithm behavior change with respect to predictive accuracy?
       % RQ1B  How does algorithm behavior change with respect to TopN recommender performance?
       % RQ1C How does algorithm behavior change with respect to other metrics such as popularity and diversity?
 
@@ -151,6 +218,10 @@ TODO:
 
   \subsection*{Metrics}
   
+  
+  
+  
+
   % motivate many metrics.
   % metrics (expected / good behavior for each metric (I.E. this should go down, any reasonable algorithm should always beet baseline)) 
     % accuracy metrics 
@@ -192,13 +263,11 @@ TODO:
     % describe issues with solution
     % describe our crossfold then subsample solution.
 
-
 \section{Results}
 
-  Using the methodology described in section \ref{sec:methodology} we compute a value for each metric on each of the five algorithms.
-  We plot these results against the number of items retained.
-  These plots allow us to compare the algorithms against each other, and also, to understand how each algorithm's performance changes with more data.
-  Each plot will have error bars showing the 95\% confidence intervals around the average per use value for the metric.
+  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform for between 0 and 19 ratings.
+  Where appropriate, we will compute metrics independently for each user, and plot the average user value, with a 95\% confidence interval around this mean.
+  Where this cannot be done we will compute the metric once for each fold, and plot the values per fold, with a line intersecting the average.
 
 \subsection{Prediction accuracy}
   % Prediction accuracy
@@ -206,7 +275,7 @@ TODO:
   \centering
 
   \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
-  \caption{TODO}
+  \caption{Left: RMSE, Right: nDCG}
   \label{fig:rmse}
   \label{fig:ndcg}
 \end{figure*}
