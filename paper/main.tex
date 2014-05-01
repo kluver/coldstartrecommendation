@@ -55,27 +55,46 @@ TODO: abstract
 \keywords{ACM proceedings, \LaTeX, text tagging}
 
 \section{Introduction}
-  % describe new user experience in recommender systems.
-  When someone first interacts with any intelligent system, the system knows nothing about them.
-TODO:
+  % describe new user experience in in recommender systems.
+  One of the important problems in recommender systems is the new user experiance.
+
   
 
   % new user experience is important, and here is why.
     % talk about first impressions and user trust
+  How a recommender system handels new users can change how these users interact with the recommender system.
+
+%%%%%%%%%%%%%%%%%
   The new user experience is a very important part of any recommender system.
   The first interaction with a system is the only chance the system gets to make a first impression on the user.
   This first impression can be very important in structuring a user's expectations for how the system will behave, and determining how much the user trusts the system's recommendations.
   If the system behaves poorly when the user is new, then the user may leave and not come back.
   This is especially a concern with recommender systems which rely on large amounts of user information to make personalization decisions.
   When users are new the system will not have much information to personalize the user experience which may lead the user to leave the system.
-  
+%%%%%%%%%%%%%%%%%%%%%%
+
   % Past work on cold start has focused on… (how long should this section be?)
     % ways to sort items to get to most value out of early ratings
     % research looking at user experience and other forms of data collection
 
-  Past work has referred to the new user experience issue as the \emph{user cold start} problem.
-  This work has normally focused on two
-TODO:
+  % past work tends to focus on the algorithm side, the algorithm side of this problem is cold start.
+    % cold start algorithms is a larger problem
+    % cold start algorithms tend to use extra information to help imrpove eary performance.
+    % we only look at user cold start as it is ubiquitous.
+  Past work on new user experiance in recommender systems has tended to focus on the algorithmic cold start problem.
+
+
+  % One common new user strategy is to have a special data collection mode.
+  % collect ratings fast to get over a precived ``bad period''
+  % work on this focuses on how to collect useful ratings.
+  % (framework from decision tree work)
+  The best studied strategy for new users is to have users go through a new user survey.
+
+  % One promising approach is to let user control interaction
+  % user or system driven control.
+  % promising, we don't know much about follow up.
+  One promissing approach to new users is to have users control the new user survey.
+
 
   % How an algorithm behaves the first time a user sees it is important (first impression)
     % Past work looks carefully at issues X, Y, and Z, but doesn’t take a systematic look at the behavior of algorithms for users with few ratings.
