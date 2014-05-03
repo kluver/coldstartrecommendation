@@ -234,6 +234,13 @@ target('evaluate') {
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
                 .build();
+        metric new PrecisionRecallTopNMetric.Builder()
+                .setListSize(20)
+		.setSuffix("5")
+                .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(5.0d)))
+                .build();
 
         metric new PrecisionRecallTopNMetric.Builder()
                 .setListSize(20)
@@ -242,8 +249,23 @@ target('evaluate') {
                 .setSuffix("fallout")
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.lessThanOrEqualTo(2.0d)))
                 .build();/**/
+
+        metric new PrecisionRecallTopNMetric.Builder()
+                .setListSize(20)
+                .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .setSuffix("fallout1")
+                .setGoodItems(ItemSelectors.testRatingMatches(Matchers.lessThanOrEqualTo(1.0d)))
+                .build();/**/
         /*metric new MRRTopNMetric.Builder()
                 .setListSize(20)
+                .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(5.0d)))
+                .build();/**/
+        /*metric new MRRTopNMetric.Builder()
+                .setListSize(20)
+		.setSuffix("5")
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
@@ -253,6 +275,13 @@ target('evaluate') {
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
+                .build();/**/
+        metric new TopNMapMetric.Builder()
+                .setListSize(20)
+		.setSuffix("5")
+                .setCandidates(ItemSelectors.allItems())
+                .setExclude(ItemSelectors.trainingItems())
+                .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(5.0d)))
                 .build();/**/
         
         

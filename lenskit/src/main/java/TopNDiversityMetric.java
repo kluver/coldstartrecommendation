@@ -97,7 +97,7 @@ public class TopNDiversityMetric extends AbstractMetric<MeanAccumulator, TopNDiv
                     continue;
                 }
                 SparseVector v2 = context.itemVector(i2);
-                simSum -= sim.similarity(i1,v1,i2,v2);
+                simSum += sim.similarity(i1,v1,i2,v2);
             }
         }
 

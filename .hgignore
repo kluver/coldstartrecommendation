@@ -18,6 +18,7 @@ lenskit/.idea_modules
 *.blg
 *.log
 *.pdf
+*.out
 
 lenskit/do-eval
 

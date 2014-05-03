@@ -50,7 +50,7 @@ data.melt$variable[data.melt$variable == "TopN.RMSE.seenItems"] = "SeenItems@20"
 data.melt$variable[data.melt$variable == "TopN.RMSE"] = "RMSE@20"
 data.melt$variable[data.melt$variable == "TopN.Ave.Rat"] = "MeanRating@20"
 data.melt$variable[data.melt$variable == "TopN.MeanPopularity"] = "AveragePopularity@20"
-data.melt$variable[data.melt$variable == "diversity"] = "Diversity@20"
+data.melt$variable[data.melt$variable == "diversity"] = "AILS@20"
 data.melt$variable = ordered(data.melt$variable, levels = c("Coverage", "RMSE", "nDCG", "Precision@20", "MAP@20", "Fallout@20", "SeenItems@20", "MeanRating@20", "RMSE@20", "AveragePopularity@20", "Diversity@20", "TestTime","MAE","MutualInformation","PredicitonEntropy","ItemScorer.NAttempted","ItemScorer.NGood","ItemScorer.Coverage","TopN.ActualLength", "Recall.fallout", "Recall"))
 
 # make plots
@@ -78,7 +78,7 @@ print(plot)
 dev.off()
 
 
-vars = c("AveragePopularity@20", "Diversity@20")
+vars = c("AveragePopularity@20", "AILS@20")
 data.melt.sub = subset(data.melt, variable %in% vars)
 plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm, ymin=lb, ymax=ub))+geom_point()+geom_line()+geom_errorbar()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)
 pdf("popdiv.pdf", width=8.5, height=3.5)
