@@ -93,8 +93,25 @@ TODO: abstract
     % point out holes (evaluating standard algorithms for little to no ratings, wholeistic evaluation)
     % point out that other approaches than smart object ordering exist, and we need to be able to compare.
     % cite the comparison work at CHI.
-    % we propose to evaluate 
   While past work has covered the new user rating survey as a solution to new user cold start, much less work has been done comparing other strategies.
+
+  % Temporal evaluation
+    % similar in-so-much as it can provide similar answers (growth over time), 
+    % different in-so-much as it tends to be used for just system growth, but it could be used for user growth.
+  Some researchers have taken to perfforming temporal evaluations of recommender systems, looking at accuracy metrics as a function of the lifetime of a system.
+  
+  %TODO: restructure this, I can't have my cake and eat  too. This needs ot be refocused to explicitly focus on similarities and differences.
+  %One related approach to the one we take here is to evaluate recommender systems temporally.
+  %Various authors have taken this approach \cite{KorenTemporal, LathiaTemporal, burke2010evaluating} to evaluating recommender systems to understand how recommenders change with time.
+  %This work often features similar evaluations to ours, focusing on time (life of user or life of system) as opposed to number of ratings.
+  %One major difference between this approach and the one we take is that using ratings in the order that they were given can expose algorithms to biases from the system they were collected in.
+  %For example, in the MovieLens system users enter their first 15 ratings in a different interface, which does not give them choice over which items to rate.
+  %This is a forced situation which produces qualitatively different ratings than normal ratings.
+  %For this work we want to avoid this effect and therefor must use randomization.
+  %TODO: SOMEWHERE AROUND HERE THIS GOES!
+
+
+  % inspired by this work...
 
   % Past work looks carefully at issues X, Y, and Z, but doesn’t take a systematic look at the behavior of algorithms for users with few ratings.
   % Our work sits at the intersection of two important fields of recommender system research: New user experiance, and comparing algorithms. While there has been much work comparing various algorithms, there has been little formal work comparing algorithms based on their performance for new users. Therefore our work focuses on the behavior of recommender algorithms across different amounts of user data. (subsection might need re-ordering)
@@ -271,64 +288,51 @@ TODO: abstract
       \multicolumn{2}{|c|}{{\bf Other Metrics}} \\\hline
       Average\-Popularity@20 & The average number of users in the training set that have seen recommended items.\\\hline
       AILS@20                & The average pairwise similarity between recommended items. \\\hline
-      Spread@20              & The entropy of the distribution of recommended items for users in the test set.\\\hline
+      Spread@20              & The Shannon's entropy of the distribution of recommended items for users in the test set.\\\hline
     \end{tabular}
     \caption{TODO:}
     \label{tbl:metrics}
   \end{table}
   
   All metrics evaluating recommendations (all but RMSE and nDCG) are based on the top 20 predicted items for the user, excluding items in the training set.
-  The AILS@20 metric is based on the ILS metric introduced by ziegler et al \cite{ziegler}.
-  AILS@N is simply a rescaling of ILS to be scale free with regards to N, this was done to make the metric easier to interpret, by putting it on the same scale as similarity values.
   The choice of 20 items for the evaluations was arbitrary, testing with other values showed similar results, except on one metric.
   This issue will be addressed later in the results section.
   
+  % Provide computation details for AILS@N
+  Most of our metrics are standard techniques, or easily commutable, therefore we will only comment on the AILS, and spread metrics.
+%%%%%%%%%%%%%%%%%%%%%%%%%
+  The AILS@20 metric is based on the ILS metric introduced by ziegler et al \cite{ziegler}.
+  AILS@N is simply a rescaling of ILS to be scale free with regards to N, this was done to make the metric easier to interpret, by putting it on the same scale as similarity values.
   
+  The spread metric is computed by computing recommendations for each test user.
+  Let $C(I)$ be the count of how many times item $I$ showed up in the recommendations.
+  Let $P(I) = C(I) / \sum_I C(I)$ be the probability that a random recommendation is item $I$.
+  Finally we define spread as the Shannon's entropy of $P(I)$, $Spread = -\sum_I P(I) \log(P(I))$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%  
   
-
-%This is simply a rescaling of the ILS metric from \cite{ziegler}. Similarity is computed by subtracting the average item rating from the item vectors for each item and then computing the cosine similarity.\\\hline
-  
-  
-
-  % motivate many metrics.
-  % metrics (expected / good behavior for each metric (I.E. this should go down, any reasonable algorithm should always beet baseline)) 
-    % accuracy metrics 
-      % RMSE
-    % recommendation performance metrics (list subject to change)
-      % ndcg
-      % MAP@N (not yet measured)
-      % precision@N
-      % fallout @ N
-      % RMSE of recommended items
-      % (note that we looked at MRR and recall, but found them to behave the same).
-    % other properties
-      % recommendation average popularity
-      % recommendation diversity
-      % spread (entropy of recommendations) (related to recommendation coverage)
-
   \subsection*{Dataset}
   % dataset
     % # user
     % # items
     % distributions of # ratings per user (important: min 20)
+    % establish range of evaluation.
+  For this evaluation we will use the MovieLens 1M dataset.
+
+  % movielens system
+      % silly cold start
+      % randomization
+  The MovieLens system uses a new user rating survey to allow users to enter the system.
   
   \subsection*{Evaluation Procedure}
-  
-  %TODO: restructure this, I can't have my cake and eat  too. This needs ot be refocused to explicitly focus on similarities and differences.
-  %One related approach to the one we take here is to evaluate recommender systems temporally.
-  %Various authors have taken this approach \cite{KorenTemporal, LathiaTemporal, burke2010evaluating} to evaluating recommender systems to understand how recommenders change with time.
-  %This work often features similar evaluations to ours, focusing on time (life of user or life of system) as opposed to number of ratings.
-  %One major difference between this approach and the one we take is that using ratings in the order that they were given can expose algorithms to biases from the system they were collected in.
-  %For example, in the MovieLens system users enter their first 15 ratings in a different interface, which does not give them choice over which items to rate.
-  %This is a forced situation which produces qualitatively different ratings than normal ratings.
-  %For this work we want to avoid this effect and therefor must use randomization.
-  %TODO: SOMEWHERE AROUND HERE THIS GOES!
-
-
   % subsampling strategy
-    % describe normal crossfold solution
-    % describe issues with solution
-    % describe our crossfold then subsample solution.
+  % describe normal crossfold solution
+  The natural way to perform this evaluation is with a modified user crossfolding strategy.
+  
+  % describe issues with solution
+  Unfortunately, we found that this strategy can causes biases in our evaluation.
+  
+  % describe our crossfold then subsample solution.
+  Our solution to this bais is to downsample an existing crossfold.
 
 \section{Results}
 
