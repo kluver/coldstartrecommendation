@@ -62,19 +62,22 @@ TODO: abstract
 
 \section{Introduction}
   % describe new user experience in in recommender systems.
-  One of the important problems in recommender systems is the new user experiance.
-
+  One of the important problems in recommender systems is the new user experience.
+  Most recommenders only have one chance to impress new users.
+  If the user doesn't like the system, the user will leave.
+  Even if the user stays, how the recommender system behaves for these new users can set the user's expectations for how the system will work in the future.
   
 
   % new user experience is important, and here is why.
     % talk about first impressions and user trust
     % How an algorithm behaves the first time a user sees it is important (first impression)
-  How a recommender system handels new users can change how these users interact with the recommender system.
+  The user's first impression of the system can be very important in teaching the user to trust the system.
+  If the recommendation system does not perform well, the user will not trust its recommendations.
+  User trust in recommenders is a complex issue.
+  %TODO: re-skim the trust article.
+
+
 %%%%%%%%%%%%%%%%%%%%%%
-  The new user experience is a very important part of any recommender system.
-  The first interaction with a system is the only chance the system gets to make a first impression on the user.
-  This first impression can be very important in structuring a user's expectations for how the system will behave, and determining how much the user trusts the system's recommendations.
-  If the system behaves poorly when the user is new, then the user may leave and not come back.
   This is especially a concern with recommender systems which rely on large amounts of user information to make personalization decisions.
   When users are new the system will not have much information to personalize the user experience which may lead the user to leave the system.
 %%%%%%%%%%%%%%%%%%%%%%
@@ -84,7 +87,7 @@ TODO: abstract
     % cold start algorithms tend to use extra information to help imrpove eary performance.
     % we only look at user cold start as it is ubiquitous.
   Past work on new user experiance in recommender systems has tended to focus on the algorithmic cold start problem.
-
+  
 
   % One common new user strategy is to have a special data collection mode.
   % collect ratings fast to get over a precived ``bad period''
@@ -445,7 +448,6 @@ TODO: abstract
   \caption{TODO}
   \label{fig:topN.rmse}
 \end{figure*}
-
 
   The first graph in figure \ref{fig:topN.rmse} shows the average number of items in the top 20 recommendations for each algorithm that were also in the test set.
   The average number of test set items in recommendations shows a similar trend to the MAP, precision, and recall metrics, user-user getting by far the fewest seen items, and the baseline getting the most.
