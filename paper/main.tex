@@ -263,13 +263,15 @@ TODO: abstract
   
   %TODO: verify these claims.
   %TODO: check for examples of how to write this
+  %TODO: the Item-Item algo is ``better'' with just the item mean, not the user item mean. (change is pretty small). 
+  %TODO: exstrand's User-User only subtracts the user mean. I havn't tested this, he might have.
   % algorithm is configured as such.
   %TODO: topic sentence.
 
 
   % evaluation and code to run these algortihms available at.
   % citations and lenskit info
-  Each algorithm was configured and tuned similarly to Ekstrand's 2012 lenskit based evaluation \cite{ekstrand2012recommenders}.
+  Each algorithm was tuned similarly to Ekstrand's 2012 lenskit based evaluation \cite{ekstrand2012recommenders}.
 %%%%%%%%%%%%%%%%%%%%%%
   Since this evaluation was on a slightly different dataset (MovieLens 10M), we performed only minor tuning from these parameters.
   Most notably we found the tuning of the damping parameter used in the baseline recommenders to be too large for this dataset.

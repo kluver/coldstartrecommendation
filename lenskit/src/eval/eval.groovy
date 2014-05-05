@@ -317,8 +317,7 @@ target('evaluate') {
                 bind VectorSimilarity to CosineVectorSimilarity
                 bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
                 within (UserVectorNormalizer) {
-		    bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
-            	    bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
+		    bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
                     set MeanDamping to 5.0d
                 }
                 set ModelSize to 500
@@ -336,6 +335,11 @@ target('evaluate') {
             bind VectorSimilarity to CosineVectorSimilarity
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
             bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
+	    within (UserVectorNormalizer) {
+	        bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
+                bind (UserMeanBaseline, ItemScorer) to GlobalMeanRatingItemScorer
+                set MeanDamping to 5.0d
+            }
             bind NeighborFinder to SnapshotNeighborFinder
             bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
             set MeanDamping to 5.0d
