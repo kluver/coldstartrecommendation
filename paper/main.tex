@@ -1,3 +1,11 @@
+%TODO: fix citations.
+%TODO: review results
+%TODO: outline conclusions
+%TODO: write introduction
+%TODO: write methodology
+%TODO: re-write results
+%TODO: write conclusions
+%TODO: review extensively
 \documentclass[letterpaper]{sig-alternate}
 
 \usepackage{hyperref}
@@ -254,9 +262,11 @@ TODO: abstract
 
   % evaluation and code to run these algortihms available at.
   % citations and lenskit info
-  %need new topic sentence.
 
-  Each algorithm was tuned using the values from Ekstrand's 2012 lenskit evaluation \cite{ekstrand2012recommenders}.
+  Both nearest neighbor algorithms, User-User and Item-Item subtract the UserItemBaseline score from the ratings before performing similarity calcuations
+  %TODO: verify this claim.
+
+  Each algorithm was configured and tuned similarly to Ekstrand's 2012 lenskit evaluation \cite{ekstrand2012recommenders}.
 %%%%%%%%%%%%%%%%%%%%%%
   Since this evaluation was on a slightly different dataset (MovieLens 10M), we performed only minor tuning from these parameters.
   Most notably we found the tuning of the damping parameter used in the baseline recommenders to be too large for this dataset.
@@ -303,12 +313,22 @@ TODO: abstract
 %%%%%%%%%%%%%%%%%%%%%%%%%
   The AILS@20 metric is based on the ILS metric introduced by ziegler et al \cite{ziegler}.
   AILS@N is simply a rescaling of ILS to be scale free with regards to N, this was done to make the metric easier to interpret, by putting it on the same scale as similarity values.
-  
+ 
+  % Provide computation details for spread
   The spread metric is computed by computing recommendations for each test user.
+%%%%%%%%%%%%%%%%%%%%%%%%%%  
   Let $C(I)$ be the count of how many times item $I$ showed up in the recommendations.
   Let $P(I) = C(I) / \sum_I C(I)$ be the probability that a random recommendation is item $I$.
   Finally we define spread as the Shannon's entropy of $P(I)$, $Spread = -\sum_I P(I) \log(P(I))$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%  
+
+  % provide expectations.
+  We expect that the item baseline algorithm will have approximately constant performance on all metrics.
+  Since the Item Baseline is such a simple algorithm we expect that any reasonable algorithm should be able to do better on it on the accuracy on recommendation metrics.
+  Furthermore, we expect the improvement over the item baseline to be gradual, with larger improvements only happening with more data.
+  
+  Many of the algorithms are configured with 
+  We expect that our intelligent algorithms, SVD, Item-Item, and User-User should be able to beat the item user baseline after 
   
   \subsection*{Dataset}
   % dataset
@@ -332,13 +352,13 @@ TODO: abstract
   Unfortunately, we found that this strategy can causes biases in our evaluation.
   
   % describe our crossfold then subsample solution.
-  Our solution to this bais is to downsample an existing crossfold.
+  Our solution to this bais is to subsample an existing crossfold.
 
 \section{Results}
 
-  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform for between 0 and 19 ratings.
+  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users.
   Where appropriate, we will compute metrics independently for each user, and plot the average user value, with a 95\% confidence interval around this mean.
-  Where this cannot be done we will compute the metric once for each fold, and plot the values per fold, with a line intersecting the average.
+  Where this cannot be done we will compute the metric once for each of the five folds, and plot the values for each fold, with a lines through the average.
 
 \subsection{Prediction accuracy}
   % Prediction accuracy
