@@ -48,7 +48,6 @@ import org.hamcrest.collection.IsIn
 //def sizes = [0,8,16,32,128]
 //def sizes = [0,1,2,4,8,12,16,19]
 def sizes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
-//def sizes = [0,2,4,8,19]
 //def sizes = [0,2,4,8]
 //def sizes = [0,3,9,18]
 //def sizes = [0,1,2,4,8]
@@ -237,7 +236,7 @@ target('evaluate') {
                 .build();
         metric new PrecisionRecallTopNMetric.Builder()
                 .setListSize(20)
-		.setSuffix("5")
+                .setSuffix("5")
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(5.0d)))
@@ -266,7 +265,7 @@ target('evaluate') {
                 .build();/**/
         /*metric new MRRTopNMetric.Builder()
                 .setListSize(20)
-		.setSuffix("5")
+                .setSuffix("5")
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(4.0d)))
@@ -279,7 +278,7 @@ target('evaluate') {
                 .build();/**/
         metric new TopNMapMetric.Builder()
                 .setListSize(20)
-		.setSuffix("5")
+                .setSuffix("5")
                 .setCandidates(ItemSelectors.allItems())
                 .setExclude(ItemSelectors.trainingItems())
                 .setGoodItems(ItemSelectors.testRatingMatches(Matchers.greaterThanOrEqualTo(5.0d)))
@@ -317,16 +316,16 @@ target('evaluate') {
                 bind VectorSimilarity to CosineVectorSimilarity
                 bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
                 within (UserVectorNormalizer) {
-		    bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
+                    bind (BaselineScorer, ItemScorer) to ItemMeanRatingItemScorer
                     set MeanDamping to 5.0d
                 }
                 set ModelSize to 500
                 set NeighborhoodSize to 30
             }
-	    bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
+            bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
             bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
             set MeanDamping to 5.0d
-            
+
             include diversityConfig
         }/**/
 
@@ -335,11 +334,6 @@ target('evaluate') {
             bind VectorSimilarity to CosineVectorSimilarity
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
             bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
-	    within (UserVectorNormalizer) {
-	        bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
-                bind (UserMeanBaseline, ItemScorer) to GlobalMeanRatingItemScorer
-                set MeanDamping to 5.0d
-            }
             bind NeighborFinder to SnapshotNeighborFinder
             bind UserVectorNormalizer to BaselineSubtractingUserVectorNormalizer
             set MeanDamping to 5.0d
@@ -347,14 +341,14 @@ target('evaluate') {
 
             include diversityConfig
         }/**/
-        
+
         algorithm("svd") {
             bind ItemScorer to FunkSVDItemScorer
             bind (BaselineScorer, ItemScorer) to UserMeanItemScorer
             bind (UserMeanBaseline, ItemScorer) to ItemMeanRatingItemScorer
             set MeanDamping to 5.0d
             set FeatureCount to 30
-            set IterationCount to 100
+            set IterationCount to 150
             include diversityConfig
         }/**/
 

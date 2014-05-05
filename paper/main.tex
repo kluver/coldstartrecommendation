@@ -1,4 +1,4 @@
-%TODO: fix citations.
+%TODO: diversity config matches item-item config.
 %TODO: review results
 %TODO: outline conclusions
 %TODO: write introduction
@@ -10,8 +10,8 @@
 
 \usepackage{hyperref}
 
-\pdfpagewidth=8.5in
-\pdfpageheight=11in
+\pdfpagewidth = 8.5in
+\pdfpageheight = 11in
 
 %\usepackage[factor=250,spacing=true]{microtype}
 
@@ -61,78 +61,79 @@ TODO: abstract
 \keywords{ACM proceedings, \LaTeX, text tagging}
 
 \section{Introduction}
-  % describe new user experience in in recommender systems.
+
+  % new user experiance is only chance to make all important first impression
   One of the important problems in recommender systems is the new user experience.
-  Most recommenders only have one chance to impress new users.
-  If the user doesn't like the system, the user will leave.
-  Even if the user stays, how the recommender system behaves for these new users can set the user's expectations for how the system will work in the future.
-  
+  Every potential user of the system must at some point be a new user.
+  If the system cannot provide a good user experience, then the user is likely to leave and not return.
+  Even if the user does choose to enter the system, the user's first impression of the system can have a lasting impact on how the user interacts with the system.
+  The user's first impression can shape how the user expects the system to behave in future interactions, fundamentally changing how the user perceives the system.
 
-  % new user experience is important, and here is why.
-    % talk about first impressions and user trust
-    % How an algorithm behaves the first time a user sees it is important (first impression)
-  The user's first impression of the system can be very important in teaching the user to trust the system.
-  If the recommendation system does not perform well, the user will not trust its recommendations.
-  User trust in recommenders is a complex issue.
-  %TODO: re-skim the trust article.
-
-
-%%%%%%%%%%%%%%%%%%%%%%
-  This is especially a concern with recommender systems which rely on large amounts of user information to make personalization decisions.
-  When users are new the system will not have much information to personalize the user experience which may lead the user to leave the system.
-%%%%%%%%%%%%%%%%%%%%%%
+% one important trait is trust.
+    % trust is complex
+    % matching user's experiance is probably important.
+  One important part of how the user interacts with a recommender system is how much the user trusts the recommender system.
+  The more the user trusts a recommender system, the more the user can take advantage of it.
+  If the user doesn't trust a recommender system, the system can be of no value to the user.
+  Building trust with the user is therefore an important part of the new user experience.
+  Past work has shown that one of the strongest factors in the formation of trust is how much the system's recommendations match the user's knowledge \cite{wangAttributionOfTrust}.
+  For new users this can easily take the form of recommending items that the user has already seen.
+  %TODO: I kinda of want to cut this. I want to talk about this theme, but I don't actually know where it fits in.
 
   % past work tends to focus on the algorithm side, the algorithm side of this problem is cold start.
+    % SMAL DATA TENDS TO IMPLY BAD RESULTS.
     % cold start algorithms is a larger problem
     % cold start algorithms tend to use extra information to help imrpove eary performance.
     % we only look at user cold start as it is ubiquitous.
-  Past work on new user experiance in recommender systems has tended to focus on the algorithmic cold start problem.
+  Past work on new user experience in recommender systems has tended to focus on the algorithmic cold start problem.
+  The cold start problem refers to the problem that no algorithm can make useful recommendations with very limited amounts of information.
+  While this applies to both new users and new items we will only discuss research on the new user cold start problem.
+  Most solutions to the algorithmic cold start problem require some source of extra information about new users.
   
-
   % One common new user strategy is to have a special data collection mode.
   % collect ratings fast to get over a precived ``bad period''
   % work on this focuses on how to collect useful ratings.
   % (framework from decision tree work)
   The best studied strategy for new users is to have users go through a new user rating survey.
+  Systems that take this practice do not allow their users to receive recommendations until some fixed number of ratings have been entered.
+  The idea is that, after enough ratings have been entered, the predictions will be `good enough'.
+  This idea has been explored by many authors, most consider a system in which the user is presented with a list of items, and asked to rate items until they have enough ratings.
+  For a good discussion of prior work in this direction see \cite{adaptiveBootstrapping}.
+  Generally, this work strives to strike a balance between the amount of effort the user must put in before getting enough ratings, and the usefulness of each rating to the user.
+  This balance is complicated by how effort effects the user's perception of value \cite{TenIsEnough}.
 
   % One promising approach is to let user control interaction
   % user or system driven control.
   % promising, we don't know much about follow up.
-  One promissing approach to new users is to have users control the new user rating survey.
+  One promising approach to the new user rating survey is to have users control which movies they rate.
+  This was pioneered by McNee et al., who looked at comparisons between user driven and system driven new user surveys \cite{mcneeInterfaces}.
+  They found that users who were in control of which items to rate during a new user survey rated fewer movies, but that the profiles they created were more useful to the system in predicting their future behavior.
+  Interestingly, while these users took more time to create their profiles, they reported that the sign up was short at the same rate as the system driven condition.
+  While these results are quite promising, to our knowledge no follow up work has been done to explore these issues further.
+  This goes to show, however, that the new user experience is a complicated issue and novel strategies may yet prove to be the best solution.
 
   % bridge from past work to our work.
     % point out holes (evaluating standard algorithms for little to no ratings, wholeistic evaluation)
     % point out that other approaches than smart object ordering exist, and we need to be able to compare.
-    % cite the comparison work at CHI.
+
   While past work has covered the new user rating survey as a solution to new user cold start, much less work has been done comparing other strategies.
+  Most of this work has been focused on strategies for how to get ratings from users.
+  Novel interfaces may elicit information other than ratings such as item comparisons \cite{Loepp}.
+  Furthermore, very little work has carefully considered how best to use the information we receive.
+  Most authors simply assert that more ratings are better, but for new users we may see interesting performance gains by simply choosing algorithms that perform well for new users.
 
-  % Temporal evaluation
-    % similar in-so-much as it can provide similar answers (growth over time), 
-    % different in-so-much as it tends to be used for just system growth, but it could be used for user growth.
-  Some researchers have taken to perfforming temporal evaluations of recommender systems, looking at accuracy metrics as a function of the lifetime of a system.
-  
-  %TODO: restructure this, I can't have my cake and eat  too. This needs ot be refocused to explicitly focus on similarities and differences.
-  %One related approach to the one we take here is to evaluate recommender systems temporally.
-  %Various authors have taken this approach \cite{KorenTemporal, LathiaTemporal, burke2010evaluating} to evaluating recommender systems to understand how recommenders change with time.
-  %This work often features similar evaluations to ours, focusing on time (life of user or life of system) as opposed to number of ratings.
-  %One major difference between this approach and the one we take is that using ratings in the order that they were given can expose algorithms to biases from the system they were collected in.
-  %For example, in the MovieLens system users enter their first 15 ratings in a different interface, which does not give them choice over which items to rate.
-  %This is a forced situation which produces qualitatively different ratings than normal ratings.
-  %For this work we want to avoid this effect and therefor must use randomization.
-  %TODO: SOMEWHERE AROUND HERE THIS GOES!
-
-
-  % inspired by this work...
-
-  % Past work looks carefully at issues X, Y, and Z, but doesn’t take a systematic look at the behavior of algorithms for users with few ratings.
-  % Our work sits at the intersection of two important fields of recommender system research: New user experiance, and comparing algorithms. While there has been much work comparing various algorithms, there has been little formal work comparing algorithms based on their performance for new users. Therefore our work focuses on the behavior of recommender algorithms across different amounts of user data. (subsection might need re-ordering)
-
-  Our work sits at the intersection of two important traditions of recommender systems research: new user experience, and offline algorithm comparison.
-%%%%%%%%%%%%%%%%%%%%%%
+  We propose to carefully compare the performance of standard algorithms at recommending for new users.
   Our goal is to understand how different algorithms behave for new users, especially how their behavior changes as new users add ratings into the system.
   While there has been much work comparing algorithms in an offline setting, very little of it has explored what are the best algorithms for users with very few ratings.
   Furthermore, we do not seek to find the algorithm that scores best on some metric of choice, instead, we seek to form a complete understanding of the differences between algorithms for cold start use.
-%%%%%%%%%%%%%%%%%%%%%%
+
+  Our approach is related to temporal evaluations of recommender systems \cite{KorenTemporal, LathiaTemporal, burke2010evaluating}.
+  Temporal evaluations tend to evaluate recommender systems as a function of time, seeing how they performed at different points in their lifetime.
+  This approach is well suited for understanding the effect of changes to the system, or user base of a recommender.
+  Unfortunately, this approach is less well suited towards comparing algorithms, as it necessarily co-mingles the effect of a recommender on user navigation with the quality of the recommender making it hard to consider algorithms that were not deployed with the technique.
+  Regardless, we consider this technique an inspiration for our evaluation.
+  %TODO: I kind of want to cut this paragraph
+  %TODO: Our work sits at the intersection of two important traditions of recommender systems research: new user experience, and offline algorithm comparison.
 
   We structure our work around the following research questions.
   \begin{itemize}
@@ -158,48 +159,35 @@ TODO: abstract
       
 
   Prediction accuracy, as measured by RMSE or MAE is one of the classic techniques in recommended system evaluation.
-%%%%%%%%%%%%%%%%%%%%%%
   The idea behind these evaluations is to measure the accuracy of predictions on withheld recommendations.
   If the algorithm can successfully predict the withheld ratings, then we expect it will accurately predict future ratings as well.
   Because users may build trust in the system by looking at the predictions of items, we are interested in knowing which algorithms are most accurate, and which show the most notable change in accuracy as ratings are entered.
-%%%%%%%%%%%%%%%%%%%%%%
   
   More recently, the research community has shifted away from accuracy metrics in favor of metrics that evaluate a recommender system's ability to rank or recommend.
-%%%%%%%%%%%%%%%%%%%%%%
-  % TODO: cite johnjoe here?
   These algorithms try to evaluate how useful the recommendations provided by the system are to the user.
   This is commonly done by looking either at how withheld items are ranked with metrics such as nDCG, or by looking at if good or bad withheld items tend to be recommended positively by the recommender.
-%%%%%%%%%%%%%%%%%%%%%%
 
   Prior work has shown that users are sensitive to properties of a recommender other than simply how well it performs.
-%%%%%%%%%%%%%%%%%%%%%%
-  These properties, such as the diversity of the output recommendations, can effect how the user interacts with the recommender and drastically change the user experience \cite{ziegler and martijn}.
+  These properties, such as the diversity of the output recommendations, can effect how the user interacts with the recommender and drastically change the user experience \cite{zieglerDiversity, martijnDiversity}.
   Unfortunately, there is no way to know all such interesting metrics
   We will look at three such metrics, the popularity, diversity, and spread of the recommendations.
-%%%%%%%%%%%%%%%%%%%%%%
 
   The popularity of the items recommended to a user can have an impact on the user's satisfaction.
-%%%%%%%%%%%%%%%%%%%%%%
   If the user is only recommended items that are very popular, then the recommender is likely failing to make novel and interesting recommendations.
   In this case the user may feel that the recommender is not helpful in finding new and interesting things to watch.
   However, if a new user is only recommended items that are not well known, it is unlikely that the user will have heard of the items recommended.
   This could cause the user to not trust the system, as they have no way of comparing the recommendations against their personal knowledge.
-%%%%%%%%%%%%%%%%%%%%%%
-  
 
-  Past work \cite{ziegler and martijn} has shown that users tend to prefer recommendation lists that are more diverse.
-%%%%%%%%%%%%%%%%%%%%%%
-  <TODO: skim this past work again and report some details/results.>
-%%%%%%%%%%%%%%%%%%%%%%
+  Past work \cite{zieglerDiversity, martijnDiversity} has shown that users tend to prefer recommendation lists that are more diverse.
+  The belief is that by providing more diverse lists we are giving the user a larger range of items to choose from.
+  This can make choosing an item easier as the user is less likely to have to compare very similar options.
 
   Finally, we expect that algorithms with a good understand of its users will be able to recommend different items to different users.
-%%%%%%%%%%%%%%%%%%%%%%
   To measure this we will look at how well the recommender spreads its attention of many items.
   We will do this by computing the Shannon's entropy of the items recommended to each user.
   If the recommender system recommends the same items to each user, then the entropy will be low.
   Conversely, if the recommender recommends different items to each user, then the entropy will high.
   In practice, a recommender may focus on both a shared core of popular or well reviewed items, and more personal items, which would lead to middle values.
-%%%%%%%%%%%%%%%%%%%%%%
   
   Based on this list of possible metrics, we will clarify our research questions with three sub questions:
   \begin{itemize}
@@ -207,13 +195,6 @@ TODO: abstract
   \item How do algorithms behave with respect to ranking items appropriately?
   \item How do algorithms behave as measured by other metrics such as popularity and diversity?
   \end{itemize}
-
-  
-
-% RQ1A  How does algorithm behavior change with respect to predictive accuracy?
-      % RQ1B  How does algorithm behavior change with respect to TopN recommender performance?
-      % RQ1C How does algorithm behavior change with respect to other metrics such as popularity and diversity?
-
 
     % We look at three families of recommender algorithms (user based KNN, item based KNN, SVD)
     % we compare on several dimensions
@@ -241,46 +222,34 @@ TODO: abstract
   % list algorithms 
 
   We seek to develop an understanding of how a range of different standard algorithms perform at for new users.
-%%%%%%%%%%%%%%%%%%%%%%
   Rather than picking advanced algorithms that are tuned for new user performance, we decided to first understand how representatives of three common types of algorithms perform.
   Therefore we will compare User-User, Item-Item, and Funk's SVD algorithms against two simple baseline algorithms.
   More information about these algorithms can be found in table \ref{tbl:algo}
   Code for our evaluation, using the Lenskit evaluation framework \cite{lenskit} is available at \url{https://bitbucket.org/kluver/coldstartrecommendation}.
-%%%%%%%%%%%%%%%%%%%%%%
   
   \begin{table}
     \centering
     \begin{tabular}{|p{6em}|p{18em}|}
       \hline
-      Algorithm        & Algorithm description                                                                                     \\\hline
-      User-User        & User based nearest neighbor collaborative filtering \cite{resnick1994grouplens}                           \\\hline
-      Item-Item        & Item based nearest neighbor collaborative filtering \cite{sarwar2001item}                                 \\\hline
-      SVD              & Simon Funk's SVD based collaborative filtering approach \cite{funk_netflix_2006}                          \\\hline
-      ItemBaseline     & Item's average rating, slight mean damping is applied                                                     \\\hline
-      UserItem\-Baseline & ItemBasline adjusted by the user's average offset from the ItemBaseline. slight mean damping is applied \\\hline
+      Algorithm          & Algorithm description \\\hline
+      ItemBaseline       & Item's average rating, with mild bayesian damping towards the global mean \cite{funk_netflix_2006}. \\\hline
+      UserItem\-Baseline & ItemBasline adjusted by the user's average offset from the ItemBaseline. Mild mean damping is applied\cite{funk_netflix_2006}. \\\hline
+      User-User          & User based nearest neighbor collaborative filtering \cite{resnick1994grouplens} with a neighborhood size of 30 and ratings normalized by subtracting the UserItemBaseline score. \\\hline
+      Item-Item          & Item based nearest neighbor collaborative filtering \cite{sarwar2001item} with a neighborhood size of 30 and ratings normalized by subtracting the ItemBaseline score.   \\\hline
+      SVD                & Simon Funk's SVD based collaborative filtering approach \cite{funk_netflix_2006} with 30 features and 150 training iterations per feature. \\\hline
     \end{tabular}
-    \caption{Summary of algorithms used in our research.}
+    \caption{Summary of algorithms.}
     \label{tbl:algo}
   \end{table}
-
   
-  %TODO: verify these claims.
-  %TODO: check for examples of how to write this
-  %TODO: the Item-Item algo is ``better'' with just the item mean, not the user item mean. (change is pretty small). 
-  %TODO: exstrand's User-User only subtracts the user mean. I havn't tested this, he might have.
-  % algorithm is configured as such.
-  %TODO: topic sentence.
-
-
   % evaluation and code to run these algortihms available at.
   % citations and lenskit info
-  Each algorithm was tuned similarly to Ekstrand's 2012 lenskit based evaluation \cite{ekstrand2012recommenders}.
-%%%%%%%%%%%%%%%%%%%%%%
-  Since this evaluation was on a slightly different dataset (MovieLens 10M), we performed only minor tuning from these parameters.
-  Most notably we found the tuning of the damping parameter used in the baseline recommenders to be too large for this dataset.
-  As the damping can have a large effect on baseline quality for new users, we adjusted to a more reasonable damping for this dataset.
-  Overall, we did not find our results to be highly sensitive to minor tuning changes, although specific values may change slightly.
-%%%%%%%%%%%%%%%%%%%%%%
+  Each algorithm was configured and tuned similarly to Ekstrand's 2012 evaluation \cite{ekstrand2012recommenders}.
+  Since this evaluation was on a slightly different dataset (MovieLens 10M), we performed minor tuning from these parameters.
+  Most notable, we found that the previous damping parameter used in the baselines was too large.
+  We found that a value of 5 gave much better results for new user recommendations.
+  During tuning we found that, among the configurations that performed well, our key results are consistent.
+  %TODO: carefully run this wording by joe.
 
   \subsection*{Metrics}
   We will discuss a total of eleven metrics.
@@ -319,8 +288,9 @@ TODO: abstract
   % Provide computation details for AILS@N
   Most of our metrics are standard techniques, or easily commutable, therefore we will only comment on the AILS, and spread metrics.
 %%%%%%%%%%%%%%%%%%%%%%%%%
-  The AILS@20 metric is based on the ILS metric introduced by ziegler et al \cite{ziegler}.
+  The AILS@20 metric is based on the ILS metric introduced by ziegler et al \cite{zieglerDiversity}.
   AILS@N is simply a rescaling of ILS to be scale free with regards to N, this was done to make the metric easier to interpret, by putting it on the same scale as similarity values.
+  We used the same item similarity metric for AILS@20 as we used in the Item-Item recommender.
  
   % Provide computation details for spread
   The spread metric is computed by computing recommendations for each test user.
@@ -449,6 +419,7 @@ TODO: abstract
   \label{fig:topN.rmse}
 \end{figure*}
 
+
   The first graph in figure \ref{fig:topN.rmse} shows the average number of items in the top 20 recommendations for each algorithm that were also in the test set.
   The average number of test set items in recommendations shows a similar trend to the MAP, precision, and recall metrics, user-user getting by far the fewest seen items, and the baseline getting the most.
   %TODO: talk about trust building here!
@@ -547,6 +518,7 @@ TODO: abstract
       % only covered three common families,
       % different algos tuned specifically for cold start.
       % algos that use extra data about users or about items.
+    % cite the comparison work at CHI.
 
   % despite the limitations we were able to show differences between algorithms in a cold start situation.
 
