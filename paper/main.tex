@@ -1,10 +1,3 @@
-%TODO: review results
-%TODO: outline conclusions
-%TODO: write introduction
-%TODO: write methodology
-%TODO: re-write results
-%TODO: write conclusions
-%TODO: review extensively
 \documentclass[letterpaper]{sig-alternate}
 
 \usepackage{hyperref}
@@ -19,7 +12,7 @@
 %\CopyrightYear{2007} % Allows default copyright year (20XX) to be over-ridden - IF NEED BE.
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 
-\title{TODO: title}
+\title{Evaluating recommender behavior for new users}
 
 \numberofauthors{2}
 
@@ -43,7 +36,12 @@ Joseph A. Konstan\\
 \maketitle
 \begin{abstract}
 
-TODO: abstract
+  The new user experiance is one of the important problems in recommender systems.
+  Past work on recommending for new users has focused on the process of gathering information from the user.
+  Our work focuses on how different algorithms behave for new users.
+  We describe a methodology that we use to compare representative of three common families of algorithms along eleven different metrics.
+  We find that overall the SVD based algorithm performs best for new users.
+  Our results can inform the design of interfaces and algorithms for new users, and suggest interesting opportunities for future work.
 
 \end{abstract}
 
@@ -246,7 +244,7 @@ TODO: abstract
       AILS@20                & The average pairwise similarity between recommended items. \\\hline
       Spread@20              & The Shannon's entropy of the distribution of recommended items for users in the test set.\\\hline
     \end{tabular}
-    \caption{TODO:}
+    \caption{Summary of metrics}
     \label{tbl:metrics}
   \end{table}
   
@@ -356,7 +354,7 @@ TODO: abstract
   % Prediction accuracy
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
+  \includegraphics[width=0.9\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
   \caption{Left: RMSE, Right: nDCG}
   \label{fig:rmse}
   \label{fig:ndcg}
@@ -403,8 +401,8 @@ TODO: abstract
 
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=1.1\linewidth]{../lenskit/output/ekstrandTuned20/TopNPrecision.pdf}
-  \caption{TODO}
+  \includegraphics[width=1.05\linewidth]{../lenskit/output/ekstrandTuned20/TopNPrecision.pdf}
+  \caption{Left: Precision@20, Center: MAP@20, Right: Fallout@20}
   \label{fig:map}
 \end{figure*}
 \paragraph{MAP@20, Precision@20, Fallout@20}
@@ -427,8 +425,8 @@ TODO: abstract
 
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=1.1\linewidth]{../lenskit/output/ekstrandTuned20/rmse_20.pdf}
-  \caption{TODO}
+  \includegraphics[width=1.05\linewidth]{../lenskit/output/ekstrandTuned20/rmse_20.pdf}
+  \caption{Left: SeenItems@20, Center: MeanRating@20, Right: RMSE@20}
   \label{fig:topN.rmse}
 \end{figure*}
   \paragraph{SeenItems@20}
@@ -461,8 +459,8 @@ TODO: abstract
 
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/popdiv.pdf}
-  \caption{TODO}
+  \includegraphics[width=1.05\linewidth]{../lenskit/output/ekstrandTuned20/popdiv.pdf}
+  \caption{Left:averagePopularity@20, Center AILS@20, Right Spread@20}
   \label{fig:pop}
 \end{figure*}
 
@@ -482,16 +480,9 @@ TODO: abstract
   Unlike popularity, SVD and ItemItem seem to perform equivalently in diversity.
   In terms of diversity we see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing  inter-list similarity) as more ratings are retained.
 
-\begin{figure}[]
-  \centering
-  \includegraphics[width=1.1\columnwidth]{../lenskit/output/ekstrandTuned20/topN_entropy.pdf}
-  \caption{TODO}
-  \label{fig:spread}
-\end{figure}
-
   % spread plot
   \paragraph{Spread@20}
-  The graph in \ref{fig:spread} shows the spread of the recommendations from each algorithm.
+  The third graph in \ref{fig:spread} shows the spread of the recommendations from each algorithm.
   Because this metric can only be computed over a group of people, confidence intervals over the per-user average are not provided, instead the specific spread values computed in each five folds are shown as points, with lines connecting the average values.
   As expected the baseline performs worst on spread, as it recommends the same items to each user, unless the user has already rated one of these items.
   SVD performs mildly better than the baseline, and shows definite improvement as more ratings are added.
@@ -501,6 +492,19 @@ TODO: abstract
   More research will be needed to understand this trend.
   
 \section{Conclusions}
+  % summary of results in a big old table.
+    % the accuracy of svd and user-user both seemed good. item-item seemed to have trouble especially with very new users.
+    % svd did quite well on our traditional topN metrics, item-item did OK, and user-user did bad., but there are flaws with these metrics.
+    % on our topN RMSE item-item (again) seemed to have issues, and user-user did quite well, but the low hit rate is troubleing. 
+    % again svd seems the winner here.
+    % on our fluffy metrics item-item and svd seemed to do well. I might argue that item-item seemed to do better (spread, and higher throughout).
+    % user-user seemed to do poor
+
+  % what this means
+    % user-user seems to be able to give accurate predictions, but seems to focus on overly obscure items in recommendation.
+    % item-item seems to give not-bad recommendations, but its predictions have issues
+    % based only on these results svd seems to be the best performer and is our recommendation to new systems.
+    
   \begin{table}[ht!]
     \centering
     \begin{tabular}{|p{4.5em}|p{4.5em}|p{7.5em}|p{4.5em}|}
@@ -514,29 +518,54 @@ TODO: abstract
     \label{tbl:results}
   \end{table}
 
-  % summary of results in a big old table.
-    % the accuracy of svd and user-user both seemed good. item-item seemed to have trouble especially with very new users.
-    % svd did quite well on our traditional topN metrics, item-item did OK, and user-user did bad., but there are flaws with these metrics.
-    % on our topN RMSE item-item (again) seemed to have issues, and user-user did quite well, but the low hit rate is troubleing. 
-    % again svd seems the winner here.
-    % on our fluffy metrics item-item and svd seemed to do well. I might argue that item-item seemed to do better (spread, and higher throughout).
-    % user-user seemed to do poor
-  % what this means
-    % user-user seems to be able to give accurate predictions, but seems to focus on overly obscure items in recommendation.
-    % item-item seems to give not-bad recommendations, but its predictions have issues
-    % based only on these results svd seems to be the best performer and is our recommendation to new systems.
+  The high level results of our evaluation are summarized in table \ref{tbl:results}
+  Overall we see that SVD seems to be the best performing algorithm for cold start use.
+  SVD was the only algorithm that consistently outperformed the baseline algorithms on prediction and recommendation tasks.
+  ItemItem had arguably better results on the average popularity and spread metrics, indicating that it was able to find more novel items, and make a larger range of recommendations to users.
+  Unfortunately, Item-Item also performed quite poorly at both prediction and recommendation, which may make it less suitable for new users.
+
+  UserUser performed quite well are prediction, but tended to favor unpopular items in its recommendations.
+  While some novelty is good, we believe that UserUser goes too far into the obscure movies in its recommendations, and therefore does not make good recommendations.
+  Therefore we believe that UserUser is not well suited to new users if its recommendations are going to be used.
+  Exploring corrections for this issue is left as future work.
+
   % other takeaways
     % regularization
+  This analysis suggests that, at least for new users, system designers use algorithms from the SVD family.
+  We belive that it is the regularization built into these algorithm that give them good performance.
+  UserUser and ItemItem algorithms have no built in method for damping their predictions towards the mean when they don't have much data.
+  The regularization in the cost function of the SVD model makes it so its predictions will gradually shift away from the baseline predictions as more relevant ratings are added.
+  The downside of this, however, could be the higher popularity and lower spread seen by the SVD algorithm.
+  The same regularization that helps avoid making mistakes due to too little data, may also prevents the algorithm from taking occasional risks on more obscure movies.
+
     % if you use a switching recommender, this methodology can help you choose when to switch.
     % non-traditional metrics can tell you more about what is going on, these seem to be more properties of the class of algo than of the data, so its worth looking at these when choosing algorithms, to find one with properties that are good for your task.
+  One interesting result of our analysis is that at very small numbers of ratings the UserItemBaseline seems to be our strongest algorithm, both in terms of accuracy (as measured by RMSE), and in terms of recommendation quality (as measured by MeanRating@20).
+  This suggests a recommendation strategy for live systems.
+  Instead of recommending from one recommender right away, a system could provide baseline predictions and recommendations until the user has enough ratings and then switching to a better recommender.
+  For recommenders like this our methodology provides a way to find the correct number of ratings at which to switch algorithms.
+
 
   % limitations and opprotunities
     % dataset limitations
       % only one domain
       % no quitters in our dataset
-    % metrics limitations
-      % many metrics require user data to help us understand what users want from a recommender
-      % no well known ``goodness'' metric for topN.
+
+  One of the major limitations of our work is that we only evaluated one dataset.
+  Future work should replicate our experiment on other datasets from different recommender domains.
+  By doing this we will find out which of our results are true properties of the algorithms, and which results are instead related to properties of our dataset.
+
+  One important property that needs to be considered is that our dataset only contained users that naturally used the system enough to collect 20 ratings.
+  Unfortunately, this means that we do not know if there are differences between users who do and do not survive in the system.
+  This is a limitation of our methodology, to maintain a constant test set throughout the evaluation we are not able to evaluate users who have less ratings than the maximum amount we wish to study.
+  More work needs to be done to understand users who only ever make one or two ratings to understand why they leave, and how they differ from other users of our systems.
+
+  Finally, we feel that much more work should be done using this methodology to explore different algorithms.
+  There are many algorithms beyond the three e evaluated.
+  Some of these algorithms are designed specifically for cold start.
+  Others are designed to leverage extra, non-rating information to improve quality.
+  Work should be done to understand the differences between these algorithms, and what effect extra information has on the recommendation process.
+  Using our methodology we might be able to come up with an understanding of the value that extra information about the user has on recommendation, and to compare it the value of extra ratings for new users.
     % algorithm limitations
       % only covered three common families,
       % different algos tuned specifically for cold start.

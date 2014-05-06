@@ -20,7 +20,7 @@ for (metric in metrics) {
 
 
 dat <- read.csv("eval-results.csv")
-plot = ggplot(dat, aes(x=Retain, y=TopN.Entropy, color=Algorithm, shape=Algorithm))+geom_point()+stat_summary(fun.y=mean, geom="line")+ylab("Spread")+scale_x_continuous(breaks=4*(0:5))
+plot = ggplot(dat, aes(x=Retain, y=TopN.Entropy, color=Algorithm, shape=Algorithm))+geom_point()+stat_summary(fun.y=mean, geom="line")+ylab("Spread")+scale_x_continuous(breaks=4*(0:5))+ theme(legend.position="none")
 pdf("topN_entropy.pdf", width=6, height=4)
 print(plot)
 dev.off()
@@ -69,7 +69,6 @@ pdf("TopNPrecision.pdf", width=8.5, height=3)
 print(plot)
 dev.off()
 
-
 vars = c("SeenItems@20", "MeanRating@20", "RMSE@20")
 data.melt.sub = subset(data.melt, variable %in% vars)
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserUser" | variable == "SeenItems@20")
@@ -78,10 +77,34 @@ pdf("rmse_20.pdf", width=8.5, height=3)
 print(plot)
 dev.off()
 
+spread.dat <- read.csv("eval-results.csv")
+spread.dat = spread.dat[c("Algorithm","Retain", "TopN.Entropy", "Partition")]
+spread.dat$variable="Spread@20"
+spread.mean = aggregate(TopN.Entropy~Algorithm+Retain, data=spread.dat, mean)
+names(spread.mean) <- c("Algorithm", "Retain", "value")
+spread.mean$variable = "Spread@20"
+spread.mean$var = 0
+spread.mean$length = 0
+spread.mean$cisize = 0
+spread.mean$lb = 0
+spread.mean$ub = 0
 
 vars = c("AveragePopularity@20", "AILS@20")
 data.melt.sub = subset(data.melt, variable %in% vars)
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm, ymin=lb, ymax=ub))+geom_point()+geom_line()+geom_errorbar()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)
-pdf("popdiv.pdf", width=8.5, height=3.5)
+
+data.merged = rbind(data.melt.sub, spread.mean)
+data.merged$variable = ordered(data.merged$variable, levels = c("AveragePopularity@20", "AILS@20", "Spread@20"))
+
+
+
+
+# make core plot
+plot = ggplot(data.merged, aes(x=Retain, y=value, color=Algorithm))+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)
+# add things to pop and ails
+plot = plot + geom_point(data=data.melt.sub, mapping=aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))
+plot = plot + geom_errorbar(data=data.melt.sub, mapping=aes(x=Retain, y=value, color=Algorithm, shape=Algorithm, ymin=lb, ymax=ub))
+#add things to spread
+plot = plot + geom_point(data=spread.dat, mapping=aes(x=Retain, y=TopN.Entropy, color=Algorithm, shape=Algorithm))
+pdf("popdiv.pdf", width=8.5, height=3)
 print(plot)
 dev.off()
