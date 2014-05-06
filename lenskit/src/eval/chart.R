@@ -1,7 +1,11 @@
 # Create a chart comparing the algorithms
 
+cp = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00")
+
 library("ggplot2")
 library(reshape2)
+
+all.data = read.csv("eval-user.csv")
 
 all.data.melt = melt(all.data, c("Algorithm", "Retain", "User"), metrics)
 data.melt = aggregate(value~Algorithm+Retain+variable, data=all.data.melt, mean)
@@ -18,20 +22,22 @@ data.melt$variable[data.melt$variable == "TopN.MeanPopularity"] = "AveragePopula
 data.melt$variable[data.melt$variable == "diversity"] = "AILS@20"
 data.melt$variable = ordered(data.melt$variable, levels = c("Coverage", "RMSE", "nDCG", "Precision@20", "MAP@20", "Fallout@20", "SeenItems@20", "MeanRating@20", "RMSE@20", "AveragePopularity@20", "AILS@20", "TestTime","MAE","MutualInformation","PredicitonEntropy","ItemScorer.NAttempted","ItemScorer.NGood","ItemScorer.Coverage","TopN.ActualLength", "Recall.fallout", "Recall"))
 
+data.melt$Algorithm = ordered(data.melt$Algorithm, c("ItemItem", "UserUser", "svd", "ItemBaseline", "UserItemBaseline"))
+
 # make plots
 vars = c("RMSE", "nDCG")
 data.melt.sub = subset(data.melt, variable %in% vars)
-data.melt.sub = subset(data.melt.sub, Algorithm != "UserUser" | variable == "RMSE")
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme_minimal()+theme(legend.position="bottom")
-pdf("accuracy.pdf", width=8.5*2/3, height=3.5)
+data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline" | variable == "RMSE")
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme(legend.position="bottom")+scale_color_manual(values=cp)+theme_minimal()
+pdf("accuracy.pdf", width=8.5*2/2.5, height=3.5)
 print(plot)
 dev.off()
 
 
 vars = c("Precision@20", "MAP@20", "Fallout@20")
 data.melt.sub = subset(data.melt, variable %in% vars)
-data.melt.sub = subset(data.melt, Algorithm != "UserItemBaseline")
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme_minimal()+theme(legend.position="bottom")
+data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline")
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme(legend.position="bottom")+scale_color_manual(values=cp)+theme_minimal()
 pdf("TopNPrecision.pdf", width=8.5, height=3.5)
 print(plot)
 dev.off()
@@ -41,7 +47,7 @@ data.melt.sub = subset(data.melt, variable %in% vars)
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserUser" | variable == "SeenItems@20")
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline" | variable == "RMSE@20")
 
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme_minimal()+theme(legend.position="bottom")
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme(legend.position="bottom")+scale_color_manual(values=cp)+theme_minimal()
 pdf("rmse_20.pdf", width=8.5, height=3.5)
 print(plot)
 dev.off()
@@ -54,11 +60,11 @@ spread.mean$variable = "Spread@20"
 
 vars = c("AveragePopularity@20", "AILS@20")
 data.melt.sub = subset(data.melt, variable %in% vars)
-data.melt.sub = subset(data.melt, Algorithm != "UserItemBaseline")
-
 data.melt.sub = rbind(data.melt.sub, spread.mean)
 data.melt.sub$variable = ordered(data.melt.sub$variable, levels = c("AveragePopularity@20", "AILS@20", "Spread@20"))
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme_minimal()+theme(legend.position="bottom")
+
+data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline")
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+theme(legend.position="bottom")+scale_color_manual(values=cp)+theme_minimal()
 pdf("popdiv.pdf", width=8.5, height=3.5)
 print(plot)
 dev.off()

@@ -1,4 +1,4 @@
-%TODO: cleanup plots.
+%TODO: update labels. retained ratings? profile size?
 
 \documentclass[letterpaper]{sig-alternate}
 
@@ -42,7 +42,8 @@ Joseph A. Konstan\\
   Past work on recommending for new users has focused on the process of gathering information from the user.
   Our work focuses on how different algorithms behave for new users.
   We describe a methodology that we use to compare representative of three common families of algorithms along eleven different metrics.
-  We find that overall the SVD based algorithm performs best for new users.
+  We find that making recommendations to users with little to no ratings is hard, with a baseline algorithm performing best for the first few ratings.
+  Once we have a few ratings, however, we find that overall the SVD based algorithm outperforms both user and item nearest neighbor approaches for new users.
   Our results can inform the design of interfaces and algorithms for new users, and suggest interesting opportunities for future work.
 
 \end{abstract}
@@ -62,9 +63,11 @@ Joseph A. Konstan\\
   % new user experiance is only chance to make all important first impression
   One of the important problems in recommender systems is the new user experience.
   If the system cannot provide a good user experience, then new users are likely to leave and not return.
-  Even if the user does choose to enter the system, the user's first impression of the system can have a lasting impact on how the user interacts with the system.
-  The user's first impression can shape how the user expects the system to behave in future interactions, fundamentally changing how the user perceives the system.
-
+  Even if the recommender can make accurate recommendations, that is not enough to make a good first impression.
+  If the recommender only recommends items the user has seen, then the user may see no value in the system and leave.
+  Alternatively, if the recommender only recommends obscure items then the user will have no way to know if the evaluations are worth taking, and may leave.
+  This problem is made even worse by how little information we have about new users to inform personalization decisions.
+  
 % one important trait is trust.
     % trust is complex
     % matching user's experiance is probably important.
@@ -83,7 +86,7 @@ Joseph A. Konstan\\
     % we only look at user cold start as it is ubiquitous.
   Past work on new user experience in recommender systems has tended to focus on the `cold start problem'.
   Cold start refers to the problem that no algorithm can make useful recommendations with very limited amounts of information, therefore new users and items must have worse recommendations.
-  We will only discuss the user side of the cold start problem in this work.
+  We will only consider the user side of the cold start problem in this work.
   Most solutions to the cold start problem require some source of extra information about new users.
   
   % One common new user strategy is to have a special data collection mode.
@@ -112,23 +115,30 @@ Joseph A. Konstan\\
     % point out holes (evaluating standard algorithms for little to no ratings, wholeistic evaluation)
     % point out that other approaches than smart object ordering exist, and we need to be able to compare.
 
-  While past work has covered the new user rating survey as a solution to new user cold start, much less work has been done comparing other strategies.
-  Most of this work has been focused on strategies for how to get ratings from users.
-  Very little work has carefully considered how best to use the information we receive.
-  Most authors simply assert that more ratings are better, but for new users we may see interesting performance gains by simply choosing algorithms that perform well for new users.
+  While past work has covered the new user rating survey from many different angles, it has not carefully evaluated which algorithm to use to recommend to these new users.
+  The new user survey work sidesteps this issue by assuming that the user will receive no personalization until they survey is complete.
+  For some recommenders deployed in the wild, however, providing no recommendations to users is not acceptable.
+  Even for those systems that do not personalize until the user has made enough ratings, carefully choosing algorithms for new users may be hugely important, and can help choose how many ratings is considered ``enough''.
+  
+  Fortunately, there has been a growing trend in recommender system research to perform multiple metric evaluations of recommender systems.
+  This work comes out of a pushback against early recommendation evaluations which only evaluated recommenders in terms of their predictive accuracy \cite{accurateIsNotEnough}.
+  The response of this pushback has been the generating of many different metrics which allow us to more carefully understand the separate aspects of a recommender's output \cite{LathiaTemporal, CremonesiTopN, zieglerDiversity}.
+  %TODO: I want to cite more papers here, I don't think I have good ones either. Joe would probably know.
+  By evaluating how algorithms differ, not just in accuracy, but on dimensions such as the novelty of the recommendations, or how frequently the algorithm recommends new items, we can understand the tradeoffs between two otherwise comparable algorithms.
+  This will let us know which algorithm may be more suited for different domains, where different properties are more or less important.
 
-  We propose to combine two traditions of recommender system research, offline algorithm analysis and new user experience research.
-  We seek to compare algorithms based on their performance for new users.
+  We propose to combine two these two traditions of recommender system research, multiple metric algorithm analysis and new user experience research.
+  We seek to compare algorithms based on how the behave for new users.
   Our goal is to understand the differences between algorithms for new users, especially how these algorithms respond to different amounts of information.
-  While there has been much work comparing algorithms in an offline setting, very little of it has explored what are the best algorithms for users with very few ratings.
+  by using multiple metrics we can understand not just what algorithm is best in terms of absolute performance, but also gain a more nuanced understanding of the qualities of different algorithm's recommendations.
+  While there has been much work comparing algorithms in an offline setting, very little of it has been done in the context of new users.
   %Furthermore, we do not seek to find the algorithm that scores best on some metric of choice, instead, we seek to form a complete understanding of the differences between algorithms for cold start use.
-
 
   We structure our work around the following research question.
   \begin{itemize}
     \item RQ1: How do algorithms behave for users with few ratings?
   \end{itemize}
-  Unfortunately, algorithm behavior is a broad and hard to define subject.
+  Unfortunately, algorithm behavior is a broad subject.
   We will look at three distinct sub questions to help capture recommender system behavior.
   Each sub question may represent several actual metrics in our evaluation.
   %We will look at three distinct ways to quantify the behavior of a recommender system. each of which will lead to multiple metrics.
@@ -148,9 +158,9 @@ Joseph A. Konstan\\
           % spread
       
   \begin{itemize}
-  \item RQ1.a: How do algorithms behave with respect to prediction accuracy?
-  \item RQ1.b: How do algorithms behave with respect to ranking and recommending?
-  \item RQ1.c: How do algorithms behave as measured by other metrics such as popularity and diversity?
+  \item RQ1.a: How accurately can different algorithms predict for new users?
+  \item RQ1.b: How well can different algorithms rank and recommend good items to new users?
+  \item RQ1.c: How do algorithms behave as measured by other metrics such as popularity and diversity for new users?
   \end{itemize}
 
   We will answer these questions by developing an evaluation framework that can be used to understand how algorithms perform for new users.
@@ -179,7 +189,7 @@ Joseph A. Konstan\\
 
   As mentioned earlier, many recommender systems use a new user survey to collect the first user ratings.
   These ratings are intentionally different than normal user ratings.
-  As we will discuss shortly, our methodology uses randomization in key places to remove this ordering effect.
+  As we will explain shortly, our methodology uses randomization in key places to remove this ordering effect.
   This allows us to better capture the underlying algorithm performance on ``normal'' user data.
   While this makes our methodology unsuited for temporal metrics, it allows us to separate an algorithm's behavior from how ratings are collected for new users.
   Therefore, we feel that our methodology is more suitable to answer our research question.
@@ -191,7 +201,7 @@ Joseph A. Konstan\\
 
   We seek to develop an understanding of how a range of different standard algorithms perform at for new users.
   Rather than picking advanced algorithms that are tuned for new user performance, we decided to first understand how representatives of three common types of algorithms perform.
-  Therefore we will compare User-User, Item-Item, and Simon Funk's SVD algorithms against two simple baseline algorithms.
+  Therefore we will compare User-User\cite{resnick1994grouplens}, Item-Item\cite{sarwar2001item}, and Simon Funk's SVD\cite{funk_netflix_2006} algorithms against two simple baseline algorithms.
   More information about these algorithms can be found in table \ref{tbl:algo}
   Code for our evaluation, using the Lenskit evaluation framework \cite{lenskit} is available at \url{https://bitbucket.org/kluver/coldstartrecommendation}.
   
@@ -220,8 +230,8 @@ Joseph A. Konstan\\
   %TODO: carefully run this wording by joe.
 
   \subsection*{Metrics}
-  We will discuss a total of eleven metrics.
-  Some of these metrics will prove to be redundant, and future work should be able to use a much smaller list of metrics.
+  We use a total of eleven metrics.
+  In our evaluation we found that some of these metrics are redundant, and future work should be able to use a much smaller list of metrics.
   The metrics are listed in table \ref{tbl:metrics}.
   \begin{table}[ht!]
     \centering
@@ -253,7 +263,7 @@ Joseph A. Konstan\\
   This issue will be addressed later in the results section.
   
   Most of our metrics are standard techniques, so we will only address the latter 6.
-  As we will discuss later, we found Precision, MAP, and fallout to not be useful for this evaluation, therefore to help understand the quality of our recommendations, we include SeenItems@20, MeanRating@20, and RMSE@20.
+  As we show later, we found Precision, MAP, and fallout to not be useful for this evaluation, therefore to help understand the quality of our recommendations, we include SeenItems@20, MeanRating@20, and RMSE@20.
   SeemItems@20 tells us how frequently the user is to have previously seen a recommended item.
   This is useful for two reasons.
   First this provides important context for the next two metrics, as this is how many items those metrics are often averaged over.
@@ -315,7 +325,7 @@ Joseph A. Konstan\\
   
   These ratings were collected from the MovieLens system, which requires 15 ratings in a new user survey before users can enter the system.
   To the best of our knowledge, at the time this data was collected the new user survey preferred items that were very popular.
-  Therefore, as we will discuss shortly, will randomize the order of the ratings to try to avoid measuring the effect of these initial ratings, and instead focus on the algorithm's performance on normal ratings.
+  Therefore, as we cover shortly, will randomize the order of the ratings to try to avoid measuring the effect of these initial ratings, and instead focus on the algorithm's performance on normal ratings.
   
   Each user in the dataset has at least 20 ratings.
   Therefore we will evaluate new users with up to 19 ratings.
@@ -354,7 +364,7 @@ Joseph A. Konstan\\
   % Prediction accuracy
 \begin{figure*}[ht!]
   \centering
-  \includegraphics[width=0.666\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
+  \includegraphics[width=0.75\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
   \caption{Left: RMSE, Right: nDCG}
   \label{fig:rmse}
   \label{fig:ndcg}
