@@ -126,22 +126,14 @@ TODO: abstract
   While there has been much work comparing algorithms in an offline setting, very little of it has explored what are the best algorithms for users with very few ratings.
   %Furthermore, we do not seek to find the algorithm that scores best on some metric of choice, instead, we seek to form a complete understanding of the differences between algorithms for cold start use.
 
-  %Our approach is related to temporal evaluations of recommender systems \cite{KorenTemporal, LathiaTemporal, burke2010evaluating}.
-  %Temporal evaluations tend to evaluate recommender systems as a function of time, seeing how they performed at different points in their lifetime.
-  %This approach is well suited for understanding the effect of changes to the system, or user base of a recommender.
-  %Unfortunately, this approach is less well suited towards comparing algorithms, as it necessarily co-mingles the effect of a recommender on user navigation with the quality of the recommender making it hard to consider algorithms that were not deployed with the technique.
-  %Regardless, we consider this technique an inspiration for our evaluation.
-  %TODO: I kind of want to cut this paragraph
-  %TODO: !!! Our work sits at the intersection of two important traditions of recommender systems research: new user experience, and offline algorithm comparison.
 
-  We structure our work around the following research questions.
+  We structure our work around the following research question.
   \begin{itemize}
-    \item RQ1: How do algorithms behave for users with very few ratings?
-    \item RQ2: How does algorithm behavior change with increasing ratings for new users?
+    \item RQ1: How do algorithms behave for users with few ratings?
   \end{itemize}
   Unfortunately, algorithm behavior is a broad and hard to define subject.
   We will look at three distinct sub questions to help capture recommender system behavior.
-  Each subquestion may represent several actual metrics in our evaluation.
+  Each sub question may represent several actual metrics in our evaluation.
   %We will look at three distinct ways to quantify the behavior of a recommender system. each of which will lead to multiple metrics.
 
 % RQs
@@ -159,9 +151,9 @@ TODO: abstract
           % spread
       
   \begin{itemize}
-  \item How do algorithms behave with respect to prediction accuracy?
-  \item How do algorithms behave with respect to ranking and recommending?
-  \item How do algorithms behave as measured by other metrics such as popularity and diversity?
+  \item RQ1.a: How do algorithms behave with respect to prediction accuracy?
+  \item RQ1.b: How do algorithms behave with respect to ranking and recommending?
+  \item RQ1.c: How do algorithms behave as measured by other metrics such as popularity and diversity?
   \end{itemize}
 
   We will answer these questions by developing an evaluation framework that can be used to understand how algorithms perform for new users.
@@ -176,12 +168,24 @@ TODO: abstract
     % motiviate _why do a simulation_ (a lot of metrics we want to try)
 
   To answer our research questions we will evaluate algorithms in an offline simulation designed to simulate users as they join the system.
-%%%%%%%%%%%%%%%%%%%%%%
-  We will do this by running separate instances of the standard train and test methodology, each one designed so that test users have some small number of ratings.
+  We will do this by running separate instances of the standard train and test methodology, each one designed so that every test user has a specific  number of ratings.
   We will then plot metric results against the number of retained items to understand both how the algorithms compare on these metrics, and how the algorithm performance changes with the number of ratings provided.
-  This, or a similar technique, has been used by previous authors \cite{DrennerInitialExperiance, TenIsEnough, AdaptiveBootstrap}, however, these normally are used with only one algorithm or metric, and normally just to make the point that prediction accuracy improves as the number of ratings grows.
-  We will use this technique to develop a much more nuanced understanding of the differences between algorithms, and how they behave for users with few ratings.
-%%%%%%%%%%%%%%%%%%%%%%
+  This, or a similar technique, has been used by previous authors to make plots of metrics over profile size \cite{DrennerInitialExperiance, TenIsEnough, AdaptiveBootstrap}.
+  These authors did this simply to establish that recommender accuracy does improve as the number of ratings grows.
+  Therefore these authors did not carefully compare multiple algorithms on a breadth of metrics.
+  We will use this technique to develop a much more nuanced understanding of the differences between algorithms.
+
+  Our approach is related to a temporal evaluation, in which a recommender is trained on all ratings up to a point in time, and then tested using the next ratings to be made.
+  Temporal evaluations have been used in the past to evaluate how the list of recommendations from different algorithms change as users enter more ratings into the system \cite{LathiaTemporal}.
+  While the output of a temporal evaluation are very similar to our own, the methodology has some key differences.
+  Where a temporal evaluation is designed specifically to consider the order in which users make ratings, our methodology is designed to try to eliminate this ordering effect from our consideration of the algorithm's behavior.
+
+  As mentioned earlier, many recommender systems use a new user survey to collect the first user ratings.
+  These ratings are intentionally different than normal user ratings.
+  As we will discuss shortly, our methodology uses randomization in key places to remove this ordering effect.
+  This allows us to better capture the underlying algorithm performance on ``normal'' user data.
+  While this makes our methodology unsuited for temporal metrics, it allows us to separate an algorithm's behavior from how ratings are collected for new users.
+  Therefore, we feel that our methodology is more suitable to answer our research question.
 
   \subsection*{Algorithms}
   % algorithms (discuss tuning of algorithms per algorithm?)

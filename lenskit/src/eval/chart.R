@@ -72,6 +72,7 @@ dev.off()
 
 vars = c("SeenItems@20", "MeanRating@20", "RMSE@20")
 data.melt.sub = subset(data.melt, variable %in% vars)
+data.melt.sub = subset(data.melt.sub, Algorithm != "UserUser" | variable == "SeenItems@20")
 plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm, ymin=lb, ymax=ub))+geom_point()+geom_line()+geom_errorbar()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)
 pdf("rmse_20.pdf", width=8.5, height=3)
 print(plot)
