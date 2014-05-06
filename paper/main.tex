@@ -307,23 +307,39 @@ TODO: abstract
     % # items
     % distributions of # ratings per user (important: min 20)
     % establish range of evaluation.
-  For this evaluation we will use the MovieLens 1M dataset.
+  For this evaluation we will use the MovieLens 1M dataset \footnote{\url{http://grouplens.org/datasets/movielens/}}.
+  This dataset contains 1 million ratings from 6000 users on 4000 movies.
+  
+  These ratings were collected from the MovieLens system, which requires 15 ratings in a new user survey before users can enter the system.
+  To the best of our knowledge, at the time this data was collected the new user survey preferred items that were very popular.
+  Therefore, as we will discuss shortly, will randomize the order of the ratings to try to avoid measuring the effect of these initial ratings, and instead focus on the algorithm's performance on normal ratings.
+  
+  Each user in the dataset has at least 20 ratings.
+  Therefore we will evaluate new users with up to 19 ratings.
+  This will allow us to ensure that each user in the dataset has at least one test rating.
 
-  % movielens system
-      % silly cold start
-      % randomization
-  The MovieLens system uses a new user rating survey to allow users to enter the system.
   
   \subsection*{Evaluation Procedure}
   % subsampling strategy
   % describe normal crossfold solution
   The natural way to perform this evaluation is with a modified user crossfolding strategy.
+  The normal 5 fold cross validation strategy splits the users into five groups.
+  In each of five folds all ratings from four of the groups will be kept in the training set, and then either some constant number or percent of ratings from each user in the fifth group will be set aside for the test set.
+  The selection of a test set can be random to avoid any possible ordering effects in the data due to a new user rating strategy.
+  To understand how metrics change with a different number of users we can simply generate separate crossfolds for each number of ratings we wish to retain.
+  At each crossfold, rather than only taking a constant number of ratings for the test set, we can instead only keep a constant number of ratings for the training set.
   
   % describe issues with solution
   Unfortunately, we found that this strategy can causes biases in our evaluation.
+  In particular, this strategy led to the size of the test sets to change as a function of the number of ratings retained.
+  As we kept more ratings for the training set, we would have fewer ratings in the testing set.
+  This turned out to bais our results, as some metrics, such as nDCG, proved to be sensitive to the number of items in the testing set.
   
   % describe our crossfold then subsample solution.
   Our solution to this bais is to subsample an existing crossfold.
+  Therefore, to generate training and test sets for different number of ratings from 1 to 19, we first generate a set of test and training splits with 19 training items using the crossfold strategy outlined above.
+  Then, to generate any other number of ratings, we randomly downsample the 19 item training set.
+  This allows us to generate training sets with a given number of ratings retained for test users, such that each number of ratings retained uses the same tests set.
 
 \section{Results}
 
@@ -333,9 +349,8 @@ TODO: abstract
 
 \subsection{Prediction accuracy}
   % Prediction accuracy
-\begin{figure*}
+\begin{figure*}[ht!]
   \centering
-
   \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
   \caption{Left: RMSE, Right: nDCG}
   \label{fig:rmse}
@@ -457,7 +472,7 @@ TODO: abstract
   Overall, Item-Item and SVD are providing recommendations that, at least in an offline context, appear to have quite comparable diversity.
 
 
-\begin{figure}[ht!]
+\begin{figure}[]
   \centering
   \includegraphics[width=1.1\columnwidth]{../lenskit/output/ekstrandTuned20/topN_entropy.pdf}
   \caption{TODO}
