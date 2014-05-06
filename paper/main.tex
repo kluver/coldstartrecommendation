@@ -234,9 +234,9 @@ TODO: abstract
       \hline
       \multicolumn{2}{|c|}{{\bf Recommendation Metrics}} \\\hline
       nDCG                   & Standard ranking quality evaluation.\\\hline
-      Precision@20           & Count of recommended items in the test set and rated 4.0 or higher.\\\hline
+      Precision@20           & Count of recommended items in the test set and rated 4.0 or higher\footnotemark[1].\\hline
       MAP@20                 & Average of precision at each rank one through twenty.\\\hline
-      Fallout@20             & Count of recommended items in the test set and rated 2.0 or lower.\\\hline
+      Fallout@20             & Count of recommended items in the test set and rated 2.0 or lower\footnotemark[1].\\\hline
       SeenItems@20           & Count of recommended items in the test set.\\\hline
       MeanRating@20          & Average rating of recommended items that are in the test set.\\\hline
       RMSE@20                & RMSE computed only over those items that were recommended.\\\hline
@@ -261,6 +261,9 @@ TODO: abstract
   First this provides important context for the next two metrics, as this is how many items those metrics are often averaged over.
   Secondly, if too many items are known to the user, the user might feel that the recommendations are not interesting.
   Alternatively, if too few of the items are known to the user, the user may have trouble evaluating the recommendations, which could lead the user to leave the system.
+
+ % positioned here to get this on the right page.
+  \footnotetext[1]{We also tried 5.0 and 1.0 as cutoffs respectively, and found no meaningful difference.}\addtocounter{footnote}{1}
 
   MeanRatings@20, and RMSE@20 both try to establish how much the user likes the recommendations.
   MeanRatings@20 tells us directly how much the user tends to like recommended movies.
@@ -299,7 +302,9 @@ TODO: abstract
   That said, for small rating values its possible that the improvements over this baseline will be very minimal.
   
   We expect that the baseline algorithms will provide the most popular recommendations, with the least diversity, and the least spread.
-  We expect that any personalized algorithm should be able to make more nuanced recommendations than simply recommending the best rated items, which should translate as gains on these metrics.  
+  We expect that any personalized algorithm should be able to make more nuanced recommendations than simply recommending the best rated items, which should translate as gains on these metrics.
+  Furthermore, we expect that as the algorithm learns more about the user it should decrease in popularity, and increase in diversity, and spread, as it becomes able to make more personal and nuanced recommendations to the user.
+  
   
   \subsection*{Dataset}
   % dataset
@@ -343,7 +348,7 @@ TODO: abstract
 
 \section{Results}
 
-  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users.
+  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users, versus how many of the user's ratings were retained in the training set.
   Where appropriate, we will compute metrics independently for each user, and plot the average user value, with a 95\% confidence interval around this mean.
   Where this cannot be done we will compute the metric once for each of the five folds, and plot the values for each fold, with a lines through the average.
 
@@ -359,37 +364,37 @@ TODO: abstract
     % RMSE plot
     % point out error bars etc.
     % explain / interpret plot
+  \paragraph{RMSE}
   Figure \ref{fig:rmse} shows how accurate our algorithms are as measured by RMSE.
-  As would be expected the accuracy of our item baseline doesn't change as the amount of information changes.
-  The User-User and svd algorithms both perform as expected, starting out with the same accuracy as the item baseline, and then monotonically improving.
-  User-User does show a small increase of error with only one rating, but the change is quite small and unlikely to be noticed by users.
-  Interestingly, User-User and svd both perform about as well as our smarter user item baseline. %TODO: explain this better
-
-      % explain strangeness of Item-Item
-  Item-Item performs quite poorly in the cold start setting.
-  Until we have around 20 ratings the RMSE of Item-Item is worse than the item baseline.
-  More interestingly, unlike the other algorithms Item-Item actually appears to performs worse as it gets more ratings for the first few ratings.
+  User-User, and SVD both behaved essentially as expected.
+  SVD shows no improvement with only one rating, and User-User, actually appears to get worse with the first rating, but other than that, these algorithms outperform the item baseline.
+  Interestingly, the User-Item baseline outperforms both algorithms until around 8 ratings, at which point both algorithms start to perform better.
+  Given the size of of the differences between UserItemBaseline, UserUser, and SVD we will conclude that all three are at about the same accuracy for new users.
+  That such a simple algorithm can outperform for such small values goes to show that recommending for users with very few ratings is a hard problem.
   
-  The curve exhibited by Item-Item's RMSE is caused by two trends.
-  First as the system revives more ratings, predictions from Item-Item are more accurate, leading to a downward trend.
-  Secondly, as the system revives more ratings, Item-Item can make predictions for more items, meaning the fewer predictions are serviced by the baseline.
-  Because the baseline is more accurate, this leads to an upward trend.
-  Overall this leads to curved performance.
-  If we were to compute RMSE only over the items where item-item can make a prediction we would see a curve similar to the other algorithms, but shifted up.
-      % possibly coverage plot
-      % true crossing point?
+  Item-Item performs quite poorly for new users.
+  Until we have around 14 ratings, Item-Item is less accurate than the ItemBaseline.
+  In fact, for the first two ratings Item-Item appears to perform \emph{worse} as more ratings are added.
+  This trend is a result of the limited coverage of the Item-Item algorithm.
+  If you consider the accuracy of RMSE on only those items where it makes a personalized prediction it does show a monotonic increase in accuracy similar to the other algorithms.
+  However, for small rating counts ItemItem can only predict for some percent of the item (around 60\% for users with two ratings, and around 75\% for users with four ratings).
+  Because of this, many of the predictions come from the better performing UserItemBaseline.
+  As we get our first few ratings, the predictions become less likely to be from the UserItemBaseline, leading to an artificial upward trend in RMSE.
+  Fortunately, Item-Item seems to improve accuracy faster than the other algorithms, and therefore appears as if it will catch up.
+  Unfortunately, this trend suggests that ItemItem may be unsuitable for new users.
 
 \subsection {Recommendatin quality metrics}
   % Recommendation quality metrics
     % NDCG
+  \paragraph{nDCG}
   Figure \ref{fig:ndcg} shows the algorithm's performance on the nDCG metric.
-  The algorithm's behavior is essentially equivalent to the RMSE behavior.
-  Again, User-User has a minor dip on very new users, but then tracks SVD in uniformly improving quite well from there.
-  Likewise Item-Item exhibits the same dipped accuracy, although it doesn't catch up the baseline as fast.
-  Unlike previous metrics, the item baseline, and the user-item baseline have the same performance.
-  This is because nDCG is a ranking metric, not an accuracy metric.
-  Because the user item baseline orders items the same way as the item baseline, both will have the same accuracy on any ranking metrics.
-
+  The algorithm's behavior is very similar to the RMSE behavior.
+  Both UserUser and SVD take an initial hit to accuracy at the first rating.
+  This time UserUser takes much longer to recover from this and only beats the baseline after around 12 ratings.
+  Again ItemItem performs quite poorly.
+  This leaves SVD to perform the best, passing the baseline after about 4 ratings.
+  The fact that the average item rating provides the best ranking for the first four ratings does suggest that ranking is a harder problem for recommenders to solve for new users than prediction accuracy.
+  
     % MAP, precision, fallout plots 
     % explain results from MAP and precision
     % explain recall results
@@ -402,19 +407,19 @@ TODO: abstract
   \caption{TODO}
   \label{fig:map}
 \end{figure*}
-
-
+\paragraph{MAP@20, Precision@20, Fallout@20}
   Figure \ref{fig:map} shows MAP@20, precision@20, and fallout@20.
-  All three metrics show essentially the same trend, User-User gets the lowest score, the baselines get the highest score.
+  All three metrics show essentially the same trend, User-User gets the lowest score, the baseline get the highest score.
   On both MAP@20 and precision@20 svd gets a higher score than Item-Item throughout, performing almost as highly as the baseline.
-  On fallout@20 Item-Item performs higher than svd and the baseline, but decreases faster than bath, ending with a lower score than either. 
-  We also tried recall@20 and mrr@20 and found the same trend.
+  On fallout@20 Item-Item and SVD perform about as well as each other, with SVD showing a very slight lead.
+  We also tested recall and mean reciprocal rank metrics, but found them to exhibit the same trend.
 
   This result is rather strange as MAP and precision are metrics where high scores imply better performance, whereas fallout is a metric where high scores imply poor performance.
-  This leads to an issue, these metrics contradict each other in terms of the quality of the recommendations from our algorithm.
+  Therefore we would not expect to see rank equivalent behavior from these metrics.
+  Unfortunately this means that these metrics contradict each other in terms of which algorithm performs the best.
   One possible reason for this is that these topN metrics are known to be biased toward recommendations that have more popular items \cite{bellogin}.
   Looking at the average popularity (figure \ref{fig:pop}) of recommended items, we see that the average popularity of the recommendations closely replicates the previous three plots.
-  Therefore we seek a different, less biased metric to analyze the quality of the recommendations.
+  Therefore we will discard these metrics, and consider less biased metrics to help us analyze the quality of the recommendations.
 
 
   % TopN average rating / topn rmse
@@ -426,25 +431,30 @@ TODO: abstract
   \caption{TODO}
   \label{fig:topN.rmse}
 \end{figure*}
-
-
+  \paragraph{SeenItems@20}
   The first graph in figure \ref{fig:topN.rmse} shows the average number of items in the top 20 recommendations for each algorithm that were also in the test set.
   The average number of test set items in recommendations shows a similar trend to the MAP, precision, and recall metrics, user-user getting by far the fewest seen items, and the baseline getting the most.
-  %TODO: talk about trust building here!
+  As User-User gets less than one seen item on average we found that MeanRating@20 and RMSE@20 metrics were not appropriate for UserUser.
+  This was observed in particular when testing our results for sensitivity to recommendation list size.
+  We found that different recommendation lists led UserUser (and only UserUser) to have very different results
+  Because of this issue we will not include User-User in our next evaluation and consider the next two metrics inconclusive for UserUser
+  That said, we consider the small number of seen items itself a bad result for UserUser.
+  Put simply, if we cannot reliably estimate if the recommendations are reasonable, how can we expect a user to do so?
 
+  \paragraph{MeanRating@20}
   The second graph in figure \ref{fig:topN.rmse} shows the average rating for those items in the top 20 recommendations for each algorithm.
   The first thing to note about this graph is that all of these algorithms are doing a reasonable job of recommending items the user might like to watch, with all algorithms averaging above 4 stars (implying that the recommended items are, at least on average, enjoyable).
-  SVD performs as expected, starting at close to the same average rating as the baselines, and then slowing improving as more ratings are entered.
-  Item-Item performs poorly, not only performing worse than the baseline, but showing worse performance as more ratings are added.
-  This is quite possibly a similar trend to the one we observed with RMSE and nDCG, where Item-Item's performance decreased as coverage increased leading to the curved performance at cold start.
-  
-  During testing with other values of N for this metric and the next, we found that User-User's behavior compared to the other algorithms changed significantly with different values of N.
-  This is probably due to the very low rate of having seen items in the recommendations, which makes its value much less stable, than the other algorithms.
-  Because of this behavior we will draw no conclusion from User-User's performance on this metric, to avoid accidentally attributing behavior to it, that was instead formed by our choice of 20 as N.
-  
+  SVD performs as expected, starting around the baseline for few ratings, and then steadily improving to be the best algorithm.
+  Again, we find that Item-Item performs poorly until quite a few ratings are added, and does worse than baseline throughout.
+  This is quite possibly a similar trend to the one we observed with RMSE and nDCG, where ItemItem's performance decreased as coverage increased leading to the curved performance at cold start.
+    
+  \paragraph{RMSE@20}
   The third graph in figure \ref{fig:topN.rmse} shows the RMSE our algorithms got on items in the top 20 recommendations for each algorithm.
   Not surprisingly, this figure shows the same trends as the last one meaning that the algorithms whose recommendations were (on average) most likable, were those whose recommendations were most accurate.
-  Again, SVD performs quite well, Item-Item shows poor performance, and, due to sensitivity of User-User to our choice of N, we make no conclusions about User-User.
+  Again, SVD performs quite well, easily bearing the UserItemBaseline after only 1 rating.
+  
+  Interestingly, we find that all algorithms are quite a bit more accurate on the top 20 items than they are for the general item collection.
+  This is likely an edge effect, where the highest rated (5 star) items are perhaps easier to predict than other items.
 
 \subsection{Other recommender metrics}
   % Other recommender metrics
@@ -456,21 +466,21 @@ TODO: abstract
   \label{fig:pop}
 \end{figure*}
 
-
+  \paragraph{AveragePopularity@20}
     % popularity graph
   The first graph in figure \ref{fig:pop} shows the average popularity of recommended items by each algorithm.
-  %TODO: re-write this
-  Across all datapoint sizes the ranking of algorithms is the same, with the baselines recommending the most popular movies, followed by svd, which recommends less popular movies, then Item-Item, which recommends much less popular movies, leaving User-User to recommend the least popular movies.
+  As expected the baseline algorithms make the most popular recommendations, followed by SVD, ItemItem, and then UserUser in a distant last.
   Unfortunately, we don't know of any guideline for understanding how popular users desire their recommendations to be.
-  That in mind, we expect that users will feel the baseline's popularity (around 1000) is too high, and User-User's popularity (around 50) is too low.
-  SVD and Item-Item both seem to perform well, with SVD generating more popular recommendations, than Item-Item, and both algorithms showing a significant trend to make less popular predictions as we know more about the user.
+  That said, we expect that users will feel the baseline's popularity (around 1000) is too high, and User-User's popularity (around 50) is too low.
+  SVD and Item-Item both seem to perform well, with SVD generating more popular recommendations than Item-Item.
+  SVD and ItemItem both show a trend of decreasing popularity as more ratings are retained, suggesting that these algorithms will make more nuanced, less popular recommendations for users they know more about.
+  Interestingly, these algorithms each appear to be converging to their own separate level of popularity, which suggests that this ordering may be independent of number of items retained.
 
     % diversity plot
-  The diversity graph in \ref{fig:pop} shows a similar trend to the popularity trend with the baseline algorithms producing the least diverse list of recommendations and User-User providing by far the most diverse list of recommendations.
-  For the first few ratings SVD is able to provide more diverse recommendations than Item-Item.
-  However, Item-Item seems to grow in diversity faster than SVD in response to more data, so after 4 ratings Item-Item is providing slightly more diverse recommendations than SVD.
-  Overall, Item-Item and SVD are providing recommendations that, at least in an offline context, appear to have quite comparable diversity.
-
+  \paragraph{AILS@20}
+  The second graph in \ref{fig:pop} shows a similar trend to the popularity trend with the baseline algorithms producing the least diverse list of recommendations and User-User providing by far the most diverse list of recommendations.
+  Unlike popularity, SVD and ItemItem seem to perform equivalently in diversity.
+  In terms of diversity we see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing  inter-list similarity) as more ratings are retained.
 
 \begin{figure}[]
   \centering
@@ -479,26 +489,31 @@ TODO: abstract
   \label{fig:spread}
 \end{figure}
 
-
   % spread plot
+  \paragraph{Spread@20}
   The graph in \ref{fig:spread} shows the spread of the recommendations from each algorithm.
-  Because this metric can only be computed over a group of people, confidence intervals over the per-user average are not provided, instead the specific spread values computed in each five folds are shown as points, with lines connecting the value from the five metrics.
-  %TODO: make this point earier and better.
-  Like the diversity and popularity metrics we see that the values take a much larger range, with different algorithms seeming to converge to different amounts spread.
-  The baseline algorithms, which recommend every user the same list of recommendations (unless the user has rated one of those items) have the lowest spread.
-  SVD has the second lowest spread, starting with a spread very close to the baselines and then slowly growing more spread as it gets more ratings.
-  Like popularity, we don't know exactly how much spread is best for a recommender system, but we can guess that we want more spread from our recommendations than baseline, and all other things being equal, more spread is probably better.
-  Based on this intuition it seems that SVD might have focus on too few items in its recommendations.
-
-  User-User and Item-Item both have significantly more spread than the other algorithms.
-  They show interestingly opposite trends, with User-User providing more spread at one rating, and then decreasing, and Item-Item giving less spread and then increasing.
-  By 8 ratings, we see that Item-Item has by far the most spread recommendations.
-  It is strange that User-User would get less spread as it learns more about users.
-  This implies that the more it learns about users, the less spread out its recommendations are.
+  Because this metric can only be computed over a group of people, confidence intervals over the per-user average are not provided, instead the specific spread values computed in each five folds are shown as points, with lines connecting the average values.
+  As expected the baseline performs worst on spread, as it recommends the same items to each user, unless the user has already rated one of these items.
+  SVD performs mildly better than the baseline, and shows definite improvement as more ratings are added.
+  UserUser and ItemItem start at around the same value as each other, however, after only two ratings they have crossed, as ItemItem quickly increases to have the highest spread of all the algorithms, and UserUser quickly decreases into second place.
+  Interestingly, only UserUser shows a trend to have less spread ratings as it learns more about the user, ItemItem and SVD both show the expected trend of increasing Spread as they learn more.
   This could be some form of a regression towards the mean, where as it learns more about users its recommendations become less personalized to the users individual quirks.
   More research will be needed to understand this trend.
   
 \section{Conclusions}
+  \begin{table}[ht!]
+    \centering
+    \begin{tabular}{|p{4.5em}|p{4.5em}|p{7.5em}|p{4.5em}|}
+      \hline
+      Algorithm & Perdiction accuracy & Recommendation quality      & Other properties \\\hline
+      ItemItem  & Poor                & Poor                        & Good             \\\hline
+      SVD       & Good                & Good                        & Good             \\\hline
+      UserUser  & Good                & Inconclusive                & Poor             \\\hline
+    \end{tabular}
+    \caption{Summary of algorithm quality for new users}
+    \label{tbl:results}
+  \end{table}
+
   % summary of results in a big old table.
     % the accuracy of svd and user-user both seemed good. item-item seemed to have trouble especially with very new users.
     % svd did quite well on our traditional topN metrics, item-item did OK, and user-user did bad., but there are flaws with these metrics.
