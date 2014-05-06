@@ -7,7 +7,7 @@
 \pdfpagewidth = 8.5in
 \pdfpageheight = 11in
 
-%\usepackage[factor=250,spacing=true]{microtype}
+\usepackage[factor=250,spacing=true]{microtype}
 
 \begin{document}
 \conferenceinfo{RecSys '14}{October 6--10, 2014, Foster City, Silicon Valley, USA}
@@ -476,19 +476,20 @@ Joseph A. Konstan\\
   \paragraph{MeanRating@20}
   The second graph in figure \ref{fig:topN.rmse} shows the average rating for those items in the top 20 recommendations for each algorithm.
   The first thing to note about this graph is that all of these algorithms are doing a reasonable job of recommending items the user might like to watch, with all algorithms averaging above 4 stars (implying that the recommended items are, at least on average, enjoyable).
-  SVD performs as expected, starting around the baseline for few ratings, and then steadily improving to be the best algorithm.
+  SVD performs as expected, starting around the baseline for few ratings, and then steadily improving to be the best algorithm after 3 ratings.
   Again, we find that Item-Item performs poorly until quite a few ratings are added, and does worse than baseline throughout.
   This is quite possibly a similar trend to the one we observed with RMSE and nDCG, where ItemItem's performance decreased as coverage increased leading to the curved performance at cold start.
+  Regardless, we find that ItemItem's recommendations do not seem to be as well rated as either the baseline or SVD.
     
   \paragraph{RMSE@20}
   The third graph in figure \ref{fig:topN.rmse} shows the RMSE our algorithms got on items in the top 20 recommendations for each algorithm.
-  Not surprisingly, this figure shows the same trends as the last one meaning that the algorithms whose recommendations were (on average) most likable, were those whose recommendations were most accurate.
-  Again, SVD performs quite well, easily bearing the UserItemBaseline after only 1 rating.
+  Not surprisingly, this figure shows the same trends as the last one, meaning that the algorithms whose recommendations were (on average) most likable, were those whose recommendations were most accurate.
+  Again, SVD performs quite well, easily beating the UserItemBaseline after only 1 rating.
   
   Interestingly, we find that all algorithms are quite a bit more accurate on the top 20 items than they are for the general item collection.
   This is likely an edge effect, where the highest rated (5 star) items are perhaps easier to predict than other items.
 
-\subsection{Other recommender metrics}
+\subsection{Nonmonotonic Recommender Quality Metrics}
   % Other recommender metrics
 
 \begin{figure*}[ht!]
@@ -501,31 +502,33 @@ Joseph A. Konstan\\
   \paragraph{AveragePopularity@20}
     % popularity graph
   The first graph in figure \ref{fig:pop} shows the average popularity of recommended items by each algorithm.
-  As expected the baseline algorithms make the most popular recommendations, followed by SVD, ItemItem, and then UserUser in a distant last.
-  Unfortunately, we don't know of any guideline for understanding how popular users desire their recommendations to be.
-  That said, we expect that users will feel the baseline's popularity (around 1000) is too high, and User-User's popularity (around 50) is too low.
+  As expected the baseline algorithms makes the most popular recommendations, followed by SVD, ItemItem, and then UserUser in a distant last.
+  As stated earlier, We expect that users will feel the baseline's popularity (around 1000) is too high.
+  We also expect that users will perceive User-User's popularity (around 50) as too low.
   SVD and Item-Item both seem to perform well, with SVD generating more popular recommendations than Item-Item.
   SVD and ItemItem both show a trend of decreasing popularity as more ratings are retained, suggesting that these algorithms will make more nuanced, less popular recommendations for users they know more about.
-  Interestingly, these algorithms each appear to be converging to their own separate level of popularity, which suggests that this ordering may be independent of number of items retained.
+  Interestingly, these algorithms each appear to be converging to their own separate level of popularity, which suggests that this ordering may be independent of the number of ratings.
 
     % diversity plot
   \paragraph{AILS@20}
-  The second graph in \ref{fig:pop} shows a similar trend to the popularity trend with the baseline algorithms producing the least diverse list of recommendations and User-User providing by far the most diverse list of recommendations.
-  Unlike popularity, SVD and ItemItem seem to perform equivalently in diversity.
-  In terms of diversity we see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing  inter-list similarity) as more ratings are retained.
+  The second graph in \ref{fig:pop} shows a similar trend to the popularity trend.
+  Again, we expect that the baseline, which provides the least diverse recommendations, would be precised as not very diverse by users.
+  Quite possibly due to the preference for obscure movies, UserUser seems to produce the most diverse lists of any algorithm.
+  We expect that the UserUser recommendation lists might be perceived as too diverse.
+  Unlike popularity, SVD and ItemItem seem to perform equivalently in terms of diversity.
+  We also see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing  inter-list similarity) as more ratings are retained.
 
   % spread plot
   \paragraph{Spread@20}
   The third graph in \ref{fig:spread} shows the spread of the recommendations from each algorithm.
-  Because this metric can only be computed over a group of people, confidence intervals over the per-user average are not provided, instead the specific spread values computed in each five folds are shown as points, with lines connecting the average values.
-  As expected the baseline performs worst on spread, as it recommends the same items to each user, unless the user has already rated one of these items.
+  As expected the baseline performs worst on spread, as it recommends the same items to each user (unless the user has already rated one of these items).
   SVD performs mildly better than the baseline, and shows definite improvement as more ratings are added.
   UserUser and ItemItem start at around the same value as each other, however, after only two ratings they have crossed, as ItemItem quickly increases to have the highest spread of all the algorithms, and UserUser quickly decreases into second place.
   Interestingly, only UserUser shows a trend to have less spread ratings as it learns more about the user, ItemItem and SVD both show the expected trend of increasing Spread as they learn more.
   This could be some form of a regression towards the mean, where as it learns more about users its recommendations become less personalized to the users individual quirks.
   More research will be needed to understand this trend.
   
-\section{Conclusions}
+\section{Discussion}
   % summary of results in a big old table.
     % the accuracy of svd and user-user both seemed good. item-item seemed to have trouble especially with very new users.
     % svd did quite well on our traditional topN metrics, item-item did OK, and user-user did bad., but there are flaws with these metrics.
@@ -543,10 +546,10 @@ Joseph A. Konstan\\
     \centering
     \begin{tabular}{|p{4.5em}|p{4.5em}|p{7.5em}|p{4.5em}|}
       \hline
-      Algorithm & Perdiction accuracy & Recommendation quality      & Other properties \\\hline
+      Algorithm & Prediction accuracy & Recommendation quality      & Other properties \\\hline
       ItemItem  & Poor                & Poor                        & Good             \\\hline
-      SVD       & Good                & Good                        & Good             \\\hline
       UserUser  & Good                & Inconclusive                & Poor             \\\hline
+      SVD       & Good                & Good                        & Good             \\\hline
     \end{tabular}
     \caption{Summary of algorithm quality for new users}
     \label{tbl:results}
@@ -560,25 +563,26 @@ Joseph A. Konstan\\
 
   UserUser performed quite well are prediction, but tended to favor unpopular items in its recommendations.
   While some novelty is good, we believe that UserUser goes too far into the obscure movies in its recommendations, and therefore does not make good recommendations.
-  Therefore we believe that UserUser is not well suited to new users if its recommendations are going to be used.
+  Therefore we believe that UserUser is not well suited for new users unless only its predictions are used.
   Exploring corrections for this issue is left as future work.
+
+
+    % if you use a switching recommender, this methodology can help you choose when to switch.
+    % non-traditional metrics can tell you more about what is going on, these seem to be more properties of the class of algo than of the data, so its worth looking at these when choosing algorithms, to find one with properties that are good for your task.
+  Interestingly, however, we see that for very small numbers of ratings the UserItemBaseline seems to be our strongest algorithm, both in terms of accuracy (as measured by RMSE), and recommendation quality (as measured by MeanRating@20).
+  This suggests a switching recommendation strategy for live systems.
+  Instead of recommending from one recommender right away, a system could provide baseline predictions and recommendations until the user has enough ratings and then switching to a better recommender.
+  This has the added avantage that it might help users notice the changes in popularity and diversity, helping them appreciate these properties more.
+  For switching recommendation strategies like this, our methodology provides a way to find the correct number of ratings at which to switch algorithms.
 
   % other takeaways
     % regularization
-  This analysis suggests that, at least for new users, system designers use algorithms from the SVD family.
-  We belive that it is the regularization built into these algorithm that give them good performance.
+  One possible reason that the SVD algorithm performs as well as it does is the regularization built into the algorithm.
   UserUser and ItemItem algorithms have no built in method for damping their predictions towards the mean when they don't have much data.
   The regularization in the cost function of the SVD model makes it so its predictions will gradually shift away from the baseline predictions as more relevant ratings are added.
   The downside of this, however, could be the higher popularity and lower spread seen by the SVD algorithm.
   The same regularization that helps avoid making mistakes due to too little data, may also prevents the algorithm from taking occasional risks on more obscure movies.
-
-    % if you use a switching recommender, this methodology can help you choose when to switch.
-    % non-traditional metrics can tell you more about what is going on, these seem to be more properties of the class of algo than of the data, so its worth looking at these when choosing algorithms, to find one with properties that are good for your task.
-  One interesting result of our analysis is that at very small numbers of ratings the UserItemBaseline seems to be our strongest algorithm, both in terms of accuracy (as measured by RMSE), and in terms of recommendation quality (as measured by MeanRating@20).
-  This suggests a recommendation strategy for live systems.
-  Instead of recommending from one recommender right away, a system could provide baseline predictions and recommendations until the user has enough ratings and then switching to a better recommender.
-  For recommenders like this our methodology provides a way to find the correct number of ratings at which to switch algorithms.
-
+  
 
   % limitations and opprotunities
     % dataset limitations
@@ -608,8 +612,19 @@ Joseph A. Konstan\\
 
   % despite the limitations we were able to show differences between algorithms in a cold start situation.
 
+\section{Conclusion}
+
+  Our work shows that a multiple metric approach to understanding recommender behavior can provide useful insights into the differences between algorithms.
+  Our methodology presents a list of metrics that can be reused in the future for new multiple metric evaluations, and our methodology shows how this can be applied to understand new users.
+  We find that recommending for new users is hard and none of our algorithms can reliably beat a simple baseline for users with very few ratings.
+  Once the user has a small number of ratings we find that the SVD algorithm performs best.
+  This result can be useful both in designing new recommender systems, and in designing new recommendation algorithms.
+
 \section{Acknowledgements}
- TODO:
+  The authors would like to express their gratitude towards our colleagues at GroupLens research for their feedback and support while developing this work.
+  We would like to specially that Michael Ekstrand for his  important work on the Lenskit recommendation framework.
+
+  This work is supported by NSF grant TODO:
 
 \bibliographystyle{abbrv}
 \bibliography{resources}  % sigproc.bib is the name of the Bibliography in this case
