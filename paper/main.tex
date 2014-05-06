@@ -205,7 +205,7 @@ Joseph A. Konstan\\
   More information about these algorithms can be found in table \ref{tbl:algo}
   Code for our evaluation, using the Lenskit evaluation framework \cite{lenskit} is available at \url{https://bitbucket.org/kluver/coldstartrecommendation}.
   
-  \begin{table}
+  \begin{table}[ht!]
     \centering
     \begin{tabular}{|p{6em}|p{18em}|}
       \hline
@@ -233,57 +233,80 @@ Joseph A. Konstan\\
   We use a total of eleven metrics.
   In our evaluation we found that some of these metrics are redundant, and future work should be able to use a much smaller list of metrics.
   The metrics are listed in table \ref{tbl:metrics}.
-  \begin{table}[ht!]
+  \begin{table*}[ht!]
     \centering
-    \begin{tabular}{|p{7em}|p{16em}|}
+    \begin{tabular}{|p{7em}|p{20em}|p{4em}|p{18em}|}
       \hline
-      \multicolumn{2}{|c|}{{\bf Accuracy Metrics}} \\\hline
-      RMSE                   & Standard prediction accuracy metric. \\\hline
+      \multicolumn{4}{|c|}{{\bf Accuracy and Ranking Metrics}} \\\hline
+      RMSE                   & Standard prediction accuracy metric \cite{handbook}. & 0 to 5 & Smaller is better. \\\hline
+      nDCG                   & Standard ranking quality evaluation \cite{handbook}. & 0 to 1 & Larger is better. \\\hline
       \hline
-      \multicolumn{2}{|c|}{{\bf Recommendation Metrics}} \\\hline
-      nDCG                   & Standard ranking quality evaluation.\\\hline
-      Precision@20           & Count of recommended items in the test set and rated 4.0 or higher\footnotemark[1].\\hline
-      MAP@20                 & Average of precision at each rank one through twenty.\\\hline
-      Fallout@20             & Count of recommended items in the test set and rated 2.0 or lower\footnotemark[1].\\\hline
-      SeenItems@20           & Count of recommended items in the test set.\\\hline
-      MeanRating@20          & Average rating of recommended items that are in the test set.\\\hline
-      RMSE@20                & RMSE computed only over those items that were recommended.\\\hline
+      \multicolumn{4}{|c|}{{\bf Monotonic Recommendation Metrics}} \\\hline
+      Precision@20           & Count of recommended items in the test set and rated 4.0 or higher\footnotemark[1] \cite{handbook}. & 0 to 1 & Larger is better. \\\hline
+      MAP@20                 & Average of precision at each rank one through twenty \cite{manning2008introduction}. & 0 to 1 & Larger is better.\\\hline
+      Fallout@20             & Count of recommended items in the test set and rated 2.0 or lower\footnotemark[1] \cite{handbook}. & 0 to 1 & Smaller is better. \\\hline
+      MeanRating@20          & Average rating of recommended items that are in the test set.& 0 to 5 & Larger is better \\\hline
+      RMSE@20                & RMSE computed only over those items that were recommended.& 0 to 5 & Smaller is better \\\hline
       \hline
-      \multicolumn{2}{|c|}{{\bf Other Metrics}} \\\hline
-      Average\-Popularity@20 & The average number of users in the training set that have seen recommended items.\\\hline
-      AILS@20                & The average pairwise similarity between recommended items. \\\hline
-      Spread@20              & The Shannon's entropy of the distribution of recommended items for users in the test set.\\\hline
+      \multicolumn{4}{|c|}{{\bf Nonmonotonic Recommender Metrics}} \\\hline
+      SeenItems@20           & Count of recommended items in the test set. & 0 to 20 & Not well understood. \newline Larger is \emph{probably} better within reason. \\\hline
+      Average\-Popularity@20 & The average number of users in the training set that have seen recommended items \cite{zieglerDiversity}.& 1 to 6000 & Not well understood. \newline Smaller is \emph{probably} better within reason. \\\hline
+      AILS@20                & The average pairwise similarity between recommended items \cite{zieglerDiversity}. & 0 to 1 & Not well understood. \newline  Smaller is \emph{probably} better within reason. \\\hline
+      Spread@20              & The Shannon's entropy of the distribution of recommended items for users in the test set. & 0 to 12 & Not well understood. \newline Larger is \emph{probably} better within reason. \\\hline
     \end{tabular}
     \caption{Summary of metrics}
     \label{tbl:metrics}
-  \end{table}
+  \end{table*}
+  \footnotetext[1]{We also tried 5.0 and 1.0 as cutoffs respectively, and found no meaningful difference.}\addtocounter{footnote}{1}
+
+  We split our metrics into three groups roughly along our three sub research questions.
   
-  All metrics evaluating recommendations (all but RMSE and nDCG) are based on the top 20 highest predicted items for the user, excluding items in the training set.
+  \paragraph{Accuracy and Ranking Metrics}
+  The first two metrics evaluate the recommender based on its predictions for each item.
+  These evaluate, the accuracy of the predictions, and the ability of the recommender to rank the list of all items.
+  We find that these two metrics perform quite similarly in our evaluation.
+
+  \paragraph{Monotonic Recommendation Metrics}
+  These metrics all evaluate the recommendations produced by the recommender.
+  For recommendations we will use the 20 highest predicted items for each user, excluding items in the training set.
+  As the UserItem-Baseline and ItemBaseline make the same recommendations for all users, we will only report results for the ItemBaseline here.
   The choice of 20 items for the evaluations was arbitrary, testing with other values showed similar results, except on one metric.
   This issue will be addressed later in the results section.
   
-  Most of our metrics are standard techniques, so we will only address the latter 6.
-  As we show later, we found Precision, MAP, and fallout to not be useful for this evaluation, therefore to help understand the quality of our recommendations, we include SeenItems@20, MeanRating@20, and RMSE@20.
-  SeemItems@20 tells us how frequently the user is to have previously seen a recommended item.
-  This is useful for two reasons.
-  First this provides important context for the next two metrics, as this is how many items those metrics are often averaged over.
-  Secondly, if too many items are known to the user, the user might feel that the recommendations are not interesting.
-  Alternatively, if too few of the items are known to the user, the user may have trouble evaluating the recommendations, which could lead the user to leave the system.
+  There metrics are useful because these metrics have a well defined monotonic relation to the satisfaction of the user.
+  As the metric grows larger, or smaller (depending on metric), we expect the output recommendations to satisfy users more.
+  This makes these metrics easier to understand than our later metrics.
 
- % positioned here to get this on the right page.
-  \footnotetext[1]{We also tried 5.0 and 1.0 as cutoffs respectively, and found no meaningful difference.}\addtocounter{footnote}{1}
+  Our first three metrics (Precision, MAP, and Fallout) are standard information retrieval metrics.
+  As we show later, we found Precision, MAP, and fallout to not be useful for this evaluation.
+  Therefore, to help understand the quality of our recommendations, we also include MeanRating@20, and RMSE@20.
 
   MeanRatings@20, and RMSE@20 both try to establish how much the user likes the recommendations.
   MeanRatings@20 tells us directly how much the user tends to like recommended movies.
   RMSE@20 accompanies this and lets us know if the recommended items are likely to be mispredicted, which can explain why users may or may not like their recommendations.
+  As it helps us interpret these two metrics we will also discuss SeenItems@20 with these metrics, although SeenItems@20 does not have as simple a relation to user satisfaction.
+
+  \paragraph{Nonmonotonic Recommendation Metrics}
+  Our final four metrics are all nonmonotonic measures of the user's recommendations.
+  These metrics are harder to understand than the monotonic measures of recommendation quality.
+  Unlike the previous metrics, we expect that both of the extremes of this metric would be perceived negatively by the user.
+
+  We use these metrics as they can help us understand important properties of how users may perceive the recommendations.
+  For example, as mentioned in the introduction how many of the recommended items the user has seen (estimated by SeenItems@20) can have a major impact on how much users trust the recommendations.
+  If an algorithm recommends too few items that the user has seen then we expect the user will have trouble evaluating if the recommendations are worth taking.
+  That said, however, if too many items in the recommendations have already been seen, the user may feel that the recommendations are not interesting or useful.
+  Unfortunately, without more research on these metrics to establish a mapping between user satisfaction and these values we will have to make educated guesses at what values for these metrics are too extreme.
 
   The average popularity metric is a crude metric of how novel the recommendations are to the user \cite{zieglerDiversity}.
   Broadly speaking we expect users will prefer recommendation lists containing more novel (less popular) items.
-  However, if the recommended items are too unpopular we risk that the user will not have heard of the items, which could make the user doubt the recommendations, hurting the user experiance.
+  However, if the recommended items are too unpopular we risk that the user will not have heard of the items, which could make the user doubt the recommendations, hurting the user experience.
 
   Past work has shown that users like their recommendations to be more diverse \cite{zieglerDiversity, martijnDiversity}.
   The belief is that by providing more diverse lists we are giving the user a larger range of items to choose from.
   This can make choosing an item easier as the user is less likely to have to compare very similar options.
+  It has also been shown, however, that too much diversity can lead to less user satisfaction \cite{zieglerDiversity}.
+  This is probably due to a tradeoff between how diverse a list is and how well it captures a user's tastes.
+  At some point, a list cannot become more diverse without include items that the user is not interested in.
   We will measure diversity with the AILS@20 metric.
 
   The AILS@20 metric is based on the ILS metric introduced by ziegler et al \cite{zieglerDiversity}.
@@ -292,28 +315,29 @@ Joseph A. Konstan\\
 
   The Spread@20 metric is designed to measure how well the recommender spreads its attention across many items.
   We expect that algorithms with a good understanding of its users will be able to recommend different items to different users.
+  Like diversity, however, we expect that it is not possible to reach complete spread (recommending each item an equal number of times) without making avoidably bad recommendations.
+  When Spread is large we know that the recommender is recommending many items with a relatively even distribution, this might be expected from a random recommender.
+  When Spread is small, the recommender is focusing on a small set of items which it recommends to every user, this might be expected from a baseline recommender.
+
   Spread is computed by computing recommendations for each test user.
   Let $C(I)$ be the count of how many times item $I$ showed up in the recommendations.
   Let $P(I) = C(I) / \sum_I C(I)$ be the probability that a random recommendation is item $I$.
   Finally we define spread as the Shannon's entropy of $P(I)$, $Spread = -\sum_I P(I) \log(P(I))$.
-  When this is large we know that the recommender is recommending many items with a relatively even distribution.
-  When this is low, the recommender is focusing on a small set of items which it recommends to every user.
 
+  \paragraph{Expectations about algorithm performance}
   % provide expectations.
   We expect that the item baseline algorithm will have approximately constant performance on all metrics.
-  Since the Item Baseline is such a simple algorithm we expect that any reasonable algorithm should be able to do better on it on the accuracy and recommendation metrics.
+  Since the Item Baseline is such a simple algorithm we expect that any reasonable algorithm should be able to do better on it the monotonic metrics.
   Furthermore, we expect the improvement over the item baseline to be gradual, with larger improvements only happening with more data.
 
   The user-item baseline should only differ from the item baseline for metrics that use the prediction value.
   For all other metrics these two should provide the same responses.
-  As the user-item baseline is still quite a simple baseline, we expect that each algorithm will beat this baseline as well.
-  That said, for small rating values its possible that the improvements over this baseline will be very minimal.
+  As the user-item baseline is still quite a simple baseline, we expect that the non baseline algorithm will beat this baseline as well.
+  That said, for small rating values its possible that the improvements over this baseline will be very small.
   
   We expect that the baseline algorithms will provide the most popular recommendations, with the least diversity, and the least spread.
   We expect that any personalized algorithm should be able to make more nuanced recommendations than simply recommending the best rated items, which should translate as gains on these metrics.
   Furthermore, we expect that as the algorithm learns more about the user it should decrease in popularity, and increase in diversity, and spread, as it becomes able to make more personal and nuanced recommendations to the user.
-  
-  
   \subsection*{Dataset}
   % dataset
     % # user
@@ -357,15 +381,13 @@ Joseph A. Konstan\\
 \section{Results}
 
   Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users, versus how many of the user's ratings were retained in the training set.
-  Where appropriate, we will compute metrics independently for each user, and plot the average user value, with a 95\% confidence interval around this mean.
-  Where this cannot be done we will compute the metric once for each of the five folds, and plot the values for each fold, with a lines through the average.
-
-\subsection{Prediction accuracy}
+  
+\subsection{Accuracy and Ranking Metrics}
   % Prediction accuracy
 \begin{figure*}[ht!]
   \centering
   \includegraphics[width=0.75\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
-  \caption{Left: RMSE, Right: nDCG}
+  \caption{Accuracy and Ranking Algorithms}
   \label{fig:rmse}
   \label{fig:ndcg}
 \end{figure*}
@@ -376,43 +398,44 @@ Joseph A. Konstan\\
   Figure \ref{fig:rmse} shows how accurate our algorithms are as measured by RMSE.
   User-User, and SVD both behaved essentially as expected.
   SVD shows no improvement with only one rating, and User-User, actually appears to get worse with the first rating, but other than that, these algorithms outperform the item baseline.
-  Interestingly, the User-Item baseline outperforms both algorithms until around 8 ratings, at which point both algorithms start to perform better.
-  Given the size of of the differences between UserItemBaseline, UserUser, and SVD we will conclude that all three are at about the same accuracy for new users.
-  That such a simple algorithm can outperform for such small values goes to show that recommending for users with very few ratings is a hard problem.
+  Interestingly, the UserItem-Baseline outperforms both algorithms until around 8 ratings, at which point both algorithms start to perform better.
+  Given the size of the differences between UserItem-Baseline, UserUser, and SVD we conclude that all three provide about the same accuracy for new users.
+  That such a simple algorithm can outperform more complicated for such small values goes to show that recommending for users with very few ratings is a hard problem.
   
   Item-Item performs quite poorly for new users.
-  Until we have around 14 ratings, Item-Item is less accurate than the ItemBaseline.
+  Until we have 13 ratings, Item-Item is less accurate than the ItemBaseline.
   In fact, for the first two ratings Item-Item appears to perform \emph{worse} as more ratings are added.
   This trend is a result of the limited coverage of the Item-Item algorithm.
   If you consider the accuracy of RMSE on only those items where it makes a personalized prediction it does show a monotonic increase in accuracy similar to the other algorithms.
   However, for small rating counts ItemItem can only predict for some percent of the item (around 60\% for users with two ratings, and around 75\% for users with four ratings).
-  Because of this, many of the predictions come from the better performing UserItemBaseline.
-  As we get our first few ratings, the predictions become less likely to be from the UserItemBaseline, leading to an artificial upward trend in RMSE.
+  Because of this, many of the predictions come from the better performing UserItem-Baseline.
+  As we get our first few ratings, the predictions become less likely to be from the UserItem-Baseline, leading to an artificial upward trend in RMSE.
   Fortunately, Item-Item seems to improve accuracy faster than the other algorithms, and therefore appears as if it will catch up.
-  Unfortunately, this trend suggests that ItemItem may be unsuitable for new users.
+  Unfortunately, this result suggests that ItemItem may be unsuitable for new users.
 
-\subsection {Recommendatin quality metrics}
+
   % Recommendation quality metrics
     % NDCG
   \paragraph{nDCG}
   Figure \ref{fig:ndcg} shows the algorithm's performance on the nDCG metric.
-  The algorithm's behavior is very similar to the RMSE behavior.
+  The results for nDCG are very similar to the RMSE results.
   Both UserUser and SVD take an initial hit to accuracy at the first rating.
   This time UserUser takes much longer to recover from this and only beats the baseline after around 12 ratings.
   Again ItemItem performs quite poorly.
-  This leaves SVD to perform the best, passing the baseline after about 4 ratings.
-  The fact that the average item rating provides the best ranking for the first four ratings does suggest that ranking is a harder problem for recommenders to solve for new users than prediction accuracy.
+  This leaves SVD to perform the best, passing the baseline after about 3 ratings.
+  Again we find that our best algorithm for the first few ratings is our baseline.
   
     % MAP, precision, fallout plots 
     % explain results from MAP and precision
     % explain recall results
     % recall results, strangeness and popularity
 
+\subsection {Monotonic Recommendation Quality Metrics}
 
 \begin{figure*}[ht!]
   \centering
   \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/TopNPrecision.pdf}
-  \caption{Left: Precision@20, Center: MAP@20, Right: Fallout@20}
+  \caption{Information Retrieval Recommendation Quality Metrics}
   \label{fig:map}
 \end{figure*}
 \paragraph{MAP@20, Precision@20, Fallout@20}
@@ -420,15 +443,14 @@ Joseph A. Konstan\\
   All three metrics show essentially the same trend, User-User gets the lowest score, the baseline get the highest score.
   On both MAP@20 and precision@20 svd gets a higher score than Item-Item throughout, performing almost as highly as the baseline.
   On fallout@20 Item-Item and SVD perform about as well as each other, with SVD showing a very slight lead.
-  We also tested recall and mean reciprocal rank metrics, but found them to exhibit the same trend.
+  We also tested recall and mean reciprocal rank metrics, but found them to exhibit the same trend, so they were not explored further.
 
-  This result is rather strange as MAP and precision are metrics where high scores imply better performance, whereas fallout is a metric where high scores imply poor performance.
+  This result is rather strange as MAP and Precision are metrics where larger scores imply better performance, whereas fallout is a metric where larger scores imply poor performance.
   Therefore we would not expect to see rank equivalent behavior from these metrics.
   Unfortunately this means that these metrics contradict each other in terms of which algorithm performs the best.
   One possible reason for this is that these topN metrics are known to be biased toward recommendations that have more popular items \cite{bellogin}.
-  Looking at the average popularity (figure \ref{fig:pop}) of recommended items, we see that the average popularity of the recommendations closely replicates the previous three plots.
+  Looking forward to the average popularity (figure \ref{fig:pop}) of recommended items, we see that the average popularity of the recommendations closely replicates the previous three plots.
   Therefore we will discard these metrics, and consider less biased metrics to help us analyze the quality of the recommendations.
-
 
   % TopN average rating / topn rmse
     % interpret graph and reason about what it means about quality
@@ -436,16 +458,18 @@ Joseph A. Konstan\\
 \begin{figure*}[ht!]
   \centering
   \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/rmse_20.pdf}
-  \caption{Left: SeenItems@20, Center: MeanRating@20, Right: RMSE@20}
+  \caption{Recommendation Quality Metrics}
   \label{fig:topN.rmse}
 \end{figure*}
+
   \paragraph{SeenItems@20}
   The first graph in figure \ref{fig:topN.rmse} shows the average number of items in the top 20 recommendations for each algorithm that were also in the test set.
-  The average number of test set items in recommendations shows a similar trend to the MAP, precision, and recall metrics, user-user getting by far the fewest seen items, and the baseline getting the most.
+  We address this metric out of turn here as it provides important context for the next two metrics.
+  The average number of test set items in recommendations shows a similar trend to the MAP, precision, and recall metrics, with user-user getting by far the fewest seen items, and the baseline getting the most.
   As User-User gets less than one seen item on average we found that MeanRating@20 and RMSE@20 metrics were not appropriate for UserUser.
   This was observed in particular when testing our results for sensitivity to recommendation list size.
-  We found that different recommendation lists led UserUser (and only UserUser) to have very different results
-  Because of this issue we will not include User-User in our next evaluation and consider the next two metrics inconclusive for UserUser
+  We found that different recommendation lists lead UserUser (and only UserUser) to have very different results.
+  Because of this issue we will not include User-User in our next evaluations and consider the next two metrics inconclusive for UserUser.
   That said, we consider the small number of seen items itself a bad result for UserUser.
   Put simply, if we cannot reliably estimate if the recommendations are reasonable, how can we expect a user to do so?
 
@@ -470,7 +494,7 @@ Joseph A. Konstan\\
 \begin{figure*}[ht!]
   \centering
   \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/popdiv.pdf}
-  \caption{Left:averagePopularity@20, Center AILS@20, Right Spread@20}
+  \caption{Nonmonotonic Recommendation Quality Metrics}
   \label{fig:pop}
 \end{figure*}
 
