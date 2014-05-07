@@ -1,5 +1,3 @@
-%TODO: update language retain to simulated profile size. do a search ``reta''
-
 \documentclass[letterpaper]{sig-alternate}
 
 \usepackage{hyperref}
@@ -384,7 +382,7 @@ Joseph A. Konstan\\
 
 \section{Results}
 
-  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users, versus how many of the user's ratings were retained in the training set.
+  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users, versus simulated profile size.
 
   
 \subsection{Accuracy and Ranking Metrics}
@@ -406,7 +404,7 @@ Joseph A. Konstan\\
   SVD shows no improvement with only one rating, and User-User, actually appears to get worse with the first rating, but other than that, these algorithms outperform the ItemBaseline.
   Interestingly, the UserItemBaseline outperforms both algorithms until around 8 ratings, at which point both algorithms start to perform better.
   Given the size of the differences between UserItemBaseline, User-User, and SVD we conclude that all three provide about the same accuracy for new users.
-  That such a simple algorithm can outperform more complicated for such small values goes to show that recommending for users with very few ratings is a hard problem.
+  That such a simple algorithm can outperform more complicated algorithms for small profile sizes suggests that recommending for users with very few ratings is a hard problem.
   
   Item-Item performs quite poorly for new users.
   Until we have 13 ratings, Item-Item is less accurate than the ItemBaseline.
@@ -514,7 +512,7 @@ Joseph A. Konstan\\
   As stated earlier, We expect that users will feel the baseline's popularity (around 1000) is too high.
   We also expect that users will perceive User-User's popularity (around 50) as too low.
   SVD and Item-Item both seem to perform well, with SVD generating more popular recommendations than Item-Item.
-  SVD and Item-Item both show a trend of decreasing popularity as more ratings are retained, suggesting that these algorithms will make more nuanced, less popular recommendations for users they know more about.
+  SVD and Item-Item both show a trend of decreasing popularity as more ratings are entered, suggesting that these algorithms will make more nuanced, less popular recommendations for users they know more about.
   Interestingly, these algorithms each appear to be converging to their own separate level of popularity, which suggests that this ordering may be independent of the number of ratings.
 
     % diversity plot
@@ -524,7 +522,7 @@ Joseph A. Konstan\\
   Quite possibly due to the preference for obscure movies, User-User seems to produce the most diverse lists of any algorithm.
   We expect that the User-User recommendation lists might be perceived as too diverse.
   Unlike popularity, SVD and Item-Item seem to perform equivalently in terms of diversity.
-  We also see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing  inter-list similarity) as more ratings are retained.
+  We also see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing  inter-list similarity) as more ratings are entered.
 
   % spread plot
   \paragraph{Spread@20}
