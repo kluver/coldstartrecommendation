@@ -1,0 +1,10 @@
+This repository includes all code needed to reproduce the evaluations from "Evaluating Recommender Behavior For New Users".
+
+This code has only been tested on a branch lenskit available at https://github.com/kluver/lenskit
+
+To run this code install the branch of lenskit, and then change to the lenskti directory and run `mvn lenskit-eval`
+This will take some time, and may require increasing the RAM limit for your JAVA heap.
+
+We will test this code with the newset release of lenskit before Recsys 2014 and update this documentation.
+
+Please email kluver@cs.umn.edu if you have any questions about this code.
