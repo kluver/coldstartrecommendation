@@ -5,6 +5,8 @@
 \pdfpagewidth = 8.5in
 \pdfpageheight = 11in
 
+\widowpenalty=3000
+
 \usepackage[factor=250,spacing=true]{microtype}
 
 \begin{document}
@@ -281,7 +283,7 @@ Joseph A. Konstan\\
 
   {\bf Precision@20}, {\bf MAP@20}, and {\bf Fallout@20} are standard information retrieval metrics.
   As we show later, we found these metrics to not be useful for this evaluation.
-  Therefore, to help understand the quality of our recommendations, we also include {\bf MeanRating@20}, and {\bf RMSE@20}.
+  Therefore, to help understand the quality of our recommendations, we also include MeanRating@20, and RMSE@20.
 
   {\bf MeanRating@20} tries to establish how much users like their recommendations by measuring users average satisfaction with recommended items based on withheld ratings.
   {\bf RMSE@20} accompanies this metric and lets us know if the recommended items are likely to be incorrectly predicted, which can explain why users may or may not like their recommendations.
@@ -421,6 +423,7 @@ Joseph A. Konstan\\
   Because of this, many of the predictions come from the better performing UserItemBaseline.
   As we get our first few ratings, the predictions become less likely to be from the UserItemBaseline, leading to an artificial upward trend in RMSE.
   
+\footnotetext[3]{We do not plot UserItemBaseline here as it is equivalent to ItemBaseline on this metric.}
 
   % Recommendation quality metrics
     % NDCG
@@ -490,6 +493,8 @@ Joseph A. Konstan\\
   SVD performs as expected, starting around the baseline for few ratings, and then steadily improving to be the best algorithm after 3 ratings.
   Again, we find that ItemItem performs poorly until quite a few ratings are added, and does worse than baseline throughout.
     
+\footnotetext[4]{We do not plot UserUser here as it cannot be reliably measured for this metric.}
+
   \paragraph{RMSE@20}
   The third graph in figure \ref{fig:topN.rmse} shows the accuracy of our algorithms on items in the top 20 recommendations.
   Not surprisingly, this figure shows the same trends as the last one, meaning that the algorithms whose recommendations were (on average) most likable, were those whose recommendations were most accurate.
@@ -635,7 +640,7 @@ Joseph A. Konstan\\
 \section{Acknowledgements}
   
   The authors would like to express their gratitude towards our colleagues at GroupLens research for their feedback and support while developing this work.
-  We would like to specially that Michael Ekstrand for his  important work on the Lenskit recommendation framework.
+  We would like to specially thank Michael Ekstrand for his  important work on the Lenskit recommendation framework.
   This work is supported by NSF grants IIS1017697 and IIS0808692.
   %netfishing and volunteers
   %check with Joe about netfishing.
