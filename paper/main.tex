@@ -39,16 +39,17 @@ Joseph A. Konstan\\
   The new user experience is one of the important problems in recommender systems.
   Past work on recommending for new users has focused on the process of gathering information from the user.
   Our work focuses on how different algorithms behave for new users.
-  We describe a methodology that we use to compare representative of three common families of algorithms along eleven different metrics.
-  We find for first few ratings a baseline algorithm performs better than three common collaborative filtering algorithms.
+  We describe a methodology that we use to compare representatives of three common families of algorithms along eleven different metrics.
+  We find that for the first few ratings a baseline algorithm performs better than three common collaborative filtering algorithms.
   Once we have a few ratings, we find that Funk's SVD algorithm has the best overall performance.
+  We also find that ItemItem, a very commonly deployed algorithm, performs very poorly for new users.
   Our results can inform the design of interfaces and algorithms for new users.
 
 \end{abstract}
 
 %TODO: update these things.
 % A category with the (minimum) three required fields
-\category{H.3.3}{nformation Search and Retrieval}{Information filtering}
+\category{H.3.3}{Information Search and Retrieval}{Information filtering}
 
 %TODO: update these things.
 \terms{Algorithms, Measurement}
@@ -61,7 +62,7 @@ Joseph A. Konstan\\
   % new user experience is only chance to make all important first impression
   One of the important problems in recommender systems is the new user experience.
   If the system cannot provide a good user experience, then new users are likely to leave and not return.
-  Even if the system can make accurate recommendations accuracy alone is not enough to make a good first impression.
+  Even if the system can make accurate recommendations, accuracy alone is not enough to make a good first impression.
   If the system only recommends items the user has seen, then the user may see no value in the system and leave.
   Alternatively, if the system only recommends obscure items, then the user will have no way to know if the recommendations are worth taking.
   This problem is made more complex by how little information we have about new users.
@@ -91,11 +92,10 @@ Joseph A. Konstan\\
   % work on this focuses on how to collect useful ratings.
   % (framework from decision tree work)
  
-  The natural way to improve the system for new users is to have access to some extra information.
-  The best studied strategy is for new users to go through a new user rating survey.
-  Systems that take this practice do not allow their users to receive recommendations until some fixed number of ratings have been entered.
+  The most studied strategy for gathering more information for new users is to include a new user rating survey.
+  Systems that utilize this practice do not allow their users to receive recommendations until some fixed number of ratings have been entered.
   The idea is that after enough ratings have been entered, the predictions will be `good enough'.
-  This idea has been explored by many authors, most consider a system in which the user is presented with a list of items, and asked to rate items until they have enough ratings.
+  This idea has been explored by many authors; most consider a system in which the user is presented with a list of items and asked to rate items until they have enough ratings.
   For a good discussion of prior work in this direction see \cite{adaptiveBootstrapping}.
 
   % One promising approach is to let user control interaction
@@ -114,28 +114,28 @@ Joseph A. Konstan\\
 
   While past work has covered the new user rating survey from many different angles, it has not carefully evaluated which algorithm is best at recommending to new users.
   The new user survey work sidesteps this issue by assuming that the user will receive no personalization until the survey is complete.
-  Even for systems with a new user survey carefully choosing algorithms for new users may be very important.
+  Even for systems with a new user survey, carefully choosing algorithms for new users may be very important.
   Users fresh out of the new user survey will still have far fewer ratings than the average user of the recommender system.
   Different algorithms may provide very different experiences for these users, even if they give very similar results for the average user.
   
   Fortunately, there has been a growing trend in recommender system research to perform multiple metric evaluations of recommender systems.
-  This work comes out of a pushback against early recommendation evaluations which only evaluated recommenders in terms of their predictive accuracy \cite{accurateIsNotEnough}.
+  This work comes out of a pushback against early recommender evaluations which only evaluated recommenders in terms of their predictive accuracy \cite{accurateIsNotEnough}.
   The response of this pushback has been the generating of many different metrics which allow us to more carefully understand the separate aspects of a recommender's output \cite{LathiaTemporal, CremonesiTopN, zieglerDiversity}.
   %TODO: I want to cite more papers here, I don't think I have good ones either. Joe would probably know.
   This strategy allows us to dig much deeper into the differences between algorithms, looking past simple measures of accuracy to more meaningful dimensions such as how novel the recommendations are, or how frequently the recommendations change for any user.
   This allows us to capture the qualitative tradeoffs between algorithms which are otherwise quite similar, which helps us choose algorithms that are better suited for a particular domain.
 
-  We combine these two types of research, new user experience research, and multiple metric algorithm evaluation.
+  In this work we combine these two streams of research: new user experience research and multiple metric algorithm evaluation.
   Our goal is to understand the differences between algorithms for new users, especially how these algorithms respond to different amounts of information.
-  by using multiple metrics we can understand not just what algorithm is best in terms of absolute performance, but also gain a more nuanced understanding of the qualities of different algorithm's recommendations.
+  By using multiple metrics we can understand not just what algorithm is best in terms of absolute performance, but also gain a more nuanced understanding of the qualities of different algorithms' recommendations.
   %Furthermore, we do not seek to find the algorithm that scores best on some metric of choice, instead, we seek to form a complete understanding of the differences between algorithms for cold start use.
 
-  We structure our work around the following research question.
+  We structure our work around the following research question:
   \begin{itemize}
     \item RQ1: How do algorithms behave for users with few ratings?
   \end{itemize}
   Algorithm behavior is a very broad subject.
-  We will look at three distinct sub questions to help capture algorithm behavior.
+  We will look at three distinct sub-questions to help capture algorithm behavior.
   %We will look at three distinct ways to quantify the behavior of a recommender system. each of which will lead to multiple metrics.
 
 % RQs
@@ -155,7 +155,7 @@ Joseph A. Konstan\\
   \begin{itemize}
   \item RQ1.a: How well can different algorithms predict the future ratings of new users?
   \item RQ1.b: How well can different algorithms rank and recommend good items to new users?
-  \item RQ1.c: How do algorithms behave as measured by other metrics such as popularity and diversity for new users?
+  \item RQ1.c: How do algorithms behave as measured by other metrics, such as popularity and diversity, for new users?
   \end{itemize}
 
   We will answer these questions by developing an evaluation framework that can be used to understand how algorithms perform for new users.
@@ -169,9 +169,9 @@ Joseph A. Konstan\\
     % maybe hit some limitations
     % motiviate _why do a simulation_ (a lot of metrics we want to try)
 
-  To answer our research questions we will evaluate algorithms in an offline simulation designed to simulate users as they join the system.
-  We do this by adopting the standard train and test methodology to simulate users with a given number of ratings.
-  We run this methodology for various profile sizes, and then plot the results.
+  To answer our research questions we will evaluate algorithms in an offline evaluation designed to simulate users as they join the system.
+  We do this by adapting the standard train and test methodology to test existing users with a specific number of ratings.
+  We run this approach for various profile sizes, and then plot the results.
   This lets us understand both how the algorithms compare on these metrics, and how the algorithm performance changes with the number of ratings provided.
 
   This, or a similar technique, has been used by previous authors to make plots of metric values over profile size \cite{DrennerInitialExperiance, TenIsEnough, AdaptiveBootstrap, LathiaTemporal}.
@@ -195,9 +195,9 @@ Joseph A. Konstan\\
   % motivation for algorithm selection
   % list algorithms 
 
-  We seek to develop an understanding of how a range of different standard algorithms perform at for new users.
+  We seek to develop an understanding of how a range of different standard algorithms perform for new users.
   Rather than picking advanced algorithms that are tuned for new user performance, we decided to first understand how representatives of three common types of algorithms perform.
-  Therefore we will compare UserUser\cite{resnick1994grouplens}, ItemItem\cite{sarwar2001item}, and Simon Funk's SVD\cite{funk_netflix_2006} algorithms against two simple baseline algorithms.
+  Therefore we will compare UserUser\cite{resnick1994grouplens}, ItemItem\cite{sarwar2001item}, and Simon Funk's SVD\cite{funk_netflix_2006} against two simple baseline algorithms.
   More information about these algorithms can be found in table \ref{tbl:algo}.
   Code for our evaluation, using the Lenskit evaluation framework \cite{lenskit} is available at \url{https://bitbucket.org/kluver/coldstartrecommendation}.
   
@@ -207,7 +207,7 @@ Joseph A. Konstan\\
       \hline
 %      Algorithm          & Algorithm description \\\hline
       ItemBaseline       & Item's average rating, with mild bayesian damping towards the global mean \cite{funk_netflix_2006}. \\\hline
-      UserItem\-Baseline & ItemBaseline adjusted by the user's average offset from the ItemBaseline. Mild mean damping is applied \cite{funk_netflix_2006}. \\\hline
+      UserItem\-Baseline & ItemBaseline adjusted by the user's average offset from the ItemBaseline. Mild bayesian damping is applied \cite{funk_netflix_2006}. \\\hline
       UserUser           & User based nearest neighbor collaborative filtering \cite{resnick1994grouplens} with a neighborhood size of 30 and ratings normalized by subtracting the UserItemBaseline score. \\\hline
       ItemItem           & Item based nearest neighbor collaborative filtering \cite{sarwar2001item} with a neighborhood size of 30 and ratings normalized by subtracting the ItemBaseline score.   \\\hline
       SVD                & Simon Funk's SVD based collaborative filtering approach \cite{funk_netflix_2006} with 30 features and 150 training iterations per feature. \\\hline
@@ -218,7 +218,7 @@ Joseph A. Konstan\\
   
   % evaluation and code to run these algortihms available at.
   % citations and lenskit info
-  Each algorithm was configured and tuned similarly to Ekstrand's 2012 evaluation \cite{ekstrand2012recommenders}.
+  Each algorithm was tuned similarly to Ekstrand's 2012 evaluation \cite{ekstrand2012recommenders}.
   Since this evaluation was on a different dataset (MovieLens 10M vs. MovieLens 1M), we performed minor tuning from these parameters.
   Most notably, we found that the previous damping parameter used for the baselines was too large.
   We found that a value of 5 gave much better results for new user recommendation.
@@ -231,70 +231,73 @@ Joseph A. Konstan\\
   We use a total of eleven metrics.
   In our evaluation we found that some of these metrics are redundant, and future work should be able to use a much smaller list of metrics.
   The metrics are listed in table \ref{tbl:metrics}.
+  We split our metrics into three groups roughly along our three sub research questions.
+
   \begin{table*}[ht!]
     \centering
-    \begin{tabular}{|p{7em}|p{20em}|p{4em}|p{18em}|}
+    \begin{tabular}{|p{7.5em}|p{21em}|p{7em}|p{12.5em}|}
+      \hline
+      Metric & Description & Range & Preferred direction\\\hline
       \hline
       \multicolumn{4}{|c|}{{\bf Accuracy and Ranking Metrics}} \\\hline
-      RMSE                   & Standard prediction accuracy metric \cite{handbook}. & 0 to 5 & Smaller is better. \\\hline
-      nDCG                   & Standard ranking quality metric \cite{handbook}. & 0 to 1 & Larger is better. \\\hline
+      RMSE                   & Standard prediction accuracy metric \cite{handbook}. & 0 to 5 stars & Smaller is better. \\\hline
+      nDCG                   & Standard ranking quality metric \cite{handbook}.     & 0 to 1       & Larger is better.  \\\hline
       \hline
       \multicolumn{4}{|c|}{{\bf Monotonic Recommendation Metrics}} \\\hline
-      Precision@20           & Count of recommended items in the test set and rated 4.0 or higher\footnotemark[1] \cite{handbook}. & 0 to 1 & Larger is better. \\\hline
-      MAP@20                 & Average of precision at each rank one through twenty \cite{manning2008introduction}. & 0 to 1 & Larger is better.\\\hline
-      Fallout@20             & Count of recommended items in the test set and rated 2.0 or lower\footnotemark[1] \cite{handbook}. & -1 to 1 & Smaller is better. \\\hline
-      MeanRating@20          & Average rating of recommended items that are in the test set.& 0 to 5 & Larger is better. \\\hline
-      RMSE@20                & RMSE computed only over those items that were recommended.& 0 to 5 & Smaller is better. \\\hline
+      Precision@20           & Count of recommended items in the test set and rated 4.0 or higher\footnotemark[1] \cite{handbook}. & 0 to 1       & Larger is better.  \\\hline
+      MAP@20                 & Average of precision at each rank one through twenty \cite{manning2008introduction}.                & 0 to 1       & Larger is better.  \\\hline
+      Fallout@20             & Count of recommended items in the test set and rated 2.0 or lower\footnotemark[1] \cite{handbook}.  & 0 to 1       & Smaller is better. \\\hline
+      MeanRating@20          & Average rating of recommended items that are in the test set.                                       & 0 to 5 stars & Larger is better.  \\\hline
+      RMSE@20                & RMSE computed only over those items that were recommended.                                          & 0 to 5 stars & Smaller is better. \\\hline
       \hline
-      \multicolumn{4}{|c|}{{\bf Nonmonotonic Recommender Metrics}} \\\hline
-      SeenItems@20           & Count of recommended items in the test set. & 0 to 20 & Not well understood. \newline Larger is \emph{probably} better within reason. \\\hline
-      Average\-Popularity@20 & The average number of users in the training set that have seen recommended items \cite{zieglerDiversity}.& 1 to 6000 & Not well understood. \newline Smaller is \emph{probably} better within reason. \\\hline
-      AILS@20                & The average pairwise similarity between recommended items \cite{zieglerDiversity}. & 0 to 1 & Not well understood. \newline  Smaller is \emph{probably} better within reason. \\\hline
-      Spread@20              & The Shannon's entropy of the distribution of recommended items for users in the test set. & 0 to 12 & Not well understood. \newline Larger is \emph{probably} better within reason. \\\hline
+      \multicolumn{4}{|c|}{{\bf Non-monotonic Recommender Metrics}} \\\hline
+      SeenItems@20           & Count of recommended items in the test set. & 0 to 20 items & Moderate values are better. \\\hline
+      Average\-Popularity@20 & The average number of users in the training set that have seen recommended items \cite{zieglerDiversity}.& 1 to 6000 users & Moderate values are better. \\\hline
+      AILS@20                & The average pairwise similarity between recommended items \cite{zieglerDiversity}.                       & -1 to 1         & Moderate values are better. \\\hline
+      Spread@20              & The Shannon's entropy of the distribution of recommended items for users in the test set.                & 0 to 12 bits    & Moderate values are better. \\\hline
     \end{tabular}
     \caption{Summary of metrics}
     \label{tbl:metrics}
   \end{table*}
-  \footnotetext[1]{We also tried 5.0 and 1.0 as cutoffs respectively, and found no meaningful difference.}\addtocounter{footnote}{1}
 
-  We split our metrics into three groups roughly along our three sub research questions.
   
   \paragraph{Accuracy and Ranking Metrics}
-  The first two metrics evaluate the recommender based on its predictions for each item.
-  These evaluate, the accuracy of the predictions, and the ability of the recommender to rank the list of all items.
+  {\bf RMSE} and {\bf nDCG} evaluate the recommender based on its prediction for each item.
+  These evaluate the accuracy of the predictions and the ability of the recommender to rank the list of all items.
   We find that these two metrics perform quite similarly in our evaluation.
 
+  \footnotetext[1]{We also tried 5.0 and 1.0 as cutoffs respectively, and found no meaningful difference.}\addtocounter{footnote}{1}
+
   \paragraph{Monotonic Recommendation Metrics}
+  %TODO: kenny comment: is 20 standard size for these?
+  %TODO: daniel comment: check for consistency with the user vs. users.
   These metrics evaluate the top 20 recommendations produced by the recommender.
-  As the UserItemBaseline and ItemBaseline make the same recommendations for all users, we will only report results for the ItemBaseline here.
   The choice of 20 items for the evaluations was arbitrary, testing with other values showed similar results, except on one metric.
   This issue will be addressed later in the results section.
   
   These metrics are useful because they have a well defined relation to the satisfaction of the user.
-  As the metric grows larger, or smaller (depending on metric), we expect the recommendations to satisfy users more.
+  As the metric grows larger (or smaller, depending on metric) we expect the recommendations to satisfy users more.
   This makes these metrics easy to apply.
 
-  Our first three metrics (Precision, MAP, and Fallout) are standard information retrieval metrics.
+  {\bf Precision@20}, {\bf MAP@20}, and {\bf Fallout@20} are standard information retrieval metrics.
   As we show later, we found these metrics to not be useful for this evaluation.
-  Therefore, to help understand the quality of our recommendations, we also include MeanRating@20, and RMSE@20.
+  Therefore, to help understand the quality of our recommendations, we also include {\bf MeanRating@20}, and {\bf RMSE@20}.
 
-  MeanRatings@20, and RMSE@20 both try to establish how much the user likes the recommendations.
-  MeanRatings@20 tells us directly how much users tend to like recommended movies.
-  RMSE@20 accompanies this and lets us know if the recommended items are likely to be incorrectly predicted, which can explain why users may or may not like their recommendations.
-  As it helps us interpret these two metrics we will also discuss SeenItems@20 with these metrics, despite SeenItems@20 belonging to the next group of metrics.
-
-  \paragraph{Nonmonotonic Recommendation Metrics}
-  Our final four metrics are all nonmonotonic measures of the user's recommendations.
+  {\bf MeanRating@20} tries to establish how much users like their recommendations by measuring users average satisfaction with recommended items based on withheld ratings.
+  {\bf RMSE@20} accompanies this metric and lets us know if the recommended items are likely to be incorrectly predicted, which can explain why users may or may not like their recommendations.
+  
+  \paragraph{Non-monotonic Recommendation Metrics}
+  {\bf SeenItems@20}, {\bf AveragePopularity@20}, {\bf AILS@20}, and {\bf Spread@20} are all non-monotonic measures of the user's recommendations.
   These metrics are harder to apply than the monotonic measures of recommendation quality.
   Unlike the previous metrics, we expect that both of the extremes of these metrics relate to a negative user experience.
 
   We use these metrics as they can help us understand important properties of how users perceive their recommendations.
-  For example, as mentioned in the introduction how many of the recommended items the user has seen (estimated by SeenItems@20) can have a major impact on how much users trust the recommendations.
+  As mentioned in the introduction the number of recommended items that the user has seen (estimated by {\bf SeenItems@20}) can have a major impact on how much users trust the recommendations.
   If an algorithm recommends too few items that the user has seen then we expect the user will have trouble evaluating if the recommendations are trustworthy.
-  That said, if too many items in the recommendations have already been seen, the user may feel that the recommendations are not interesting or useful.
+  Too many, and the user may feel that the recommendations are not interesting or useful.
   Unfortunately, without more research on these metrics to establish a mapping between user satisfaction and metric values we will have to rely on educated guesses to establish which values for these metrics are too extreme.
 
-  The average popularity metric is a crude metric of how novel the recommendations are to the user \cite{zieglerDiversity}.
+  {\bf AveragePopularity@20} is a crude metric of how novel the recommendations are to the user \cite{zieglerDiversity}.
   Broadly speaking, we expect users will prefer recommendation lists containing more novel (less popular) items.
   However, if the recommended items are too unpopular we risk that the user will not have heard of the items, which could make the user doubt the recommendations, hurting the user experience.
 
@@ -304,13 +307,13 @@ Joseph A. Konstan\\
   It has also been shown, however, that too much diversity can lead to less user satisfaction \cite{zieglerDiversity}.
   This is probably due to a tradeoff between how diverse a list is and how well it captures a user's tastes.
   At some point, a list cannot become more diverse without including items that do not interest the user.
-  We will measure diversity with the AILS@20 metric.
+  We will measure diversity with the {\bf AILS@20} metric.
 
-  The AILS@20 metric is based on the ILS metric introduced by ziegler et al \cite{zieglerDiversity}.
+  The {\bf AILS@20} metric is based on the Intra-List Similarity (ILS) metric introduced by ziegler et al \cite{zieglerDiversity}.
   AILS@N is simply a rescaling of ILS to be scale free with regards to N, this was done to make the metric easier to interpret, by putting it on the same scale as similarity values.
   We used the same item similarity metric for AILS@20 as we used in the ItemItem recommender.
 
-  The Spread@20 metric is designed to measure how well the recommender spreads its attention across many items.
+  The {\bf Spread@20} metric is designed to measure how well the recommender spreads its attention across many items.
   We expect that algorithms with a good understanding of its users will be able to recommend different items to different users.
   Like diversity, however, we expect that it is not possible to reach complete spread (recommending each item an equal number of times) without making avoidably bad recommendations.
   When Spread is large we know that the recommender is recommending many items with a relatively even distribution.
@@ -319,7 +322,7 @@ Joseph A. Konstan\\
   Spread is computed by computing recommendations for each test user.
   Let $C(I)$ be the count of how many times item $I$ showed up in the recommendations.
   Let $P(I) = C(I) / \sum_I C(I)$ be the probability that a random recommendation is for item $I$.
-  Finally we define spread as the Shannon's entropy of $P(I)$, $Spread = -\sum_I P(I) \log(P(I))$.
+  We define spread as the Shannon's entropy of $P(I)$, $Spread = -\sum_I P(I) \log(P(I))$.
 
   \paragraph{Expectations about algorithm performance}
   % provide expectations.
@@ -328,9 +331,9 @@ Joseph A. Konstan\\
   Furthermore, we expect the improvement over the ItemBaseline to be gradual, with larger improvements only happening with more data.
 
   The UserItemBaseline should only differ from the ItemBaseline for metrics that use the prediction value.
-  For all other metrics these two should provide the same responses.
+  For all other metrics these two provide the same responses, and we will only report results for the ItemBaseline.
   As the UserItemBaseline is still quite a simple baseline, we expect that the non-baseline algorithm will beat this baseline as well.
-  That said, for small rating values its possible that the improvements over this baseline will be very small.
+  That said, for small rating values it is possible that the improvements over this baseline will be very small.
   
   We expect that the baseline algorithms will provide the most popular recommendations, with the least diversity, and the least spread.
   We expect that any personalized algorithm should be able to make more nuanced recommendations than simply recommending the best rated items, which should translate as gains on these metrics.
@@ -349,7 +352,7 @@ Joseph A. Konstan\\
   
   These ratings were collected from the MovieLens system, which requires 15 ratings in a new user survey before users can enter the system.
   To the best of our knowledge, at the time this data was collected the new user survey preferred items that were very popular.
-  Therefore will randomize the order of the ratings to try to avoid measuring the effect of these initial ratings, and instead focus on the algorithm's performance on normal ratings.
+  Therefore we will randomize the order of the ratings to try to avoid measuring the effect of these initial ratings, and instead focus on the algorithm's performance on normal ratings.
   
   Each user in the dataset has at least 20 ratings.
   Therefore we will evaluate new users with up to 19 ratings.
@@ -360,34 +363,36 @@ Joseph A. Konstan\\
 
   % subsampling strategy
   % describe normal crossfold solution
-  The natural way to perform this evaluation is with a modified user crossfolding strategy.
-  The normal 5 fold cross validation strategy splits the users into five groups.
-  In each of five folds all ratings from four of the groups will be kept in the training set, and then either some constant number or percent of ratings from each user in the fifth group will be set aside for the test set.
+  The natural way to perform this evaluation is with a modified user crossfold strategy.
+  The normal five-fold cross validation strategy splits the users into five groups.
+  In each of five folds all ratings from four of the groups will be kept in the training set, and then some subset of the ratings from each user in the fifth group will be set aside for the test set.
   The selection of a test set can be random to avoid any possible ordering effects in the data due to a new user rating strategy.
   To understand how metrics change with a different number of users we can simply generate separate crossfolds for each simulated profile size.
-  At each crossfold, rather than only taking a constant number of ratings for the test set, we can instead only keep a constant number of ratings for the training set.
+  At each crossfold we include only a constant number of ratings for each test user into the training set, ensuring that all test users have the specified profiles size.
   
   % describe issues with solution
-  Unfortunately, we found that this strategy can causes biases in our evaluation.
-  In particular, this strategy led to the size of the test sets to change as a function of the simulated profile size.
+  Unfortunately, we found that this strategy causes biases in our evaluation.
+  In particular, this strategy led to the size of the test sets changing as a function of the simulated profile size.
   As we kept more ratings for the training set, we would have fewer ratings in the test set.
-  This turned out to bias our results, as some metrics, such as nDCG, proved to be sensitive to the number of items in the test set.
+  This turned out to bias our results; some metrics, such as nDCG, proved to be sensitive to the number of items in the test set.
   
   % describe our crossfold then subsample solution.
-  Our solution to this bias is to subsample an existing crossfold.
-  Therefore, to generate training and test sets for different number of ratings from 1 to 19, we first generate a set of test and training splits so that test users have 19 training items using the crossfold strategy outlined above.
+  Our solution to this bias is to subsample from an existing crossfold.
+  To generate training and test sets for different number of ratings from 1 to 19, we first generate a set of test and training splits so that test users have 19 training items using the crossfold strategy outlined above.
   Then, to generate any other number of ratings, we randomly downsample the 19 item training set.
   This allows us to generate training sets with a given number of ratings for test users, such that profile size is evaluated with the same test set.
 
 
 \section{Results}
 
-  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users, versus simulated profile size.
+  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform versus simulated profile size.
 
   
 \subsection*{Accuracy and Ranking Metrics}
 
-  % Prediction accuracy
+\vspace{-1.5em}
+ 
+ % Prediction accuracy
 \begin{figure*}[ht!]
   \centering
   \includegraphics[width=0.75\linewidth]{../lenskit/output/ekstrandTuned20/accuracy.pdf}
@@ -401,7 +406,8 @@ Joseph A. Konstan\\
   \paragraph{RMSE}
   Figure \ref{fig:rmse} shows how accurate our algorithms are as measured by RMSE.
   UserUser, and SVD both behaved essentially as expected.
-  SVD shows no improvement with only one rating, and UserUser actually gets worse with the first rating, but other than that, these algorithms outperform ItemBaseline.
+  SVD shows no improvement with only one rating, and UserUser actually gets worse with the first rating.
+  Other than that, these algorithms outperform ItemBaseline.
   Interestingly, UserItemBaseline outperforms both algorithms until around 8 ratings, at which point both algorithms start to perform better.
   Given the size of the differences between UserItemBaseline, UserUser, and SVD we conclude that all three are equally accurate for new users.
   That such a simple algorithm can outperform more complicated algorithms for small profile sizes suggests that recommending for users with very few ratings is a hard problem.
@@ -410,7 +416,7 @@ Joseph A. Konstan\\
   Until we have 13 ratings, ItemItem is less accurate than the ItemBaseline.
   In fact, for the first two ratings ItemItem appears to perform \emph{worse} as more ratings are added.
   This trend is a result of the limited coverage of the ItemItem algorithm.
-  If you consider the accuracy of RMSE on only those items where it makes a personalized prediction it does show a monotonic increase in accuracy similar to the other algorithms.
+  Consider the accuracy of RMSE on only those items where it makes a personalized prediction, it shows a monotonic increase in accuracy similar to the other algorithms.
   However, for small rating counts ItemItem can only predict for some percent of the item (around 60\% for users with two ratings, and around 75\% for users with four ratings).
   Because of this, many of the predictions come from the better performing UserItemBaseline.
   As we get our first few ratings, the predictions become less likely to be from the UserItemBaseline, leading to an artificial upward trend in RMSE.
@@ -435,25 +441,28 @@ Joseph A. Konstan\\
 
 \subsection*{Monotonic Recommendation Quality Metrics}
 
+\vspace{-1.5em}
+
 \begin{figure*}[ht!]
   \centering
   \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/TopNPrecision.pdf}
   \caption{Information Retrieval Recommendation Quality Metrics}
   \label{fig:map}
 \end{figure*}
+%
 \paragraph{MAP@20, Precision@20, Fallout@20}
-  Figure \ref{fig:map} shows MAP@20, precision@20, and fallout@20.
+  Figure \ref{fig:map} shows MAP@20, Precision@20, and Fallout@20.
   All three metrics show essentially the same trend, UserUser gets the lowest score, the baseline get the highest score.
-  On both MAP@20 and precision@20 SVD gets a higher score than ItemItem throughout, performing almost as highly as the baseline.
-  On fallout@20 ItemItem and SVD perform about as well as each other, with SVD showing a very slight lead.
+  On both MAP@20 and Precision@20, SVD gets a higher score than ItemItem throughout, performing almost as well as the baseline.
+  On Fallout@20 ItemItem and SVD perform about as well as each other, with SVD showing a very slight lead.
   We also tested recall and mean reciprocal rank metrics, but found them to exhibit the same trend, so they were not explored further.
 
-  This result is rather strange as MAP and Precision are metrics where larger scores imply better performance, whereas fallout is a metric where larger scores imply poor performance.
+  This result is rather strange as MAP and Precision are metrics where larger scores imply better performance, whereas Fallout is a metric where larger scores imply poor performance.
   Therefore we would not expect to see rank equivalent behavior from these metrics.
   Unfortunately this means that these metrics contradict each other.
   One possible reason for this is that these topN metrics are known to be biased toward algorithms that recommend more popular items \cite{bellogin}.
   Looking forward to the average popularity (figure \ref{fig:pop}) of recommended items, we see that the average popularity of the recommendations closely replicates the previous three plots.
-  Therefore we will discard these metrics, and consider less biased metrics to help us analyze the quality of the recommendations.
+  As a result of this, we discard these metrics, and consider less biased metrics to help us analyze the quality of the recommendations.
 
   % TopN average rating / topn rmse
     % interpret graph and reason about what it means about quality
@@ -466,13 +475,13 @@ Joseph A. Konstan\\
 \end{figure*}
 
   \paragraph{SeenItems@20}
+  We address this non-monotonic metric out of turn here as it provides important context for the next two metrics.
   The first graph in figure \ref{fig:topN.rmse} shows the average number of items in the top 20 recommendations for each algorithm that were also in the test set.
-  We address this metric out of turn here as it provides important context for the next two metrics.
   The average number of test set items in recommendations shows a similar trend to the MAP and precision metrics, with UserUser getting by far the fewest seen items, and the baseline getting the most.
   As UserUser gets less than one seen item on average we found that UserUser was not appropriate for the MeanRating@20 and RMSE@20 metrics.
-  In particular, we found that the UserUser results for these metrics was highly sensitive to recommendation list size.
-  Because of this issue we will not include UserUser in our next evaluations and consider the next two metrics inconclusive for UserUser.
-  That said, we consider the small number of seen items itself a bad result for UserUser.
+  In particular, we found that the UserUser results for these metrics are highly sensitive to recommendation list size.
+  Because of this issue we will not include UserUser in our next two metrics and consider the next two metrics inconclusive for UserUser.
+  That said, we consider the small number of seen items to be a bad result for UserUser.
   Put simply, if we cannot reliably estimate if the recommendations are reasonable, how can we expect a user to do so?
 
   \paragraph{MeanRating@20}
@@ -490,16 +499,16 @@ Joseph A. Konstan\\
   %This is likely an edge effect, where the highest rated (5 star) items are perhaps easier to predict than other items.
 
 
-\subsection*{Nonmonotonic Recommender Quality Metrics}
+\subsection*{Non-monotonic Recommender Quality Metrics}
   % Other recommender metrics
-
+\vspace{-1.5em}
 \begin{figure*}[ht!]
   \centering
   \includegraphics[width=\linewidth]{../lenskit/output/ekstrandTuned20/popdiv.pdf}
-  \caption{Nonmonotonic Recommendation Quality Metrics}
+  \caption{Non-monotonic Recommendation Quality Metrics}
   \label{fig:pop}
 \end{figure*}
-
+%
   \paragraph{AveragePopularity@20}
     % popularity graph
   The first graph in figure \ref{fig:pop} shows the average popularity of items recommended by each algorithm.
@@ -557,7 +566,7 @@ Joseph A. Konstan\\
     \label{tbl:results}
   \end{table}
 
-  The high level results of our evaluation are summarized in table \ref{tbl:results}
+  The high level results of our evaluation are summarized in table \ref{tbl:results}.
   Overall we see that SVD seems to be the best performing algorithm for cold start use.
   SVD was the only algorithm that consistently outperformed the baseline algorithms on prediction and recommendation tasks.
   ItemItem had arguably better results on the average popularity and spread metrics, indicating that it was able to find more novel items, and make a larger range of recommendations to users.
@@ -565,15 +574,16 @@ Joseph A. Konstan\\
 
   UserUser performed quite well at prediction, but tended to favor unpopular items in its recommendations.
   While some novelty is good, we believe that UserUser goes too far with obscure movies in its recommendations, and therefore does not make good recommendations.
-  Therefore we conclude that UserUser is not well suited for new users unless only its predictions are used.
-  Exploring corrections for this issue is left as future work.
+  Therefore we conclude that UserUser alone is not well suited for new users.
+  It is possible that careful tuning or hybridizing with another algorithm may help UserUser perform well for new users.
+  Exploring this issue further is left as future work.
 
     % if you use a switching recommender, this methodology can help you choose when to switch.
     % non-traditional metrics can tell you more about what is going on, these seem to be more properties of the class of algo than of the data, so its worth looking at these when choosing algorithms, to find one with properties that are good for your task.
   Interestingly, we repeatedly see that for very small numbers of ratings the UserItemBaseline is our strongest algorithm, both in terms of accuracy, and recommendation quality.
   This suggests a switching strategy for live systems, in which the UserItemBaseline is deployed until a user has enough ratings, after which they are switched to a better recommender.
   The switching point between algorithms can be determined with our methodology.
-  The only downside of this approach is that the baseline performed poorly on our nonmonotonic metrics, which may effect users as they first join the system.
+  The only downside of this approach is that the baseline performed poorly on our non-monotonic metrics, which may effect users as they first join the system.
   
 
   % other takeaways
@@ -582,7 +592,7 @@ Joseph A. Konstan\\
   UserUser and ItemItem algorithms have no built in method for damping their predictions towards the mean when they don't have much data.
   The regularization in the cost function of the SVD model makes it so its predictions will gradually shift away from the baseline predictions as more relevant ratings are added.
   The downside of this, however, could be the higher popularity and lower spread seen by the SVD algorithm.
-  The same regularization that helps avoid making mistakes due to too little data, may also prevent the algorithm from taking occasional risks on more obscure movies.
+  The same regularization that helps avoid making mistakes due to too little data may also prevent the algorithm from taking occasional risks on more obscure movies.
   
 
   % limitations and opprotunities
@@ -596,14 +606,14 @@ Joseph A. Konstan\\
 
   One important property that needs to be considered is that our dataset only contained users that naturally used the system enough to collect 20 ratings.
   Unfortunately, this means that we do not know if there are differences between users who do and do not survive in the system.
-  This is a limitation of our methodology, to maintain a constant test set throughout the evaluation we are not able to evaluate users who have less ratings than the maximum amount we wish to study.
+  This is a limitation of our methodology, to maintain a constant test set throughout the evaluation we are not able to evaluate users who have less ratings than the maximum amount of ratings we wish to study.
   More work needs to be done to understand users who only  make one or two ratings to discover why they leave, and how they differ from other users of our systems.
 
   Finally, we feel that more work is needed to explore different algorithms.
   We only explored three of the dozens of known recommendation algorithms.
   Some of these algorithms are designed specifically for cold start, others are designed to leverage extra, non-rating information to improve quality.
   Work should be done to understand the differences between these algorithms, and what effect extra information has on the recommendation process.
-  Using our methodology should might be possible to measure the effect that extra information about the user has on recommendation, and to compare it the effect of extra initial ratings.
+  Using our methodology it should be possible to measure the effect that extra information about the user has on recommendation, and to compare it against the effect of extra initial ratings.
     % algorithm limitations
       % only covered three common families,
       % different algos tuned specifically for cold start.
@@ -626,8 +636,9 @@ Joseph A. Konstan\\
   
   The authors would like to express their gratitude towards our colleagues at GroupLens research for their feedback and support while developing this work.
   We would like to specially that Michael Ekstrand for his  important work on the Lenskit recommendation framework.
-
-  This work is supported by NSF grant TODO:
+  This work is supported by NSF grants IIS1017697 and IIS0808692.
+  %netfishing and volunteers
+  %check with Joe about netfishing.
 
 \bibliographystyle{abbrv}
 \bibliography{resources}  % sigproc.bib is the name of the Bibliography in this case

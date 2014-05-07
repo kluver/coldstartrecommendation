@@ -1,11 +1,14 @@
 # Create a chart comparing the algorithms
 
-cp = c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00")
+cp = c("#4daf4a","#377eb8","#e41a1c","#984ea3","#ff7f00")
 
 library("ggplot2")
 library(reshape2)
 
 all.data = read.csv("eval-user.csv")
+
+nonMetrics = c("Algorithm","Retain", "DataSet", "User", "Partition", "NGood", "TestEvents", "TrainEvents", "NAttempted", "RatingEntropy")
+metrics = setdiff(names(all.data),nonMetrics)
 
 all.data.melt = melt(all.data, c("Algorithm", "Retain", "User"), metrics)
 data.melt = aggregate(value~Algorithm+Retain+variable, data=all.data.melt, mean)
@@ -28,8 +31,8 @@ data.melt$Algorithm = ordered(data.melt$Algorithm, c("ItemItem", "UserUser", "sv
 vars = c("RMSE", "nDCG")
 data.melt.sub = subset(data.melt, variable %in% vars)
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline" | variable == "RMSE")
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom")
-pdf("accuracy.pdf", width=8.5*2/2.5, height=3.5)
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom") + theme(plot.margin = unit(c(0,0,0,0), "cm"))
+pdf("accuracy.pdf", width=8.5*2/2.5, height=3.2)
 print(plot)
 dev.off()
 
@@ -37,8 +40,8 @@ dev.off()
 vars = c("Precision@20", "MAP@20", "Fallout@20")
 data.melt.sub = subset(data.melt, variable %in% vars)
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline")
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom")
-pdf("TopNPrecision.pdf", width=8.5, height=3.5)
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom") + theme(plot.margin = unit(c(0,0,0,0), "cm"))
+pdf("TopNPrecision.pdf", width=8.5, height=3.2)
 print(plot)
 dev.off()
 
@@ -47,8 +50,8 @@ data.melt.sub = subset(data.melt, variable %in% vars)
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserUser" | variable == "SeenItems@20")
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline" | variable == "RMSE@20")
 
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom")
-pdf("rmse_20.pdf", width=8.5, height=3.5)
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom") + theme(plot.margin = unit(c(0,0,0,0), "cm"))
+pdf("rmse_20.pdf", width=8.5, height=3.2)
 print(plot)
 dev.off()
 
@@ -64,8 +67,8 @@ data.melt.sub = rbind(data.melt.sub, spread.mean)
 data.melt.sub$variable = ordered(data.melt.sub$variable, levels = c("AveragePopularity@20", "AILS@20", "Spread@20"))
 
 data.melt.sub = subset(data.melt.sub, Algorithm != "UserItemBaseline")
-plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom")
-pdf("popdiv.pdf", width=8.5, height=3.5)
+plot = ggplot(data.melt.sub, aes(x=Retain, y=value, color=Algorithm, shape=Algorithm))+geom_point()+geom_line()+scale_x_continuous(breaks=4*(0:5))+facet_wrap(~variable, scales="free_y", nrow=1)+scale_color_manual(values=cp)+theme_minimal()+xlab("Simulated Profile Size")+theme(legend.position="bottom") + theme(plot.margin = unit(c(0,0,0,0), "cm"))
+pdf("popdiv.pdf", width=8.5, height=3.2)
 print(plot)
 dev.off()
 
