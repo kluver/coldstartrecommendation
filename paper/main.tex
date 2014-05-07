@@ -1,4 +1,4 @@
-%TODO: update labels. retained ratings? profile size?
+%TODO: update language retain to simulated profile size. do a search ``reta''
 
 \documentclass[letterpaper]{sig-alternate}
 
@@ -14,7 +14,7 @@
 %\CopyrightYear{2007} % Allows default copyright year (20XX) to be over-ridden - IF NEED BE.
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 
-\title{Evaluating recommender behavior for new users}
+\title{Evaluating Recommender Behavior For New Users}
 
 \numberofauthors{2}
 
@@ -38,13 +38,13 @@ Joseph A. Konstan\\
 \maketitle
 \begin{abstract}
 
-  The new user experiance is one of the important problems in recommender systems.
+  The new user experience is one of the important problems in recommender systems.
   Past work on recommending for new users has focused on the process of gathering information from the user.
   Our work focuses on how different algorithms behave for new users.
   We describe a methodology that we use to compare representative of three common families of algorithms along eleven different metrics.
-  We find that making recommendations to users with little to no ratings is hard, with a baseline algorithm performing best for the first few ratings.
-  Once we have a few ratings, however, we find that overall the SVD based algorithm outperforms both user and item nearest neighbor approaches for new users.
-  Our results can inform the design of interfaces and algorithms for new users, and suggest interesting opportunities for future work.
+  We find for first few ratings a baseline algorithm performs better than three common collaborative filtering algorithms.
+  Once we have a few ratings, we find that Funk's SVD algorithm has the best overall performance.
+  Our results can inform the design of interfaces and algorithms for new users.
 
 \end{abstract}
 
@@ -63,10 +63,10 @@ Joseph A. Konstan\\
   % new user experiance is only chance to make all important first impression
   One of the important problems in recommender systems is the new user experience.
   If the system cannot provide a good user experience, then new users are likely to leave and not return.
-  Even if the recommender can make accurate recommendations, that is not enough to make a good first impression.
-  If the recommender only recommends items the user has seen, then the user may see no value in the system and leave.
-  Alternatively, if the recommender only recommends obscure items then the user will have no way to know if the evaluations are worth taking, and may leave.
-  This problem is made even worse by how little information we have about new users to inform personalization decisions.
+  Even if the system can make accurate recommendations accuracy alone is not enough to make a good first impression.
+  If the system only recommends items the user has seen, then the user may see no value in the system and leave.
+  Alternatively, if the system only recommends obscure items, then the user will have no way to know if the recommendations are worth taking.
+  This problem is made more complex by how little information we have about new users.
   
 % one important trait is trust.
     % trust is complex
@@ -85,62 +85,59 @@ Joseph A. Konstan\\
     % cold start algorithms tend to use extra information to help imrpove eary performance.
     % we only look at user cold start as it is ubiquitous.
   Past work on new user experience in recommender systems has tended to focus on the `cold start problem'.
-  Cold start refers to the problem that no algorithm can make useful recommendations with very limited amounts of information, therefore new users and items must have worse recommendations.
-  We will only consider the user side of the cold start problem in this work.
-  Most solutions to the cold start problem require some source of extra information about new users.
+  Cold start refers to the problem that no algorithm can make highly personal recommendations with very limited amounts of information.
+  Unfortunately this means that regardless of the algorithm, no recommender system can make high quality recommendations for users who are still joining the system.
   
   % One common new user strategy is to have a special data collection mode.
   % collect ratings fast to get over a precived ``bad period''
   % work on this focuses on how to collect useful ratings.
   % (framework from decision tree work)
-  The best studied strategy for new users is to have users go through a new user rating survey.
+ 
+  The natural way to improve the system for new users is to have access to some extra information.
+  The best studied strategy is for new users to go through a new user rating survey.
   Systems that take this practice do not allow their users to receive recommendations until some fixed number of ratings have been entered.
   The idea is that after enough ratings have been entered, the predictions will be `good enough'.
   This idea has been explored by many authors, most consider a system in which the user is presented with a list of items, and asked to rate items until they have enough ratings.
   For a good discussion of prior work in this direction see \cite{adaptiveBootstrapping}.
-  Generally, this work strives to strike a balance between the effort user needed to get enough ratings, and the usefulness of each rating to the system.
-  This balance is complicated by how effort effects the user's perception of value \cite{TenIsEnough}.
 
   % One promising approach is to let user control interaction
   % user or system driven control.
   % promising, we don't know much about follow up.
-  One promising approach to the new user rating survey is to have users control which movies they rate.
-  This was pioneered by McNee et al., who looked at comparisons between user driven and system driven new user surveys \cite{mcneeInterfaces}.
-  They found that users who were in control of the items they rated made fewer ratings, but that the profiles they created were more useful in predicting the user's future ratings.
-  Interestingly, while these users took more time to create their profiles, they were just as likely as other users to report that the sign up was short.
-  While these results are quite promising, to our knowledge no follow up work has been done to explore these issues further.
-  This goes to show, however, that the new user experience is a complicated issue and novel strategies may yet prove to be the best solution.
+  %One promising approach to the new user rating survey is to have users control which movies they rate.
+  %This was pioneered by McNee et al., who looked at comparisons between user driven and system driven new user surveys \cite{mcneeInterfaces}.
+  %They found that users who were in control of the items they rated made fewer ratings, but that the profiles they created were more useful in predicting the user's future ratings.
+  %Interestingly, while these users took more time to create their profiles, they were just as likely as other users to report that the sign up was short.
+  %While these results are quite promising, to our knowledge no follow up work has been done to explore these issues further.
+  %This goes to show, however, that the new user experience is a complicated issue and novel strategies may yet prove to be the best solution.
 
   % bridge from past work to our work.
     % point out holes (evaluating standard algorithms for little to no ratings, wholeistic evaluation)
     % point out that other approaches than smart object ordering exist, and we need to be able to compare.
 
-  While past work has covered the new user rating survey from many different angles, it has not carefully evaluated which algorithm to use to recommend to these new users.
-  The new user survey work sidesteps this issue by assuming that the user will receive no personalization until they survey is complete.
-  For some recommenders deployed in the wild, however, providing no recommendations to users is not acceptable.
-  Even for those systems that do not personalize until the user has made enough ratings, carefully choosing algorithms for new users may be hugely important, and can help choose how many ratings is considered ``enough''.
+  While past work has covered the new user rating survey from many different angles, it has not carefully evaluated which algorithm is best at recommending to new users.
+  The new user survey work sidesteps this issue by assuming that the user will receive no personalization until the survey is complete.
+  Even for systems with a new user survey carefully choosing algorithms for new users may be very important.
+  Users fresh out of the new user survey will still have far fewer ratings than the average user of the recommender system.
+  Different algorithms may provide very different experiences for these users, even if they give very similar results for the average user.
   
   Fortunately, there has been a growing trend in recommender system research to perform multiple metric evaluations of recommender systems.
   This work comes out of a pushback against early recommendation evaluations which only evaluated recommenders in terms of their predictive accuracy \cite{accurateIsNotEnough}.
   The response of this pushback has been the generating of many different metrics which allow us to more carefully understand the separate aspects of a recommender's output \cite{LathiaTemporal, CremonesiTopN, zieglerDiversity}.
   %TODO: I want to cite more papers here, I don't think I have good ones either. Joe would probably know.
-  By evaluating how algorithms differ, not just in accuracy, but on dimensions such as the novelty of the recommendations, or how frequently the algorithm recommends new items, we can understand the tradeoffs between two otherwise comparable algorithms.
-  This will let us know which algorithm may be more suited for different domains, where different properties are more or less important.
+  This strategy allows us to dig much deeper into the differences between algorithms, looking past simple measures of accuracy to more meaningful dimensions such as how novel the recommendations are, or how frequently the recommendations change for any user.
+  This allows us to capture the qualitative tradeoffs between algorithms which are otherwise quite similar, which helps us choose algorithms that are better suited for a particular domain.
 
-  We propose to combine two these two traditions of recommender system research, multiple metric algorithm analysis and new user experience research.
-  We seek to compare algorithms based on how the behave for new users.
+  We combine these two types of research, new user experience research, and multiple metric algorithm evaluation.
   Our goal is to understand the differences between algorithms for new users, especially how these algorithms respond to different amounts of information.
   by using multiple metrics we can understand not just what algorithm is best in terms of absolute performance, but also gain a more nuanced understanding of the qualities of different algorithm's recommendations.
-  While there has been much work comparing algorithms in an offline setting, very little of it has been done in the context of new users.
   %Furthermore, we do not seek to find the algorithm that scores best on some metric of choice, instead, we seek to form a complete understanding of the differences between algorithms for cold start use.
 
   We structure our work around the following research question.
   \begin{itemize}
     \item RQ1: How do algorithms behave for users with few ratings?
   \end{itemize}
-  Unfortunately, algorithm behavior is a broad subject.
-  We will look at three distinct sub questions to help capture recommender system behavior.
-  Each sub question may represent several actual metrics in our evaluation.
+  Algorithm behavior is a very broad subject.
+  We will look at three distinct sub questions to help capture algorithm behavior.
   %We will look at three distinct ways to quantify the behavior of a recommender system. each of which will lead to multiple metrics.
 
 % RQs
@@ -158,7 +155,7 @@ Joseph A. Konstan\\
           % spread
       
   \begin{itemize}
-  \item RQ1.a: How accurately can different algorithms predict for new users?
+  \item RQ1.a: How well can different algorithms predict the future ratings of new users?
   \item RQ1.b: How well can different algorithms rank and recommend good items to new users?
   \item RQ1.c: How do algorithms behave as measured by other metrics such as popularity and diversity for new users?
   \end{itemize}
@@ -175,23 +172,24 @@ Joseph A. Konstan\\
     % motiviate _why do a simulation_ (a lot of metrics we want to try)
 
   To answer our research questions we will evaluate algorithms in an offline simulation designed to simulate users as they join the system.
-  We will do this by running separate instances of the standard train and test methodology, each one designed so that every test user has a specific  number of ratings.
-  We will then plot metric results against the number of retained items to understand both how the algorithms compare on these metrics, and how the algorithm performance changes with the number of ratings provided.
-  This, or a similar technique, has been used by previous authors to make plots of metrics over profile size \cite{DrennerInitialExperiance, TenIsEnough, AdaptiveBootstrap}.
-  These authors did this simply to establish that recommender accuracy does improve as the number of ratings grows.
-  Therefore these authors did not carefully compare multiple algorithms on a breadth of metrics.
-  We will use this technique to develop a much more nuanced understanding of the differences between algorithms.
+  We do this by adopting the standard train and test methodology to simulate users with a given number of ratings.
+  We run this methodology for various profile sizes, and then plot the results.
+  This lets us understand both how the algorithms compare on these metrics, and how the algorithm performance changes with the number of ratings provided.
 
-  Our approach is related to a temporal evaluation, in which a recommender is trained on all ratings up to a point in time, and then tested using the next ratings to be made.
-  Temporal evaluations have been used in the past to evaluate how the list of recommendations from different algorithms change as users enter more ratings into the system \cite{LathiaTemporal}.
-  While the output of a temporal evaluation are very similar to our own, the methodology has some key differences.
+  This, or a similar technique, has been used by previous authors to make plots of metric values over profile size \cite{DrennerInitialExperiance, TenIsEnough, AdaptiveBootstrap, LathiaTemporal}.
+  Past work used these plots to establish that more ratings lead to better results.
+  We take this technique farther and develop a much more nuanced understanding of the different algorithms, and how they compare for different profile sizes.
+
+  Our approach is related to the temporal evaluation methodology, in which a recommender is repeatedly trained on all ratings up to a point in time, and then tested using the next ratings to be made for each user.
+  Temporal evaluations have been used in the past to evaluate how the list of recommended items change as users enter more ratings into the system \cite{LathiaTemporal}.
+  While the output of a temporal evaluation can be very similar to our own, the methodologies have some key differences.
   Where a temporal evaluation is designed specifically to consider the order in which users make ratings, our methodology is designed to try to eliminate this ordering effect from our consideration of the algorithm's behavior.
 
   As mentioned earlier, many recommender systems use a new user survey to collect the first user ratings.
-  These ratings are intentionally different than normal user ratings.
-  As we will explain shortly, our methodology uses randomization in key places to remove this ordering effect.
+  These ratings are different than normal user ratings.
+  As we explain shortly, our methodology uses randomization in key places to remove this ordering effect.
   This allows us to better capture the underlying algorithm performance on ``normal'' user data.
-  While this makes our methodology unsuited for temporal metrics, it allows us to separate an algorithm's behavior from how ratings are collected for new users.
+  While this makes our methodology unsuited for applying temporal metrics, it allows us to separate an algorithm's behavior from how ratings are collected for new users.
   Therefore, we feel that our methodology is more suitable to answer our research question.
 
   \subsection*{Algorithms}
@@ -229,7 +227,9 @@ Joseph A. Konstan\\
   During tuning we found that our key results are consistent among those configurations that perform well.
   %TODO: carefully run this wording by joe.
 
+
   \subsection*{Metrics}
+
   We use a total of eleven metrics.
   In our evaluation we found that some of these metrics are redundant, and future work should be able to use a much smaller list of metrics.
   The metrics are listed in table \ref{tbl:metrics}.
@@ -338,12 +338,15 @@ Joseph A. Konstan\\
   We expect that the baseline algorithms will provide the most popular recommendations, with the least diversity, and the least spread.
   We expect that any personalized algorithm should be able to make more nuanced recommendations than simply recommending the best rated items, which should translate as gains on these metrics.
   Furthermore, we expect that as the algorithm learns more about the user it should decrease in popularity, and increase in diversity, and spread, as it becomes able to make more personal and nuanced recommendations to the user.
+
+
   \subsection*{Dataset}
   % dataset
     % # user
     % # items
     % distributions of # ratings per user (important: min 20)
     % establish range of evaluation.
+
   For this evaluation we will use the MovieLens 1M dataset \footnote{\url{http://grouplens.org/datasets/movielens/}}.
   This dataset contains 1 million ratings from 6000 users on 4000 movies.
   
@@ -357,6 +360,7 @@ Joseph A. Konstan\\
 
   
   \subsection*{Evaluation Procedure}
+
   % subsampling strategy
   % describe normal crossfold solution
   The natural way to perform this evaluation is with a modified user crossfolding strategy.
@@ -378,11 +382,14 @@ Joseph A. Konstan\\
   Then, to generate any other number of ratings, we randomly downsample the 19 item training set.
   This allows us to generate training sets with a given number of ratings retained for test users, such that each number of ratings retained uses the same tests set.
 
+
 \section{Results}
 
   Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform new users, versus how many of the user's ratings were retained in the training set.
+
   
 \subsection{Accuracy and Ranking Metrics}
+
   % Prediction accuracy
 \begin{figure*}[ht!]
   \centering
@@ -429,6 +436,7 @@ Joseph A. Konstan\\
     % explain results from MAP and precision
     % explain recall results
     % recall results, strangeness and popularity
+
 
 \subsection {Monotonic Recommendation Quality Metrics}
 
@@ -489,6 +497,7 @@ Joseph A. Konstan\\
   Interestingly, we find that all algorithms are quite a bit more accurate on the top 20 items than they are for the general item collection.
   This is likely an edge effect, where the highest rated (5 star) items are perhaps easier to predict than other items.
 
+
 \subsection{Nonmonotonic Recommender Quality Metrics}
   % Other recommender metrics
 
@@ -528,6 +537,7 @@ Joseph A. Konstan\\
   This could be some form of a regression towards the mean, where as it learns more about users its recommendations become less personalized to the users individual quirks.
   More research will be needed to understand this trend.
   
+
 \section{Discussion}
   % summary of results in a big old table.
     % the accuracy of svd and user-user both seemed good. item-item seemed to have trouble especially with very new users.
@@ -612,6 +622,7 @@ Joseph A. Konstan\\
 
   % despite the limitations we were able to show differences between algorithms in a cold start situation.
 
+
 \section{Conclusion}
 
   Our work shows that a multiple metric approach to understanding recommender behavior can provide useful insights into the differences between algorithms.
@@ -620,7 +631,9 @@ Joseph A. Konstan\\
   Once the user has a small number of ratings we find that the SVD algorithm performs best.
   This result can be useful both in designing new recommender systems, and in designing new recommendation algorithms.
 
+
 \section{Acknowledgements}
+  
   The authors would like to express their gratitude towards our colleagues at GroupLens research for their feedback and support while developing this work.
   We would like to specially that Michael Ekstrand for his  important work on the Lenskit recommendation framework.
 
