@@ -553,7 +553,7 @@ Joseph A. Konstan\\
       UserUser  & Good                & Inconclusive                & Poor             \\\hline
       SVD       & Good                & Good                        & Good             \\\hline
     \end{tabular}
-    \caption{Summary of algorithm quality for new users}
+    \caption{Summary of algorithm behavior for new users}
     \label{tbl:results}
   \end{table}
 
@@ -561,21 +561,20 @@ Joseph A. Konstan\\
   Overall we see that SVD seems to be the best performing algorithm for cold start use.
   SVD was the only algorithm that consistently outperformed the baseline algorithms on prediction and recommendation tasks.
   ItemItem had arguably better results on the average popularity and spread metrics, indicating that it was able to find more novel items, and make a larger range of recommendations to users.
-  Unfortunately, ItemItem also performed quite poorly at both prediction and recommendation, which may make it less suitable for new users.
+  Unfortunately, ItemItem also performed quite poorly at both prediction and recommendation, which makes it less suitable for new users.
 
-  UserUser performed quite well are prediction, but tended to favor unpopular items in its recommendations.
-  While some novelty is good, we believe that UserUser goes too far into the obscure movies in its recommendations, and therefore does not make good recommendations.
-  Therefore we believe that UserUser is not well suited for new users unless only its predictions are used.
+  UserUser performed quite well at prediction, but tended to favor unpopular items in its recommendations.
+  While some novelty is good, we believe that UserUser goes too far with obscure movies in its recommendations, and therefore does not make good recommendations.
+  Therefore we conclude that UserUser is not well suited for new users unless only its predictions are used.
   Exploring corrections for this issue is left as future work.
-
 
     % if you use a switching recommender, this methodology can help you choose when to switch.
     % non-traditional metrics can tell you more about what is going on, these seem to be more properties of the class of algo than of the data, so its worth looking at these when choosing algorithms, to find one with properties that are good for your task.
-  Interestingly, however, we see that for very small numbers of ratings the UserItemBaseline seems to be our strongest algorithm, both in terms of accuracy (as measured by RMSE), and recommendation quality (as measured by MeanRating@20).
-  This suggests a switching recommendation strategy for live systems.
-  Instead of recommending from one recommender right away, a system could provide baseline predictions and recommendations until the user has enough ratings and then switching to a better recommender.
-  This has the added avantage that it might help users notice the changes in popularity and diversity, helping them appreciate these properties more.
-  For switching recommendation strategies like this, our methodology provides a way to find the correct number of ratings at which to switch algorithms.
+  Interestingly, we repeatedly see that for very small numbers of ratings the UserItemBaseline is our strongest algorithm, both in terms of accuracy, and recommendation quality.
+  This suggests a switching strategy for live systems, in which the UserItemBaseline is deployed until a user has enough ratings, after which they are switched to a better recommender.
+  The switching point between algorithms can be determined with our methodology.
+  The only downside of this approach is that the baseline performed poorly on our nonmonotonic metrics, which may effect users as they first join the system.
+  
 
   % other takeaways
     % regularization
@@ -583,7 +582,7 @@ Joseph A. Konstan\\
   UserUser and ItemItem algorithms have no built in method for damping their predictions towards the mean when they don't have much data.
   The regularization in the cost function of the SVD model makes it so its predictions will gradually shift away from the baseline predictions as more relevant ratings are added.
   The downside of this, however, could be the higher popularity and lower spread seen by the SVD algorithm.
-  The same regularization that helps avoid making mistakes due to too little data, may also prevents the algorithm from taking occasional risks on more obscure movies.
+  The same regularization that helps avoid making mistakes due to too little data, may also prevent the algorithm from taking occasional risks on more obscure movies.
   
 
   % limitations and opprotunities
@@ -593,19 +592,18 @@ Joseph A. Konstan\\
 
   One of the major limitations of our work is that we only evaluated one dataset.
   Future work should replicate our experiment on other datasets from different recommender domains.
-  By doing this we will find out which of our results are true properties of the algorithms, and which results are instead related to properties of our dataset.
+  By doing this we will find out which of our results are true properties of the algorithms, and which results are specific to our dataset.
 
   One important property that needs to be considered is that our dataset only contained users that naturally used the system enough to collect 20 ratings.
   Unfortunately, this means that we do not know if there are differences between users who do and do not survive in the system.
   This is a limitation of our methodology, to maintain a constant test set throughout the evaluation we are not able to evaluate users who have less ratings than the maximum amount we wish to study.
-  More work needs to be done to understand users who only ever make one or two ratings to understand why they leave, and how they differ from other users of our systems.
+  More work needs to be done to understand users who only  make one or two ratings to discover why they leave, and how they differ from other users of our systems.
 
-  Finally, we feel that much more work should be done using this methodology to explore different algorithms.
-  There are many algorithms beyond the three e evaluated.
-  Some of these algorithms are designed specifically for cold start.
-  Others are designed to leverage extra, non-rating information to improve quality.
+  Finally, we feel that more work is needed to explore different algorithms.
+  We only explored three of the dozens of known recommendation algorithms.
+  Some of these algorithms are designed specifically for cold start, others are designed to leverage extra, non-rating information to improve quality.
   Work should be done to understand the differences between these algorithms, and what effect extra information has on the recommendation process.
-  Using our methodology we might be able to come up with an understanding of the value that extra information about the user has on recommendation, and to compare it the value of extra ratings for new users.
+  Using our methodology should might be possible to measure the effect that extra information about the user has on recommendation, and to compare it the effect of extra initial ratings.
     % algorithm limitations
       % only covered three common families,
       % different algos tuned specifically for cold start.
@@ -617,11 +615,11 @@ Joseph A. Konstan\\
 
 \section{Conclusion}
 
-  Our work shows that a multiple metric approach to understanding recommender behavior can provide useful insights into the differences between algorithms.
-  Our methodology presents a list of metrics that can be reused in the future for new multiple metric evaluations, and our methodology shows how this can be applied to understand new users.
+  Our work shows that a multiple metric approach to understanding recommender behavior can provide useful insights into the differences between algorithms for new users.
+  Our methodology presents a list of metrics, and an evaluation framework that can be used to perform further evaluations in the future.
   We find that recommending for new users is hard and none of our algorithms can reliably beat a simple baseline for users with very few ratings.
   Once the user has a small number of ratings we find that the SVD algorithm performs best.
-  This result can be useful both in designing new recommender systems, and in designing new recommendation algorithms.
+  This result can be useful both in designing new recommender systems, and in designing novel recommendation algorithms for new users.
 
 
 \section{Acknowledgements}
