@@ -114,13 +114,17 @@ Joseph A. Konstan\\
     % point out holes (evaluating standard algorithms for little to no ratings, wholeistic evaluation)
     % point out that other approaches than smart object ordering exist, and we need to be able to compare.
 
-  While past work has covered the new user rating survey from many different angles, it has not carefully evaluated which algorithm is best at recommending to new users.
+  While past work has carefully covered the new user rating survey, it has not carefully evaluated which algorithm is best at recommending to new users.
   The new user survey work sidesteps this issue by assuming that the user will receive no personalization until the survey is complete.
   Even for systems with a new user survey, carefully choosing algorithms for new users may be very important.
   Users fresh out of the new user survey will still have far fewer ratings than the average user of the recommender system.
   Different algorithms may provide very different experiences for these users, even if they give very similar results for the average user.
   
-  Fortunately, there has been a growing trend in recommender system research to perform multiple metric evaluations of recommender systems.
+  The ideal way to study this issue would be a live study with real people who are new to a recommender system.
+  Users could be randomly assigned an algorithm and then surveyed after a random number of ratings to establish what they thought of the new user experience. 
+  Unfortunately, there are many algorithms and new users are a scarce resource.
+ 
+  Fortunately, there has been a growing trend in recommender system research to perform multiple metric offline evaluations of recommender systems.
   This work comes out of a pushback against early recommender evaluations which only evaluated recommenders in terms of their predictive accuracy \cite{accurateIsNotEnough}.
   The response of this pushback has been the generating of many different metrics which allow us to more carefully understand the separate aspects of a recommender's output \cite{LathiaTemporal, CremonesiTopN, zieglerDiversity}.
   %TODO: I want to cite more papers here, I don't think I have good ones either. Joe would probably know.
@@ -171,9 +175,11 @@ Joseph A. Konstan\\
     % maybe hit some limitations
     % motiviate _why do a simulation_ (a lot of metrics we want to try)
 
-  To answer our research questions we will evaluate algorithms in an offline evaluation designed to simulate users as they join the system.
-  We do this by adapting the standard train and test methodology to test existing users with a specific number of ratings.
-  We run this approach for various profile sizes, and then plot the results.
+  Ideally we would measure new user experience with a live survey on users who are just joining a recommender service.
+  Because new users are a scarce resource we opt to first explore the new user experience in an offline setting.
+  This allows us to test many more profile sizes and algorithms much faster than an online study.
+  We will adapt the standard train and test methodology so that test users have only a specified number of training ratings.
+  By running this approach for various profile sizes we can generate plots of performance against profile size.
   This lets us understand both how the algorithms compare on these metrics, and how the algorithm performance changes with the number of ratings provided.
 
   This, or a similar technique, has been used by previous authors to make plots of metric values over profile size \cite{DrennerInitialExperiance, TenIsEnough, AdaptiveBootstrap, LathiaTemporal}.
@@ -190,9 +196,7 @@ Joseph A. Konstan\\
   As we explain shortly, our methodology uses randomization in key places to remove this ordering effect.
   This allows us to better capture the underlying algorithm performance on ``normal'' user data.
   While this makes our methodology unsuited for applying temporal metrics, it allows us to separate an algorithm's behavior from how ratings are collected for new users.
-  
-
-Therefore, we feel that our methodology is more suitable to answer our research question.
+  We feel that this is better given the limitations of our dataset, and our focus on the algorithm, rather than how ratings are collected.
 
   \subsection*{Algorithms}
   % algorithms (discuss tuning of algorithms per algorithm?)
@@ -205,9 +209,9 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   
   Due to the low profile sizes involved in our evaluation, not every algorithm was able to make predictions for every user-item pair.
   In these cases, we use the UserItemBaseline prediction as a fallback.
-  This ensured that our prediction based metrics were always evaluated over the same number items.
+  This ensured that our prediction based metrics were always evaluated over the same number of items.
   We found this unnecessary for recommendations as each algorithm was able to make a complete recommendation with only one rating.
-  Therefore our algorithms recommend only items that they can predict.
+  Therefore we form recommendations as the top 20 items that the algorithm was able to predict which were not in the training set.
   More information about these algorithms can be found in table \ref{tbl:algo}.
   Code for our evaluation, using the Lenskit evaluation framework \cite{lenskit} is available at \url{https://bitbucket.org/kluver/coldstartrecommendation}.
   
@@ -225,20 +229,6 @@ Therefore, we feel that our methodology is more suitable to answer our research 
     \caption{Summary of algorithms.}
     \label{tbl:algo}
   \end{table}
-  
-  % evaluation and code to run these algortihms available at.
-  % citations and lenskit info
-  Each algorithm was tuned based off of Ekstrand's 2012 evaluation \cite{ekstrand2012recommenders}.
-  Since this evaluation is on a different dataset (MovieLens 10M vs. MovieLens 1M), we performed minor tuning using the Ekstrand's values as a starting point.
-  We tuned based on RMSE performance.
-  While tuning  we found that the previous damping parameter used for the baselines to be too large.
-  We found that a value of 5 gave much better results for new user recommendation.
-  Our key results are not sensitive to minor changes of algorithm parameters.
-  
-
-
-  \subsection*{Metrics}
-
 
   \begin{table*}[ht!]
     \centering
@@ -267,11 +257,23 @@ Therefore, we feel that our methodology is more suitable to answer our research 
     \label{tbl:metrics}
   \end{table*}
 
+  
+  % evaluation and code to run these algortihms available at.
+  % citations and lenskit info
+  Each algorithm was tuned based off of Ekstrand's 2012 evaluation \cite{ekstrand2012recommenders}.
+  Since this evaluation is on a different dataset (MovieLens 10M vs. MovieLens 1M), we performed minor tuning using the Ekstrand's values as a starting point.
+  We tuned based on RMSE performance.
+  While tuning, we found that the previous damping parameter used for the baselines to be too large.
+  We found that a value of 5 gave much better results for new user recommendation.
+  Our key results are not sensitive to minor changes of algorithm parameters.  
+
+  \subsection*{Metrics}
+
 
   We present results from eleven metrics.
   As has been seen in previous studies \cite{herlockerEvaluating} we find that some of are metrics are redundant.
   Future work should be able to use a smaller list of metrics.
-  The metrics are listed in table \ref{tbl:metrics}.
+  The metrics are described in table \ref{tbl:metrics}.
   We split our metrics into three groups roughly along our three sub research questions.
   
   \paragraph{Accuracy and Ranking Metrics}
@@ -294,7 +296,7 @@ Therefore, we feel that our methodology is more suitable to answer our research 
 
   {\bf MeanRating@20} tries to establish how much users like their recommendations by measuring users average satisfaction with recommended items based on withheld ratings.
   {\bf RMSE@20} accompanies this metric and lets us know if the recommended items are likely to be incorrectly predicted. 
-  This can help us understand why an algorithm scores well at MeanRatings@20.  
+  This can help us understand why an algorithm scores well on MeanRatings@20.  
   
   \paragraph{Non-monotonic Recommendation Metrics}
   {\bf SeenItems@20}, {\bf AveragePopularity@20}, {\bf AILS@20}, and {\bf Spread@20} are all non-monotonic measures of the user's recommendations.
@@ -363,10 +365,10 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   
   These ratings were collected from the MovieLens system, which requires 15 ratings in a new user survey before users can enter the system.
   To the best of our knowledge, at the time this data was collected the new user survey preferred items that were very popular.
-  Therefore we will randomize the order of the ratings to try to avoid measuring the effect of these initial ratings, and instead focus on the algorithm's performance on normal ratings.
+  We will randomize the order of the ratings to try to avoid measuring the effect of these initial ratings, and instead focus on the algorithm's performance on normal ratings.
   
   Each user in the dataset has at least 20 ratings.
-  Therefore we will evaluate new users with up to 19 ratings.
+  Therefore we will evaluate user profiles with up to 19 ratings.
   This will allow us to ensure that each user in the dataset has at least one test rating.
 
   
@@ -378,31 +380,23 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   The normal five-fold cross validation strategy splits the users into five groups.
   In each of five folds all ratings from four of the groups will be kept in the training set, and then some subset of the ratings from each user in the fifth group will be set aside for the test set.
   The selection of a test set can be random to avoid any possible ordering effects in the data due to a new user rating strategy.
-  To understand how metrics change with a different number of users we can simply generate separate crossfolds for each simulated profile size.
-  At each crossfold we include only a constant number of ratings for each test user into the training set, ensuring that all test users have the specified profiles size.
+  To understand how metrics change with a different number of users we can simply generate separate random crossfolds for each simulated profile size.
+  At each crossfold we include only a constant number of training ratings for each test user, ensuring that all test users have the specified profiles size.
   
   % describe issues with solution
   Unfortunately, we found that this strategy causes biases in our evaluation.
   In particular, this strategy led to the size of the test sets changing as a function of the simulated profile size.
   As we kept more ratings for the training set, we would have fewer ratings in the test set.
-  This turned out to bias our results; some metrics, such as nDCG, proved to be sensitive to the number of items in the test set.
+  This biased our results; some metrics such as nDCG proved to be sensitive to the size of the test set.
+  As we compared different profile sizes we would see trends that were solely a property of the changing test size.
   
   % describe our crossfold then subsample solution.
   Our solution to this bias is to subsample from an existing crossfold.
   To generate training and test sets for different number of ratings from 1 to 19, we first generate a set of test and training splits so that test users have 19 training items using the crossfold strategy outlined above.
   Then, to generate any other number of ratings, we randomly downsample the 19 item training set.
-  This allows us to generate training sets with a given number of ratings for test users, such that profile size is evaluated with the same test set.
+  This allows us to generate training sets with a given number of ratings for test users, such that each profile size is evaluated with the same test set.
 
 
-\section{Results}
-
-  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform versus simulated profile size.
-
-  
-\subsection*{Accuracy and Ranking Metrics}
-
-\vspace{-1.5em}
- 
  % Prediction accuracy
 \begin{figure*}[ht!]
   \centering
@@ -411,6 +405,18 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   \label{fig:rmse}
   \label{fig:ndcg}
 \end{figure*}
+
+
+\section{Results}
+
+  Using the methodology described in section \ref{sec:methodology} we generate plots for each metric showing how the five algorithms perform versus simulated profile size.
+
+
+  
+\subsection*{Accuracy and Ranking Metrics}
+
+\vspace{-1.5em}
+ 
     % RMSE plot
     % point out error bars etc.
     % explain / interpret plot
@@ -427,8 +433,8 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   Until we have 13 ratings, ItemItem is less accurate than the ItemBaseline.
   In fact, for the first two ratings ItemItem appears to perform \emph{worse} as more ratings are added.
   This trend is a result of the limited coverage of the ItemItem algorithm.
-  Consider the accuracy of RMSE on only those items where it makes a personalized prediction, it shows a monotonic increase in accuracy similar to the other algorithms.
-  However, for small rating counts ItemItem can only predict for some percent of the item (around 60\% for users with two ratings, and around 75\% for users with four ratings).
+  Considering the accuracy of RMSE on only those items where it makes a personalized prediction, it shows a monotonic increase in accuracy similar to the other algorithms.
+  However, for small rating counts ItemItem can only predict for some percent of the items (around 60\% for users with two ratings, and around 75\% for users with four ratings).
   Because of this, many of the predictions come from the better performing UserItemBaseline.
   As we get our first few ratings, the predictions become less likely to be from the UserItemBaseline, leading to an artificial upward trend in RMSE.
   
@@ -499,7 +505,7 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   \paragraph{MeanRating@20}
   The second graph in figure \ref{fig:topN.rmse} shows the average rating for those items in the top 20 recommendations for each algorithm.
   The first thing to note about this graph is that all of these algorithms are doing a reasonable job of recommending items the user might like to watch, with all algorithms averaging above 4 stars (implying that the recommended items are, at least on average, enjoyable).
-  SVD performs as expected, starting around the baseline for few ratings, and then steadily improving to be the best algorithm after 3 ratings.
+  SVD performs as expected, starting around the baseline for a few ratings, and then steadily improving to be the best algorithm after 3 ratings.
   Again, we find that ItemItem performs poorly until quite a few ratings are added, and does worse than baseline throughout.
     
 \footnotetext[4]{We do not plot UserUser here as it cannot be reliably measured for this metric.}
@@ -540,7 +546,7 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   Quite possibly due to the preference for obscure movies, UserUser seems to produce the most diverse lists of any algorithm.
   We expect that the UserUser recommendation lists might be too diverse.
   Unlike popularity, SVD and ItemItem seem to perform equivalently in terms of diversity.
-  We also see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing  inter-list similarity) as more ratings are entered.
+  We also see that all three collaborative filtering algorithms show a trend of increasing diversity (decreasing inter-list similarity) as more ratings are entered.
 
   % spread plot
   \paragraph{Spread@20}
@@ -614,20 +620,20 @@ Therefore, we feel that our methodology is more suitable to answer our research 
       % only one domain
       % no quitters in our dataset
 
-  One of the major limitations of our work is that we only evaluated one dataset.
-  Future work should replicate our experiment on other datasets from different recommender domains.
-  By doing this we will find out which of our results are true properties of the algorithms, and which results are specific to our dataset.
+  One of the limitations of our work is that we only evaluated on one dataset.
+  Future work should replicate our experiment on other datasets from different domains, or where ratings are collected in different ways.
+  This will establish which of our results are true properties of the algorithms, and which results are specific to our dataset.
 
-  One important property that needs to be considered is that our dataset only contained users that naturally used the system enough to collect 20 ratings.
+  One important issue that our methodology cannot address is that we can only compare users who have made some minimum number of ratings (20 for our dataset)
   Unfortunately, this means that we do not know if there are differences between users who do and do not survive in the system.
-  This is a limitation of our methodology, to maintain a constant test set throughout the evaluation we are not able to evaluate users who have less ratings than the maximum amount of ratings we wish to study.
-  More work needs to be done to understand users who only  make one or two ratings to discover why they leave, and how they differ from other users of our systems.
+  This is an unfortunate side effect of insisting on a constant test set throughout the evaluation.
+  More work needs to be done to understand users who only make one or two ratings to understand how they are different and discover why they leave the system.
 
-  Finally, we feel that more work is needed to explore different algorithms.
-  We only explored three of the dozens of known recommendation algorithms.
-  Some of these algorithms are designed specifically for cold start, others are designed to leverage extra, non-rating information to improve quality.
-  Work should be done to understand the differences between these algorithms, and what effect extra information has on the recommendation process.
-  Using our methodology it should be possible to measure the effect that extra information about the user has on recommendation, and to compare it against the effect of extra initial ratings.
+  Nonetheless, we feel that our methodology will allow offline comparisons of many different cold start experiences.
+  Our work has only scratched the surface of recommender algorithms.
+  Future work can be done comparing these standard algorithms against newer algorithms such as those designed for cold start, or those designed to leverage extra non-rating information.
+  More work should be done to understand how extra information about a user can effect cold start ratings.
+  Our methodology can be used to measure this effect, and even establish a tradeoff between the extra information or extra initial ratings.
     % algorithm limitations
       % only covered three common families,
       % different algos tuned specifically for cold start.
@@ -642,7 +648,6 @@ Therefore, we feel that our methodology is more suitable to answer our research 
   Once the user has a small number of ratings we find that the SVD algorithm performs best.
   This result can be useful both in designing new recommender systems, and in designing novel recommendation algorithms for new users.
   We also present a methodology and list of metrics for understanding recommender behavior that can be used to extend our results to other algorithms and datasets.
-
 
 \section{Acknowledgements}
   
