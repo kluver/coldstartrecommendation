@@ -470,7 +470,7 @@ Joseph A. Konstan\\
 %
 \paragraph{MAP@20, Precision@20, Fallout@20}
   Figure \ref{fig:map} shows MAP@20, Precision@20, and Fallout@20.
-  All three metrics show essentially the same trend, UserUser gets the lowest score, the baseline get the highest score.
+  All three metrics show essentially the same trend, UserUser gets the lowest score, the baseline gets the highest score.
   On both MAP@20 and Precision@20, SVD gets a higher score than ItemItem throughout, performing almost as well as the baseline.
   On Fallout@20 ItemItem and SVD perform about as well as each other, with SVD showing a very slight lead.
   We also tested recall and mean reciprocal rank metrics, but found them to exhibit the same trend, so they were not explored further.
@@ -609,7 +609,7 @@ Joseph A. Konstan\\
   % other takeaways
     % regularization
   One possible reason that the SVD algorithm performs as well as it does is the regularization built into the algorithm.
-  UserUser and ItemItem algorithms have no built in method for damping their predictions towards the mean when they don't have much data.
+  UserUser and ItemItem algorithms have no built in method for damping their predictions towards the mean when they do not have much data.
   The regularization in the cost function of the SVD model makes it so its predictions will gradually shift away from the baseline predictions as more relevant ratings are added.
   The downside of this, however, could be the higher popularity and lower spread seen by the SVD algorithm.
   The same regularization that helps avoid making mistakes due to too little data may also prevent the algorithm from taking occasional risks on more obscure movies.
