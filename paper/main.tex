@@ -320,7 +320,10 @@ Joseph A. Konstan\\
   As mentioned in the introduction the number of recommended items that the user has seen (estimated by {\bf SeenItems@20}) can have a major impact on how much users trust the recommendations.
   If an algorithm recommends too few items that the user has seen then we expect the user will have trouble evaluating if the recommendations are trustworthy.
   Too many, and the user may feel that the recommendations are not interesting or useful.
-  Unfortunately, without more research on these metrics to establish a mapping between user satisfaction and metric values we will have to rely on educated guesses to establish which values for these metrics are too extreme.
+%  Unfortunately, without more research on these metrics to establish a mapping between user satisfaction and metric values we will have to rely on educated guesses to establish which values for these metrics are too extreme.
+  Unfortunately, the optimal value for these metrics will vary by domain, user, and context.
+  That said, we feel it is useful to understand how these metrics vary across algorithms for new users, as this knowledge can help inform default algorithm selection within a particular domain and context.
+
 
   {\bf AveragePopularity@20} is a crude metric of how novel the recommendations are to the user \cite{zieglerDiversity}.
   Broadly speaking, we expect users will prefer recommendation lists containing more novel (less popular) items.
@@ -672,7 +675,8 @@ Joseph A. Konstan\\
   
   The authors would like to express their gratitude towards our colleagues at GroupLens research for their feedback and support while developing this work.
   We would like to specially thank Michael Ekstrand for his  important work on the Lenskit recommendation framework.
-  This work is supported by NSF grants IIS1017697 and IIS0808692.
+This research was supported by the National Science foundation under grants IIS 08-08692 and IIS 10-17697,
+
   %netfishing and volunteers
   %check with Joe about netfishing.
 
